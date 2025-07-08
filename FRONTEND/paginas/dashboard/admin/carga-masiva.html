@@ -643,8 +643,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     
+    <!-- Debug Config - Cargar primero para interceptar errores -->
+    <script src="../../../assets/js/paginas/dashboard/admin/carga-masiva/debug-config.js"></script>
+    
     <!-- Core Scripts - Sistema Núcleo -->
     <script src="../../../assets/js/nucleo/configuracion.js"></script>
+    <script src="../../../assets/js/nucleo/coordinador-eventos-ciclos.js"></script>
     <script src="../../../assets/js/nucleo/auth.js"></script>
     <script src="../../../assets/js/nucleo/gestion-sesiones.js"></script>
     <script src="../../../assets/js/nucleo/navegacion.js"></script>
@@ -652,6 +656,19 @@
 
     <!-- Admin Auth System -->
     <script src="../../../assets/js/paginas/dashboard/admin/admin-auth.js"></script>
+    
+    <!-- Sincronización de Ciclos -->
+    <script src="../../../assets/js/nucleo/sincronizacion-ciclos.js"></script>
+
+    <!-- Carga Masiva Managers -->
+    <script src="../../../assets/js/paginas/dashboard/admin/carga-masiva/logs-manager.js"></script>
+    <script src="../../../assets/js/paginas/dashboard/admin/carga-masiva/estado-manager.js"></script>
+    <script src="../../../assets/js/paginas/dashboard/admin/carga-masiva/interfaz-manager.js"></script>
+    <script src="../../../assets/js/paginas/dashboard/admin/carga-masiva/archivos-manager.js"></script>
+    <script src="../../../assets/js/paginas/dashboard/admin/carga-masiva/validaciones.js"></script>
+    <script src="../../../assets/js/paginas/dashboard/admin/carga-masiva/verificar-datos.js"></script>
+    <script src="../../../assets/js/paginas/dashboard/admin/carga-masiva/api-service.js"></script>
+    <script src="../../../assets/js/paginas/dashboard/admin/carga-masiva/ciclos-manager.js"></script>
 
     <!-- Page Script -->
     <script src="../../../assets/js/paginas/dashboard/admin/carga-masiva/index.js"></script>

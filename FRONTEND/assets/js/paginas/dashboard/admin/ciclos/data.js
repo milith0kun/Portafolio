@@ -7,6 +7,8 @@ export class CiclosData {
     constructor(core) {
         this.core = core;
         this.debug = window.ciclosDebug || false;
+        this.verificandoCicloActivo = false;
+        this.timeoutEventoCiclo = null;
         this.log('Módulo Data inicializado');
     }
 
@@ -55,7 +57,7 @@ export class CiclosData {
         } catch (error) {
             // Solo mostrar error si no es un 404 esperado
             if (!error.message?.includes('404') && !error.message?.includes('No hay ciclo')) {
-                console.error('Error inesperado al cargar ciclo activo:', error);
+                // Error inesperado al cargar ciclo activo
                 this.core.mostrarAlertaSistema(
                     'Error',
                     'Error al verificar el ciclo activo',
@@ -81,7 +83,7 @@ export class CiclosData {
                 throw new Error(response.message || 'Error al cargar ciclos');
             }
         } catch (error) {
-            console.error('Error al cargar ciclos:', error);
+            // Error al cargar ciclos
             if (typeof toastr !== 'undefined') {
                 toastr.error('Error al cargar la lista de ciclos');
             }
@@ -115,7 +117,7 @@ export class CiclosData {
                 throw new Error(response.message || 'Error al guardar el ciclo');
             }
         } catch (error) {
-            console.error('Error al guardar ciclo:', error);
+            // Error al guardar ciclo
             throw error;
         }
     }
@@ -134,7 +136,7 @@ export class CiclosData {
                 throw new Error(response.message || 'Error al cargar los datos del ciclo');
             }
         } catch (error) {
-            console.error('Error al cargar datos del ciclo:', error);
+            // Error al cargar datos del ciclo
             throw error;
         }
     }
@@ -159,33 +161,120 @@ export class CiclosData {
                 throw new Error(response.message || 'Error al activar el ciclo');
             }
         } catch (error) {
-            console.error('Error al activar ciclo:', error);
+            // Error al activar ciclo
             throw error;
         }
     }
 
     /**
-     * Cerrar un ciclo académico
+     * Cerrar ciclo académico (cambiar a finalizacion)
      */
     async cerrarCiclo(cicloId) {
         try {
-            const response = await this.core.realizarPeticionSegura(`${this.core.CONFIG.API.BASE_URL}/ciclos/${cicloId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ estado: 'cerrado' })
-            });
-
+            const response = await this.cambiarEstadoCiclo(cicloId, 'finalizacion');
+            
             if (response.success) {
                 this.log('Ciclo cerrado exitosamente:', cicloId);
+                
+                // Actualizar ciclo activo si es necesario
+                if (this.core.cicloActivo && this.core.cicloActivo.id === cicloId) {
+                    this.core.cicloActivo = null;
+                }
+                
                 return response;
             } else {
                 throw new Error(response.message || 'Error al cerrar el ciclo');
             }
         } catch (error) {
-            console.error('Error al cerrar ciclo:', error);
+            // Error al cerrar ciclo
             throw error;
+        }
+    }
+
+    /**
+     * Cambiar estado de un ciclo académico
+     */
+    async cambiarEstadoCiclo(cicloId, nuevoEstado) {
+        try {
+            const response = await this.core.realizarPeticionSegura(`${this.core.CONFIG.API.BASE_URL}/ciclos/${cicloId}/estado`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ estado: nuevoEstado })
+            });
+
+            if (response.success) {
+                this.log(`Estado del ciclo ${cicloId} cambiado a: ${nuevoEstado}`);
+                
+                // Actualizar ciclo activo si es necesario
+                if (this.core.cicloActivo && this.core.cicloActivo.id === cicloId) {
+                    this.core.cicloActivo = response.data;
+                }
+                
+                return response;
+            } else {
+                throw new Error(response.message || `Error al cambiar estado del ciclo a ${nuevoEstado}`);
+            }
+        } catch (error) {
+            // Error al cambiar estado del ciclo
+            throw error;
+        }
+    }
+
+    /**
+     * Inicializar ciclo (cambiar a inicializacion)
+     */
+    async inicializarCicloEstado(cicloId) {
+        try {
+            return await this.cambiarEstadoCiclo(cicloId, 'inicializacion');
+        } catch (error) {
+            // Error al inicializar ciclo
+            throw error;
+        }
+    }
+
+    /**
+     * Iniciar verificación del ciclo
+     */
+    async iniciarVerificacionCiclo(cicloId) {
+        try {
+            return await this.cambiarEstadoCiclo(cicloId, 'verificacion');
+        } catch (error) {
+            // Error al iniciar verificación
+            throw error;
+        }
+    }
+
+    /**
+     * Archivar ciclo
+     */
+    async archivarCiclo(cicloId) {
+        try {
+            return await this.cambiarEstadoCiclo(cicloId, 'archivado');
+        } catch (error) {
+            // Error al archivar ciclo
+            throw error;
+        }
+    }
+
+    /**
+     * Obtener ciclo en verificación
+     */
+    async cargarCicloEnVerificacion() {
+        try {
+            const response = await this.core.realizarPeticionSegura(`${this.core.CONFIG.API.BASE_URL}/ciclos/verificacion`);
+            
+            if (response.success && response.data) {
+                this.log('Ciclo en verificación cargado:', response.data.nombre);
+                return response.data;
+            } else {
+                this.log('No hay ciclo en verificación actualmente');
+                return null;
+            }
+        } catch (error) {
+            // Error al cargar ciclo en verificación
+            return null;
         }
     }
 
@@ -216,7 +305,7 @@ export class CiclosData {
                 throw new Error(response.message || `Error al cambiar estado del módulo ${modulo}`);
             }
         } catch (error) {
-            console.error(`Error al cambiar estado del módulo ${modulo}:`, error);
+            // Error al cambiar estado del módulo
             throw error;
         }
     }
@@ -239,7 +328,7 @@ export class CiclosData {
                 throw new Error('Error al activar el ciclo');
             }
         } catch (error) {
-            console.error('Error al inicializar ciclo:', error);
+            // Error al inicializar ciclo
             throw error;
         }
     }
@@ -256,7 +345,7 @@ export class CiclosData {
             this.log('Carga de datos finalizada, verificación habilitada:', cicloId);
             return { success: true, message: 'Carga finalizada. Proceso de verificación iniciado.' };
         } catch (error) {
-            console.error('Error al finalizar carga de datos:', error);
+            // Error al finalizar carga de datos
             throw error;
         }
     }
@@ -277,7 +366,7 @@ export class CiclosData {
                 throw new Error(response.message || 'Error al eliminar el ciclo');
             }
         } catch (error) {
-            console.error('Error al eliminar ciclo:', error);
+            // Error al eliminar ciclo
             throw error;
         }
     }
@@ -305,7 +394,7 @@ export class CiclosData {
                 return {};
             }
         } catch (error) {
-            console.error('Error al cargar estados del ciclo:', error);
+            // Error al cargar estados del ciclo
             this.core.estadosModulos = {};
             return {};
         }
@@ -338,7 +427,7 @@ export class CiclosData {
                 throw new Error(response.message || 'Error al guardar los estados');
             }
         } catch (error) {
-            console.error('Error al guardar estados:', error);
+            // Error al guardar estados
             throw error;
         }
     }
@@ -347,6 +436,13 @@ export class CiclosData {
      * Verificar ciclo activo silenciosamente (para uso en background)
      */
     async verificarCicloActivoSilencioso() {
+        // Evitar verificaciones múltiples simultáneas
+        if (this.verificandoCicloActivo) {
+            return this.core.cicloActivo;
+        }
+        
+        this.verificandoCicloActivo = true;
+        
         try {
             const response = await this.core.realizarPeticionSegura(`${this.core.CONFIG.API.BASE_URL}/ciclos/activo`);
             
@@ -355,10 +451,30 @@ export class CiclosData {
                 if (!this.core.cicloActivo || this.core.cicloActivo.id !== response.data.id) {
                     this.core.cicloActivo = response.data;
                     
-                    // Emitir evento de cambio de ciclo
-                    document.dispatchEvent(new CustomEvent('cicloActivoCambiado', {
-                        detail: { ciclo: response.data }
-                    }));
+                    // Usar debounce para evitar spam de eventos
+                    if (this.timeoutEventoCiclo) {
+                        clearTimeout(this.timeoutEventoCiclo);
+                    }
+                    
+                    this.timeoutEventoCiclo = setTimeout(() => {
+                        // Emitir evento de cambio de ciclo con estructura estandarizada
+                        document.dispatchEvent(new CustomEvent('cicloActivoCambiado', {
+                            detail: { 
+                                cicloId: response.data.id,
+                                cicloActivo: response.data,
+                                timestamp: new Date()
+                            }
+                        }));
+                        
+                        // También emitir evento legacy para compatibilidad
+                        document.dispatchEvent(new CustomEvent('ciclo-cambiado', {
+                            detail: {
+                                cicloId: response.data.id,
+                                informacion: response.data,
+                                timestamp: new Date()
+                            }
+                        }));
+                    }, 150); // Debounce de 150ms
                     
                     this.log('Ciclo activo actualizado silenciosamente:', response.data.nombre);
                 }
@@ -378,6 +494,11 @@ export class CiclosData {
             // Verificación silenciosa - no mostrar errores al usuario
             this.log('Error en verificación silenciosa:', error.message);
             return null;
+        } finally {
+            // Liberar el lock
+            setTimeout(() => {
+                this.verificandoCicloActivo = false;
+            }, 100);
         }
     }
 
@@ -395,7 +516,7 @@ export class CiclosData {
                 throw new Error(response.message || 'Error al obtener estadísticas');
             }
         } catch (error) {
-            console.error('Error al obtener estadísticas:', error);
+            // Error al obtener estadísticas
             return null;
         }
     }
@@ -405,7 +526,7 @@ export class CiclosData {
      */
     log(...args) {
         if (this.debug) {
-            console.log('[CiclosData]', ...args);
+            // [CiclosData]
         }
     }
 
@@ -436,7 +557,7 @@ export class CiclosData {
             this.log('Datos iniciales obtenidos:', resultado);
             return resultado;
         } catch (error) {
-            console.error('Error al obtener datos iniciales:', error);
+            // Error al obtener datos iniciales
             return {
                 cicloActivo: null,
                 ciclos: [],
@@ -444,4 +565,4 @@ export class CiclosData {
             };
         }
     }
-} 
+}

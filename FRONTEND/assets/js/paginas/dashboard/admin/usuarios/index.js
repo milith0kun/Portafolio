@@ -7,16 +7,7 @@
 // INFORMACIÓN DEL SISTEMA MODULAR
 // ================================================
 
-console.log(`
-🚀 SISTEMA GESTIÓN DE USUARIOS MODULAR
-================================================
-📂 Módulos disponibles:
-   • Core     → Autenticación y configuración
-   • Data     → Operaciones CRUD y API
-   • UI       → Interfaz de usuario y DataTable
-   • Eventos  → Manejo de eventos e interacciones
-================================================
-`);
+// Sistema gestión de usuarios modular
 
 // ================================================
 // ESTADO DE INICIALIZACIÓN
@@ -43,12 +34,12 @@ const sistemaUsuarios = {
  */
 async function inicializarSistemaUsuarios() {
     if (sistemaUsuarios.inicializando || sistemaUsuarios.inicializado) {
-        console.warn('⚠️ Sistema usuarios ya está inicializando o inicializado');
+        // Sistema usuarios ya está inicializando o inicializado
         return;
     }
     
     sistemaUsuarios.inicializando = true;
-    console.log('🔧 Iniciando sistema modular de usuarios...');
+    // Iniciando sistema modular de usuarios
     
     try {
         // 1. Verificar disponibilidad de módulos
@@ -60,17 +51,20 @@ async function inicializarSistemaUsuarios() {
         // 3. Cargar datos iniciales
         await cargarDatosIniciales();
         
-        // 4. Configurar manejo de errores global
+        // 4. Configurar sincronización de ciclos
+        configurarSincronizacionCiclos();
+        
+        // 5. Configurar manejo de errores global
         configurarManejoErrores();
         
         sistemaUsuarios.inicializado = true;
-        console.log('✅ Sistema usuarios inicializado completamente');
+        // Sistema usuarios inicializado completamente
         
-        // 5. Emitir evento de sistema listo
+        // 6. Emitir evento de sistema listo
         emitirEventoSistemaListo();
         
     } catch (error) {
-        console.error('❌ Error fatal en inicialización del sistema usuarios:', error);
+        // Error fatal en inicialización del sistema usuarios
         sistemaUsuarios.errores.push(error);
         mostrarErrorFatal(error);
     } finally {
@@ -83,8 +77,6 @@ async function inicializarSistemaUsuarios() {
 // ================================================
 
 async function verificarModulosDisponibles() {
-    console.log('🔍 Verificando disponibilidad de módulos usuarios...');
-    
     const modulos = [
         { nombre: 'UsuariosCore', archivo: 'core.js' },
         { nombre: 'DataUsuarios', archivo: 'data.js' },
@@ -97,9 +89,6 @@ async function verificarModulosDisponibles() {
     modulos.forEach(modulo => {
         if (!window[modulo.nombre]) {
             modulosFaltantes.push(modulo);
-            console.error(`❌ Módulo ${modulo.nombre} no disponible (${modulo.archivo})`);
-        } else {
-            console.log(`✅ Módulo ${modulo.nombre} disponible`);
         }
     });
     
@@ -113,8 +102,6 @@ async function verificarModulosDisponibles() {
 // ================================================
 
 async function inicializarModulos() {
-    console.log('🔄 Inicializando módulos usuarios en orden de dependencia...');
-    
     // Orden de inicialización basado en dependencias
     const ordenInicializacion = [
         { nombre: 'core', modulo: window.UsuariosCore, descripcion: 'Core del sistema usuarios' },
@@ -125,19 +112,14 @@ async function inicializarModulos() {
     
     for (const { nombre, modulo, descripcion } of ordenInicializacion) {
         try {
-            console.log(`🔧 Inicializando ${descripcion}...`);
-            
             if (modulo && typeof modulo.initialize === 'function') {
                 await modulo.initialize();
                 sistemaUsuarios.modulos[nombre] = true;
-                console.log(`✅ ${descripcion} inicializado`);
             } else {
-                console.warn(`⚠️ Módulo ${nombre} no tiene método initialize`);
                 sistemaUsuarios.modulos[nombre] = 'sin-initialize';
             }
             
         } catch (error) {
-            console.error(`❌ Error inicializando ${descripcion}:`, error);
             sistemaUsuarios.errores.push({ modulo: nombre, error });
             
             // Core es crítico, otros módulos pueden fallar
@@ -153,25 +135,62 @@ async function inicializarModulos() {
 // ================================================
 
 async function cargarDatosIniciales() {
-    console.log('📊 Cargando datos iniciales de usuarios...');
+    // Cargando datos iniciales de usuarios
     
     try {
         // Verificar que el módulo UI esté inicializado
         if (sistemaUsuarios.modulos.ui && window.UIUsuarios) {
             await window.UIUsuarios.actualizarTabla();
-            console.log('✅ Tabla de usuarios cargada');
+            // Tabla de usuarios cargada
         }
         
         // Cargar estadísticas si es necesario
         if (sistemaUsuarios.modulos.data && window.DataUsuarios) {
             const estadisticas = await window.DataUsuarios.obtenerEstadisticasUsuarios();
-            console.log('📈 Estadísticas usuarios:', estadisticas);
+            // Estadísticas usuarios
         }
         
     } catch (error) {
-        console.error('❌ Error cargando datos iniciales:', error);
+        // Error cargando datos iniciales
         // No es crítico, continuar
     }
+}
+
+// ================================================
+// SINCRONIZACIÓN DE CICLOS
+// ================================================
+
+function configurarSincronizacionCiclos() {
+    // Configurando sincronización de ciclos para usuarios
+    
+    // Escuchar evento de cambio de ciclo activo
+    document.addEventListener('cicloActivoCambiado', (event) => {
+        // Ciclo activo cambiado en usuarios
+        
+        // Recargar datos de usuarios si es necesario
+        if (sistemaUsuarios.modulos.ui && window.UIUsuarios) {
+            window.UIUsuarios.actualizarTabla();
+        }
+    });
+    
+    // Mantener compatibilidad con eventos legacy
+    document.addEventListener('sincronizar-ciclo', (event) => {
+        // Sincronización de ciclo solicitada en usuarios
+        
+        if (sistemaUsuarios.modulos.ui && window.UIUsuarios) {
+            window.UIUsuarios.actualizarTabla();
+        }
+    });
+    
+    document.addEventListener('ciclo-cambiado', (event) => {
+        // Ciclo cambiado (legacy) en usuarios
+        
+        if (sistemaUsuarios.modulos.ui && window.UIUsuarios) {
+            window.UIUsuarios.actualizarTabla();
+        }
+    });
+    
+    // Sincronización de ciclos configurada para usuarios
 }
 
 // ================================================
@@ -182,12 +201,7 @@ function configurarManejoErrores() {
     // Manejar errores no capturados del sistema usuarios
     window.addEventListener('error', (event) => {
         if (event.filename?.includes('usuarios/')) {
-            console.error('❌ Error en módulo usuarios:', {
-                mensaje: event.message,
-                archivo: event.filename,
-                linea: event.lineno,
-                error: event.error
-            });
+            // Error en módulo usuarios
             
             sistemaUsuarios.errores.push({
                 tipo: 'runtime',
@@ -197,7 +211,7 @@ function configurarManejoErrores() {
         }
     });
     
-    console.log('✅ Manejo de errores usuarios configurado');
+    // Manejo de errores usuarios configurado
 }
 
 // ================================================
@@ -215,7 +229,7 @@ function emitirEventoSistemaListo() {
     });
     
     document.dispatchEvent(evento);
-    console.log('📡 Evento usuarios:sistema-listo emitido');
+    // Evento usuarios:sistema-listo emitido
 }
 
 // ================================================
@@ -237,7 +251,7 @@ function obtenerEstadoSistema() {
  * Reinicializar sistema usuarios (para debugging)
  */
 async function reinicializarSistema() {
-    console.log('🔄 Reinicializando sistema usuarios...');
+    // Reinicializando sistema usuarios
     
     // Resetear estado
     Object.keys(sistemaUsuarios.modulos).forEach(key => {
@@ -270,7 +284,7 @@ function verificarSaludSistema() {
         inicializado: sistemaUsuarios.inicializado
     };
     
-    console.log('🏥 Estado de salud sistema usuarios:', salud);
+    // Estado de salud sistema usuarios
     return salud;
 }
 
@@ -279,7 +293,7 @@ function verificarSaludSistema() {
 // ================================================
 
 function mostrarErrorFatal(error) {
-    console.error('💀 ERROR FATAL SISTEMA USUARIOS:', error);
+    // ERROR FATAL SISTEMA USUARIOS
     
     // Intentar mostrar error en la interfaz si está disponible
     if (window.UIUsuarios?.mostrarError) {
@@ -297,7 +311,7 @@ function mostrarErrorFatal(error) {
 
 function habilitarModoDebug() {
     window.USUARIOS_DEBUG = true;
-    console.log('🐛 Modo debug usuarios habilitado');
+    // Modo debug usuarios habilitado
     
     // Exponer funciones de debugging
     window.usuariosDebug = {
@@ -342,4 +356,4 @@ window.SistemaUsuarios = {
     autor: 'Sistema Portafolio Docente'
 };
 
-console.log('✅ Coordinador principal de usuarios cargado'); 
+// Coordinador principal de usuarios cargado

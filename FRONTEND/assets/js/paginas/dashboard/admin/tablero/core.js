@@ -21,10 +21,7 @@ async function inicializarDashboard() {
         // 2. Configurar componentes básicos
         configurarComponentesBasicos();
         
-        console.log('✅ Dashboard inicializado completamente');
-        
     } catch (error) {
-        console.error('❌ Error en inicialización del dashboard:', error);
         mostrarErrorGeneral('Error al cargar el dashboard');
     }
 }
@@ -39,7 +36,6 @@ async function inicializarDashboard() {
 function verificarAutenticacionRapida() {
     // Verificar disponibilidad del sistema AUTH
     if (!window.AUTH?.verificarAutenticacion?.()) {
-        console.warn('⚠️ Autenticación fallida, redirigiendo...');
         window.location.href = '../../autenticacion/login.html';
         return false;
     }
@@ -47,13 +43,11 @@ function verificarAutenticacionRapida() {
     // Verificar rol de administrador
     const rolActual = AUTH.obtenerRolActivo();
     if (!['administrador', 'admin'].includes(rolActual?.toLowerCase())) {
-        console.warn('⚠️ Sin permisos de administrador');
         alert('No tienes permisos para acceder a esta sección');
         window.location.href = '../../autenticacion/selector-roles.html';
         return false;
     }
     
-    console.log('✅ Autenticación verificada - Rol:', rolActual);
     return true;
 }
 
@@ -73,8 +67,6 @@ function configurarComponentesBasicos() {
     
     // Configurar información del usuario en header
     actualizarInfoUsuario();
-    
-    console.log('✅ Componentes básicos configurados');
 }
 
 function initializeTooltips() {
@@ -116,7 +108,6 @@ function actualizarInfoUsuario() {
  * Mostrar error general del dashboard
  */
 function mostrarErrorGeneral(mensaje) {
-    console.error('❌ Error general:', mensaje);
     if (window.mostrarNotificacion) {
         window.mostrarNotificacion(mensaje, 'error');
     } else {
@@ -154,5 +145,3 @@ window.TableroCore = {
     mostrarErrorGeneral,
     obtenerConfigDashboard
 };
-
-console.log('✅ Módulo Core del Tablero cargado'); 

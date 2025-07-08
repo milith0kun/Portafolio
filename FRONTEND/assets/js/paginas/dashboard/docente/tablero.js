@@ -144,7 +144,7 @@ class TableroDocente {
      */
     async cargarEstadisticasGenerales() {
         try {
-            const response = await fetch(`${CONFIG.API.BASE_URL}/dashboard/docente/stats`, {
+            const response = await fetch(`${CONFIG.API.BASE_URL}/dashboard/docente/estadisticas`, {
                 method: 'GET',
                 headers: AUTH.construirHeaders()
             });
@@ -659,4 +659,4 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (window.docenteDebug) {
         window.TableroDocente = tablero;
     }
-}); 
+});

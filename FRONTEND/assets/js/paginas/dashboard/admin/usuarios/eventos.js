@@ -8,19 +8,15 @@
 // ================================================
 
 async function initialize() {
-    console.log('🎯 Inicializando módulo de eventos de usuarios...');
-    
     try {
         configurarEventosFormulario();
         configurarEventosTabla();
         configurarEventosModales();
         configurarEventosTeclado();
         
-        console.log('✅ Módulo de eventos de usuarios inicializado');
         return true;
         
     } catch (error) {
-        console.error('❌ Error en inicialización eventos usuarios:', error);
         throw error;
     }
 }
@@ -48,7 +44,7 @@ function configurarEventosFormulario() {
         btnGuardar.addEventListener('click', procesarGuardadoUsuario);
     }
     
-    console.log('✅ Eventos de formulario configurados');
+
 }
 
 async function manejarSubmitFormulario(event) {
@@ -57,8 +53,6 @@ async function manejarSubmitFormulario(event) {
 }
 
 async function procesarGuardadoUsuario() {
-    console.log('💾 Procesando guardado de usuario...');
-    
     try {
         const datosUsuario = obtenerDatosFormulario();
         
@@ -81,7 +75,6 @@ async function procesarGuardadoUsuario() {
         window.UIUsuarios.limpiarFormulario();
         
     } catch (error) {
-        console.error('❌ Error guardando usuario:', error);
         window.UIUsuarios.mostrarError('Error al guardar usuario: ' + error.message);
     }
 }
@@ -125,12 +118,10 @@ function configurarEventosTabla() {
         }
     });
     
-    console.log('✅ Eventos de tabla configurados');
+
 }
 
 async function editarUsuario(id) {
-    console.log('✏️ Editando usuario:', id);
-    
     try {
         window.UIUsuarios.mostrarCargando(true);
         
@@ -141,7 +132,6 @@ async function editarUsuario(id) {
         abrirModal();
         
     } catch (error) {
-        console.error('❌ Error cargando usuario para edición:', error);
         window.UIUsuarios.mostrarError('Error al cargar usuario: ' + error.message);
     } finally {
         window.UIUsuarios.mostrarCargando(false);
@@ -156,8 +146,6 @@ function confirmarEliminarUsuario(id) {
 }
 
 async function eliminarUsuario(id) {
-    console.log('🗑️ Eliminando usuario:', id);
-    
     try {
         window.UIUsuarios.mostrarCargando(true);
         
@@ -165,7 +153,6 @@ async function eliminarUsuario(id) {
         await window.UIUsuarios.actualizarTabla();
         
     } catch (error) {
-        console.error('❌ Error eliminando usuario:', error);
         window.UIUsuarios.mostrarError('Error al eliminar usuario: ' + error.message);
     } finally {
         window.UIUsuarios.mostrarCargando(false);
@@ -189,12 +176,10 @@ function configurarEventosModales() {
         btn.addEventListener('click', limpiarAlCerrarModal);
     });
     
-    console.log('✅ Eventos de modales configurados');
+
 }
 
 function abrirModalNuevo() {
-    console.log('➕ Abriendo modal para nuevo usuario');
-    
     window.UIUsuarios.limpiarFormulario();
     window.UsuariosCore.establecerModoEdicion(false);
     abrirModal();
@@ -249,7 +234,7 @@ function configurarEventosTeclado() {
         }
     });
     
-    console.log('✅ Eventos de teclado configurados');
+
 }
 
 // ================================================
@@ -274,10 +259,6 @@ function obtenerDatosFormulario() {
 }
 
 function mostrarErroresValidacion(errores) {
-    errores.forEach(error => {
-        console.error('❌ Error de validación:', error);
-    });
-    
     window.UIUsuarios.mostrarError('Errores de validación:\n' + errores.join('\n'));
 }
 
@@ -329,5 +310,3 @@ window.EventosUsuarios = {
     marcarCampoInvalido,
     marcarCampoValido
 };
-
-console.log('✅ Módulo Eventos de Usuarios cargado'); 

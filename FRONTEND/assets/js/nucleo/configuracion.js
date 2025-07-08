@@ -200,6 +200,66 @@ window.CONFIG = {
         VERIFICACION: 'verificacion',
         FINALIZADO: 'finalizado'
     },
+
+    // Estados de ciclos académicos
+    ESTADOS_CICLOS: {
+        PREPARACION: 'preparacion',
+        INICIALIZACION: 'inicializacion',
+        ACTIVO: 'activo',
+        VERIFICACION: 'verificacion',
+        FINALIZACION: 'finalizacion',
+        ARCHIVADO: 'archivado'
+    },
+
+    // Transiciones válidas entre estados de ciclos
+    TRANSICIONES_CICLOS: {
+        'preparacion': ['inicializacion'],
+        'inicializacion': ['activo', 'preparacion'],
+        'activo': ['verificacion', 'preparacion'],
+        'verificacion': ['finalizacion', 'activo'],
+        'finalizacion': ['archivado'],
+        'archivado': ['preparacion']
+    },
+
+    // Configuración de estados de ciclos
+    CONFIGURACION_ESTADOS_CICLOS: {
+        preparacion: {
+            descripcion: 'Configuración inicial del ciclo académico',
+            color: 'warning',
+            icono: 'fas fa-cog',
+            acciones: ['inicializar', 'editar', 'eliminar']
+        },
+        inicializacion: {
+            descripcion: 'Proceso de inicialización en curso',
+            color: 'info',
+            icono: 'fas fa-play-circle',
+            acciones: ['activar', 'volver_preparacion']
+        },
+        activo: {
+            descripcion: 'Ciclo en funcionamiento normal',
+            color: 'success',
+            icono: 'fas fa-check-circle',
+            acciones: ['iniciar_verificacion', 'volver_preparacion']
+        },
+        verificacion: {
+            descripcion: 'Proceso de verificación y validación',
+            color: 'primary',
+            icono: 'fas fa-search',
+            acciones: ['finalizar', 'volver_activo']
+        },
+        finalizacion: {
+            descripcion: 'Ciclo finalizado y cerrado',
+            color: 'secondary',
+            icono: 'fas fa-flag-checkered',
+            acciones: ['archivar']
+        },
+        archivado: {
+            descripcion: 'Ciclo archivado',
+            color: 'dark',
+            icono: 'fas fa-archive',
+            acciones: ['reactivar']
+        }
+    },
     
     // Gestión de ciclos académicos
     CICLOS: {

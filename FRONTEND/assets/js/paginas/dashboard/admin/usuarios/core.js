@@ -20,8 +20,6 @@ const usuariosState = {
 // ================================================
 
 async function initialize() {
-    console.log('🔧 Inicializando módulo core de usuarios...');
-    
     try {
         // Verificar autenticación
         if (!verificarAutenticacion()) {
@@ -37,11 +35,9 @@ async function initialize() {
         configurarSistema();
         
         usuariosState.inicializado = true;
-        console.log('✅ Módulo core de usuarios inicializado');
         return true;
         
     } catch (error) {
-        console.error('❌ Error en inicialización core usuarios:', error);
         throw error;
     }
 }
@@ -77,7 +73,7 @@ function obtenerTokenValido() {
         }
     }
     
-    console.error('❌ No se pudo obtener token de autenticación');
+    // No se pudo obtener token de autenticación
     return null;
 }
 
@@ -87,12 +83,10 @@ function obtenerTokenValido() {
 function verificarAutenticacion() {
     const token = obtenerTokenValido();
     if (!token) {
-        console.error('❌ Usuario no autenticado, redirigiendo al login');
         window.location.href = CONFIG.getRoute?.('LOGIN') || CONFIG.ROUTES?.LOGIN || '../../../paginas/autenticacion/login.html';
         return false;
     }
     
-    console.log('✅ Usuario autenticado correctamente');
     return true;
 }
 
@@ -101,7 +95,7 @@ function verificarAutenticacion() {
  */
 function manejarRespuestaHTTP(response) {
     if (response.status === 401) {
-        console.error('❌ Token expirado o inválido');
+        // Token expirado o inválido
         mostrarError('Su sesión ha expirado. Por favor, inicie sesión nuevamente.');
         
         // Limpiar tokens
@@ -144,21 +138,17 @@ async function realizarPeticionSegura(url, options = {}) {
         headers
     };
     
-    console.log('🔐 Realizando petición segura:', { url, method: config.method || 'GET' });
-    
     try {
         const response = await fetch(url, config);
         const processedResponse = manejarRespuestaHTTP(response);
         
         if (processedResponse && typeof processedResponse.json === 'function') {
             const data = await processedResponse.json();
-            console.log('✅ Datos recibidos exitosamente');
             return data;
         }
         
         return processedResponse;
     } catch (error) {
-        console.error('❌ Error en petición HTTP:', error);
         throw error;
     }
 }
@@ -172,12 +162,10 @@ async function realizarPeticionSegura(url, options = {}) {
  */
 function verificarConfiguracion() {
     if (!CONFIG || !CONFIG.API || !CONFIG.API.BASE_URL) {
-        console.error('❌ Configuración no disponible');
         mostrarError('Error de configuración. Por favor, recargue la página.');
         return false;
     }
     
-    console.log('🔗 API Base URL:', CONFIG.API.BASE_URL);
     return true;
 }
 
@@ -188,11 +176,9 @@ function configurarSistema() {
     // Configurar manejo de errores global para este módulo
     window.addEventListener('error', (event) => {
         if (event.filename?.includes('usuarios/')) {
-            console.error('❌ Error en módulo usuarios:', event.error);
+            // Error en módulo usuarios
         }
     });
-    
-    console.log('⚙️ Sistema de usuarios configurado');
 }
 
 // ================================================
@@ -232,8 +218,6 @@ function establecerModoEdicion(modo) {
 // ================================================
 
 function mostrarError(mensaje) {
-    console.error('❌ Error:', mensaje);
-    
     // Intentar usar el sistema de notificaciones si está disponible
     if (window.mostrarNotificacion) {
         window.mostrarNotificacion(mensaje, 'error');
@@ -245,16 +229,11 @@ function mostrarError(mensaje) {
 }
 
 function mostrarExito(mensaje) {
-    console.log('✅ Éxito:', mensaje);
-    
     // Intentar usar el sistema de notificaciones si está disponible
     if (window.mostrarNotificacion) {
         window.mostrarNotificacion(mensaje, 'success');
     } else if (window.UIUsuarios?.mostrarExito) {
         window.UIUsuarios.mostrarExito(mensaje);
-    } else {
-        // Fallback simple
-        console.log('✅', mensaje);
     }
 }
 
@@ -285,4 +264,4 @@ window.UsuariosCore = {
     mostrarExito
 };
 
-console.log('✅ Módulo Core de Usuarios cargado'); 
+// Módulo Core de Usuarios cargado

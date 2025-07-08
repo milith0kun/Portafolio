@@ -42,10 +42,10 @@ export class CiclosCore {
                 return result;
             }
             
-            console.warn('Función verificarAutenticacion no disponible');
+            // Función verificarAutenticacion no disponible
             return true;
         } catch (error) {
-            console.error('Error en verificación de autenticación:', error);
+            // Error en verificación de autenticación
             return false;
         }
     }
@@ -57,7 +57,7 @@ export class CiclosCore {
         try {
             return localStorage.getItem('token') || null;
         } catch (error) {
-            console.error('Error al obtener token:', error);
+            // Error al obtener token
             return null;
         }
     }
@@ -289,7 +289,7 @@ export class CiclosCore {
      */
     log(...args) {
         if (this.debug) {
-            console.log('[CiclosCore]', ...args);
+            // [CiclosCore]
         }
     }
 
@@ -308,4 +308,4 @@ export class CiclosCore {
         this.log('Verificación de salud:', checks);
         return checks;
     }
-} 
+}

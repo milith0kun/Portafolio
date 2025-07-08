@@ -3,11 +3,15 @@
  * Sistema de validación para archivos Excel del sistema de carga masiva
  */
 
-const ValidacionesCargaMasiva = {
+class ValidacionesCargaMasiva {
     /**
-     * Configuraciones por defecto
+     * Constructor
      */
-    config: {
+    constructor() {
+        /**
+         * Configuraciones por defecto
+         */
+        this.config = {
         maxFileSize: 50 * 1024 * 1024, // 50MB
         allowedExtensions: ['.xlsx', '.xls', '.csv'],
         allowedMimeTypes: [
@@ -15,7 +19,11 @@ const ValidacionesCargaMasiva = {
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             'text/csv'
         ]
-    },
+        }
+        
+        // Auto-inicializar
+        this.inicializar();
+    }
 
     /**
      * Inicializar sistema de validaciones
@@ -28,8 +36,8 @@ const ValidacionesCargaMasiva = {
             this.config.allowedMimeTypes = window.CONFIG.UPLOAD.ALLOWED_MIME_TYPES || this.config.allowedMimeTypes;
         }
         
-        console.log('✅ ValidacionesCargaMasiva inicializado');
-    },
+        // ValidacionesCargaMasiva inicializado
+    }
 
     /**
      * Validar archivo completo (tipo, tamaño, extensión)
@@ -54,14 +62,14 @@ const ValidacionesCargaMasiva = {
         if (!this.validarTipoMime(file)) {
             // Si falla MIME pero la extensión es válida, permitir con advertencia
             if (this.validarExtension(file)) {
-                console.warn('⚠️ Tipo MIME no reconocido pero extensión válida');
+                // Tipo MIME no reconocido pero extensión válida
                 return true;
             }
             return false;
         }
 
         return true;
-    },
+    }
 
     /**
      * Validar tamaño del archivo
@@ -73,7 +81,7 @@ const ValidacionesCargaMasiva = {
             return false;
         }
         return true;
-    },
+    }
 
     /**
      * Validar extensión del archivo
@@ -87,18 +95,18 @@ const ValidacionesCargaMasiva = {
             return false;
         }
         return true;
-    },
+    }
 
     /**
      * Validar tipo MIME del archivo
      */
     validarTipoMime(file) {
         if (!this.config.allowedMimeTypes.includes(file.type)) {
-            console.warn(`Tipo MIME no reconocido: ${file.type}`);
+            // Tipo MIME no reconocido
             return false;
         }
         return true;
-    },
+    }
 
     /**
      * Validar múltiples archivos
@@ -127,7 +135,7 @@ const ValidacionesCargaMasiva = {
         const invalidos = resultados.filter(r => !r.valido);
 
         if (invalidos.length > 0) {
-            console.warn(`⚠️ ${invalidos.length} archivos inválidos de ${files.length} total`);
+            // archivos inválidos
         }
 
         return {
@@ -135,7 +143,7 @@ const ValidacionesCargaMasiva = {
             invalidos: invalidos,
             todosValidos: invalidos.length === 0
         };
-    },
+    }
 
     /**
      * Validar nombre de archivo para detección de tipo
@@ -157,7 +165,7 @@ const ValidacionesCargaMasiva = {
         }
 
         return null;
-    },
+    }
 
     /**
      * Validar estructura de datos (para cuando se implemente lectura de archivos)
@@ -180,7 +188,7 @@ const ValidacionesCargaMasiva = {
 
         const camposRequeridos = validaciones[tipoArchivo];
         if (!camposRequeridos) {
-            console.warn('⚠️ Tipo de archivo no reconocido para validación estructural');
+            // Tipo de archivo no reconocido para validación estructural
             return true; // Permitir si no hay validación específica
         }
 
@@ -196,7 +204,7 @@ const ValidacionesCargaMasiva = {
         }
 
         return true;
-    },
+    }
 
     /**
      * Manejar respuesta del servidor
@@ -215,7 +223,7 @@ const ValidacionesCargaMasiva = {
                     const text = await response.text();
                     error.responseText = text;
                 } catch (e2) {
-                    console.error('No se pudo leer la respuesta de error');
+                    // No se pudo leer la respuesta de error
                 }
             }
             
@@ -225,10 +233,10 @@ const ValidacionesCargaMasiva = {
         try {
             return await response.json();
         } catch (error) {
-            console.error('Error al parsear respuesta JSON:', error);
+            // Error al parsear respuesta JSON
             throw new Error('Respuesta del servidor no válida');
         }
-    },
+    }
 
     /**
      * Mostrar mensajes de error
@@ -244,10 +252,10 @@ const ValidacionesCargaMasiva = {
         }
         // Fallback a console y alert
         else {
-            console.error('❌ Validación:', mensaje);
+            // Validación error
             alert('Error: ' + mensaje);
         }
-    },
+    }
 
     /**
      * Mostrar mensajes de éxito
@@ -258,9 +266,9 @@ const ValidacionesCargaMasiva = {
         } else if (window.APP && typeof window.APP.mostrarNotificacion === 'function') {
             window.APP.mostrarNotificacion(mensaje, 'success');
         } else {
-            console.log('✅ Validación:', mensaje);
+            // Validación éxito
         }
-    },
+    }
 
     /**
      * Mostrar mensajes de advertencia
@@ -271,18 +279,9 @@ const ValidacionesCargaMasiva = {
         } else if (window.APP && typeof window.APP.mostrarNotificacion === 'function') {
             window.APP.mostrarNotificacion(mensaje, 'warning');
         } else {
-            console.warn('⚠️ Validación:', mensaje);
+            // Validación advertencia
         }
     }
-};
-
-// Auto-inicializar cuando el DOM esté listo
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        ValidacionesCargaMasiva.inicializar();
-    });
-} else {
-    ValidacionesCargaMasiva.inicializar();
 }
 
 // Exponer globalmente para compatibilidad

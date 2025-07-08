@@ -18,19 +18,15 @@ const endpoints = {
 // ================================================
 
 async function initialize() {
-    console.log('📊 Inicializando módulo de datos de usuarios...');
-    
     try {
         // Verificar que el core esté inicializado
         if (!window.UsuariosCore?.estaInicializado()) {
             throw new Error('Módulo core no inicializado');
         }
         
-        console.log('✅ Módulo de datos de usuarios inicializado');
         return true;
         
     } catch (error) {
-        console.error('❌ Error en inicialización de datos usuarios:', error);
         throw error;
     }
 }
@@ -43,8 +39,6 @@ async function initialize() {
  * Cargar todos los usuarios
  */
 async function cargarUsuarios() {
-    console.log('📋 Cargando usuarios...');
-    
     try {
         const baseUrl = CONFIG.API.BASE_URL;
         const url = `${baseUrl}${endpoints.usuarios}`;
@@ -54,15 +48,12 @@ async function cargarUsuarios() {
         });
         
         if (response.success && Array.isArray(response.data)) {
-            console.log(`✅ ${response.data.length} usuarios cargados`);
             return response.data;
         } else {
-            console.error('❌ Respuesta inválida del servidor:', response);
             throw new Error('Formato de respuesta inválido');
         }
         
     } catch (error) {
-        console.error('❌ Error cargando usuarios:', error);
         window.UsuariosCore.mostrarError('Error al cargar usuarios: ' + error.message);
         throw error;
     }
@@ -72,8 +63,6 @@ async function cargarUsuarios() {
  * Cargar un usuario específico por ID
  */
 async function cargarUsuario(id) {
-    console.log('👤 Cargando usuario ID:', id);
-    
     if (!id) {
         throw new Error('ID de usuario requerido');
     }
@@ -87,14 +76,12 @@ async function cargarUsuario(id) {
         });
         
         if (response.success && response.data) {
-            console.log('✅ Usuario cargado:', response.data.nombres);
             return response.data;
         } else {
             throw new Error('Usuario no encontrado');
         }
         
     } catch (error) {
-        console.error('❌ Error cargando usuario:', error);
         window.UsuariosCore.mostrarError('Error al cargar usuario: ' + error.message);
         throw error;
     }
@@ -104,8 +91,6 @@ async function cargarUsuario(id) {
  * Guardar usuario (crear o actualizar)
  */
 async function guardarUsuario(datosUsuario, esEdicion = false) {
-    console.log('💾 Guardando usuario...', { esEdicion, nombres: datosUsuario.nombres });
-    
     try {
         // Validar datos básicos
         if (!datosUsuario.nombres || !datosUsuario.correo) {
@@ -125,7 +110,6 @@ async function guardarUsuario(datosUsuario, esEdicion = false) {
         
         if (response.success) {
             const accion = esEdicion ? 'actualizado' : 'creado';
-            console.log(`✅ Usuario ${accion} exitosamente`);
             window.UsuariosCore.mostrarExito(`Usuario ${accion} exitosamente`);
             return response.data;
         } else {
@@ -133,7 +117,6 @@ async function guardarUsuario(datosUsuario, esEdicion = false) {
         }
         
     } catch (error) {
-        console.error('❌ Error guardando usuario:', error);
         window.UsuariosCore.mostrarError('Error al guardar usuario: ' + error.message);
         throw error;
     }
@@ -143,8 +126,6 @@ async function guardarUsuario(datosUsuario, esEdicion = false) {
  * Eliminar usuario
  */
 async function eliminarUsuario(id) {
-    console.log('🗑️ Eliminando usuario ID:', id);
-    
     if (!id) {
         throw new Error('ID de usuario requerido');
     }
@@ -158,7 +139,6 @@ async function eliminarUsuario(id) {
         });
         
         if (response.success) {
-            console.log('✅ Usuario eliminado exitosamente');
             window.UsuariosCore.mostrarExito('Usuario eliminado exitosamente');
             return true;
         } else {
@@ -166,7 +146,6 @@ async function eliminarUsuario(id) {
         }
         
     } catch (error) {
-        console.error('❌ Error eliminando usuario:', error);
         window.UsuariosCore.mostrarError('Error al eliminar usuario: ' + error.message);
         throw error;
     }
@@ -180,7 +159,7 @@ async function eliminarUsuario(id) {
  * Cargar verificadores disponibles
  */
 async function cargarVerificadores() {
-    console.log('🔍 Cargando verificadores...');
+    // Cargando verificadores
     
     try {
         const baseUrl = CONFIG.API.BASE_URL;
@@ -191,15 +170,15 @@ async function cargarVerificadores() {
         });
         
         if (response.success && Array.isArray(response.data)) {
-            console.log(`✅ ${response.data.length} verificadores cargados`);
+            // Verificadores cargados
             return response.data;
         } else {
-            console.warn('⚠️ No se encontraron verificadores o respuesta inválida');
+            // No se encontraron verificadores
             return [];
         }
         
     } catch (error) {
-        console.error('❌ Error cargando verificadores:', error);
+        // Error cargando verificadores
         window.UsuariosCore.mostrarError('Error al cargar verificadores: ' + error.message);
         return [];
     }
@@ -209,7 +188,7 @@ async function cargarVerificadores() {
  * Guardar asignación de verificador
  */
 async function guardarAsignacionVerificador(datosAsignacion) {
-    console.log('🔗 Guardando asignación de verificador...', datosAsignacion);
+    // Guardando asignación de verificador
     
     try {
         // Validar datos
@@ -226,7 +205,7 @@ async function guardarAsignacionVerificador(datosAsignacion) {
         });
         
         if (response.success) {
-            console.log('✅ Asignación de verificador guardada exitosamente');
+            // Asignación guardada exitosamente
             window.UsuariosCore.mostrarExito('Asignación guardada exitosamente');
             return response.data;
         } else {
@@ -234,7 +213,7 @@ async function guardarAsignacionVerificador(datosAsignacion) {
         }
         
     } catch (error) {
-        console.error('❌ Error guardando asignación:', error);
+        // Error guardando asignación
         window.UsuariosCore.mostrarError('Error al guardar asignación: ' + error.message);
         throw error;
     }
@@ -248,7 +227,7 @@ async function guardarAsignacionVerificador(datosAsignacion) {
  * Buscar usuarios por criterio
  */
 async function buscarUsuarios(criterio, valor) {
-    console.log('🔍 Buscando usuarios:', { criterio, valor });
+    // Buscando usuarios
     
     try {
         const baseUrl = CONFIG.API.BASE_URL;
@@ -261,14 +240,14 @@ async function buscarUsuarios(criterio, valor) {
         });
         
         if (response.success && Array.isArray(response.data)) {
-            console.log(`✅ ${response.data.length} usuarios encontrados`);
+            // Usuarios encontrados
             return response.data;
         } else {
             return [];
         }
         
     } catch (error) {
-        console.error('❌ Error buscando usuarios:', error);
+        // Error buscando usuarios
         return [];
     }
 }
@@ -276,21 +255,29 @@ async function buscarUsuarios(criterio, valor) {
 /**
  * Obtener estadísticas de usuarios
  */
-async function obtenerEstadisticasUsuarios() {
-    console.log('📊 Obteniendo estadísticas de usuarios...');
+async function obtenerEstadisticasUsuarios(cicloId = null) {
+    // Obteniendo estadísticas de usuarios
     
     try {
         const baseUrl = CONFIG.API.BASE_URL;
-        const url = `${baseUrl}${endpoints.usuarios}/estadisticas`;
+        let url = `${baseUrl}${endpoints.usuarios}/estadisticas`;
+        
+        // Agregar parámetro de ciclo si se proporciona
+        if (cicloId) {
+            url += `?ciclo=${cicloId}`;
+        }
+        
+        // URL de estadísticas
         
         const response = await window.UsuariosCore.realizarPeticionSegura(url, {
             method: 'GET'
         });
         
         if (response.success && response.data) {
-            console.log('✅ Estadísticas obtenidas');
+            // Estadísticas obtenidas
             return response.data;
         } else {
+            // Respuesta sin datos válidos
             return {
                 totalUsuarios: 0,
                 usuariosActivos: 0,
@@ -300,7 +287,7 @@ async function obtenerEstadisticasUsuarios() {
         }
         
     } catch (error) {
-        console.error('❌ Error obteniendo estadísticas:', error);
+        // Error obteniendo estadísticas
         return {
             totalUsuarios: 0,
             usuariosActivos: 0,
@@ -318,7 +305,7 @@ async function obtenerEstadisticasUsuarios() {
  * Validar email único
  */
 async function validarEmailUnico(email, idUsuarioExcluir = null) {
-    console.log('✅ Validando email único:', email);
+    // Validando email único
     
     try {
         const baseUrl = CONFIG.API.BASE_URL;
@@ -337,7 +324,7 @@ async function validarEmailUnico(email, idUsuarioExcluir = null) {
         return response.success && response.data?.esUnico;
         
     } catch (error) {
-        console.error('❌ Error validando email:', error);
+        // Error validando email
         return false;
     }
 }
@@ -466,4 +453,4 @@ window.DataUsuarios = {
     generarBotonesAccion
 };
 
-console.log('✅ Módulo Data de Usuarios cargado'); 
+// Módulo Data de Usuarios cargado

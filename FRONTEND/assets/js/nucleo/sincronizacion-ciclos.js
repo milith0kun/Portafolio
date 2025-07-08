@@ -10,7 +10,8 @@ const SincronizacionCiclos = {
         informacionCiclo: null,
         ultimaActualizacion: null,
         suscriptores: new Set(),
-        servidorOffline: false
+        servidorOffline: false,
+        estableciendoCiclo: false
     },
 
     // Configuración
@@ -18,9 +19,9 @@ const SincronizacionCiclos = {
         intervaloActualizacion: 30000, // 30 segundos
         tiempoCache: 5 * 60 * 1000, // 5 minutos
         endpoints: {
-                ciclos: '/ciclos',
-    cicloActivo: '/ciclos/activo',
-            estadisticas: '/api/dashboard/estadisticas'
+            ciclos: '/ciclos',
+            cicloActivo: '/ciclos/activo',
+            estadisticas: '/dashboard/estadisticas'
         }
     },
 
@@ -104,36 +105,67 @@ const SincronizacionCiclos = {
     },
 
     /**
-     * Establecer ciclo seleccionado
+     * Establecer ciclo seleccionado con debounce para evitar conflictos
      */
     async establecerCiclo(cicloId) {
+        // Evitar cambios duplicados o muy rápidos
+        if (this.estado.estableciendoCiclo || cicloId === this.estado.cicloSeleccionado) {
+            return;
+        }
+        
+        // Cancelar cualquier cambio pendiente
+        if (this.timeoutEstablecerCiclo) {
+            clearTimeout(this.timeoutEstablecerCiclo);
+        }
+        
+        // Marcar como en proceso
+        this.estado.estableciendoCiclo = true;
+        
         console.log(`🔄 Estableciendo ciclo: ${cicloId}`);
         
-        // Guardar en almacenamiento
-        localStorage.setItem('cicloSeleccionado', cicloId);
-        sessionStorage.setItem('cicloSeleccionado', cicloId);
-        
-        // Actualizar estado interno
-        this.estado.cicloSeleccionado = cicloId;
-        this.estado.ultimaActualizacion = new Date();
-        
-        // Obtener información completa del ciclo
-        await this.obtenerInformacionCiclo(cicloId);
-        
-        // Actualizar selectores en todas las páginas
-        this.actualizarSelectoresCiclo(cicloId);
-        
-        // Emitir evento de cambio de ciclo
-        this.emitirEvento('ciclo-cambiado', {
-            cicloId: cicloId,
-            informacion: this.estado.informacionCiclo,
-            timestamp: new Date()
-        });
-        
-        // Notificar a suscriptores
-        this.notificarSuscriptores();
-        
-        console.log(`✅ Ciclo establecido: ${cicloId}`);
+        try {
+            // Guardar en almacenamiento
+            localStorage.setItem('cicloSeleccionado', cicloId);
+            sessionStorage.setItem('cicloSeleccionado', cicloId);
+            
+            // Actualizar estado interno
+            this.estado.cicloSeleccionado = cicloId;
+            this.estado.ultimaActualizacion = new Date();
+            
+            // Obtener información completa del ciclo
+            await this.obtenerInformacionCiclo(cicloId);
+            
+            // Actualizar selectores en todas las páginas
+            this.actualizarSelectoresCiclo(cicloId);
+            
+            // Usar debounce para emitir eventos (evitar spam)
+            this.timeoutEstablecerCiclo = setTimeout(() => {
+                // Emitir eventos de cambio de ciclo (ambos para compatibilidad)
+                this.emitirEvento('ciclo-cambiado', {
+                    cicloId: cicloId,
+                    informacion: this.estado.informacionCiclo,
+                    timestamp: new Date()
+                });
+                
+                // Emitir evento nuevo para sincronización moderna
+                this.emitirEvento('cicloActivoCambiado', {
+                    cicloId: cicloId,
+                    cicloActivo: this.estado.informacionCiclo,
+                    timestamp: new Date()
+                });
+                
+                // Notificar a suscriptores
+                this.notificarSuscriptores();
+                
+                console.log(`✅ Ciclo establecido: ${cicloId}`);
+            }, 100); // Debounce de 100ms
+            
+        } finally {
+            // Liberar el lock después de un breve delay
+            setTimeout(() => {
+                this.estado.estableciendoCiclo = false;
+            }, 200);
+        }
     },
 
     /**
@@ -399,4 +431,4 @@ if (document.readyState === 'loading') {
 // Exportar al scope global
 window.SincronizacionCiclos = SincronizacionCiclos;
 
-console.log('✅ Sistema de sincronización de ciclos cargado'); 
+console.log('✅ Sistema de sincronización de ciclos cargado');

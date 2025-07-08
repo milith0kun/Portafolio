@@ -129,6 +129,38 @@ function configurarEventos() {
     $('#btnGuardarAsignacion').on('click', function() {
         asignarDocente();
     });
+    
+    // Configurar eventos de sincronización
+    configurarEventosSincronizacion();
+}
+
+/**
+ * Configurar eventos de sincronización de ciclos
+ */
+function configurarEventosSincronizacion() {
+    // Escuchar evento de cambio de ciclo activo
+    document.addEventListener('cicloActivoCambiado', (event) => {
+        // Ciclo activo cambiado en asignaturas
+        
+        // Actualizar selector de ciclo
+        const selectCiclo = document.getElementById('selectCiclo');
+        if (selectCiclo && event.detail.cicloActivo) {
+            selectCiclo.value = event.detail.cicloActivo.id || '';
+            // Disparar evento change para cargar asignaturas
+            $(selectCiclo).trigger('change');
+        }
+    });
+    
+    // Eventos legacy para compatibilidad
+    document.addEventListener('ciclo-cambiado', (event) => {
+        // Ciclo cambiado en asignaturas (legacy)
+        // Recargar ciclos para obtener el más actualizado
+        setTimeout(() => {
+            cargarCiclos();
+        }, 100);
+    });
+    
+    // Eventos de sincronización configurados en asignaturas
 }
 
 /**
@@ -170,7 +202,7 @@ function cargarCiclos() {
         }
     })
     .catch(error => {
-        console.error('Error:', error);
+        // Error
         toastr.error('Error al cargar los ciclos académicos');
     })
     .finally(() => {
@@ -207,7 +239,7 @@ function cargarAsignaturas(cicloId) {
         }
     })
     .catch(error => {
-        console.error('Error:', error);
+        // Error
         toastr.error('Error al cargar las asignaturas');
     })
     .finally(() => {
@@ -282,7 +314,7 @@ function guardarAsignatura() {
         }
     })
     .catch(error => {
-        console.error('Error:', error);
+        // Error
         toastr.error('Error al guardar la asignatura');
     })
     .finally(() => {
@@ -371,7 +403,7 @@ function cargarDatosAsignatura(asignaturaId) {
         }
     })
     .catch(error => {
-        console.error('Error:', error);
+        // Error
         toastr.error('Error al cargar los datos de la asignatura');
     })
     .finally(() => {
@@ -428,7 +460,7 @@ function eliminarAsignatura(asignaturaId) {
         }
     })
     .catch(error => {
-        console.error('Error:', error);
+        // Error
         toastr.error('Error al eliminar la asignatura');
     })
     .finally(() => {
@@ -487,7 +519,7 @@ function cargarDocentes() {
         }
     })
     .catch(error => {
-        console.error('Error:', error);
+        // Error
         toastr.error('Error al cargar los docentes');
     })
     .finally(() => {
@@ -536,7 +568,7 @@ function asignarDocente() {
         }
     })
     .catch(error => {
-        console.error('Error:', error);
+        // Error
         toastr.error('Error al asignar el docente');
     })
     .finally(() => {

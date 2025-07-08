@@ -23,8 +23,6 @@ const dataState = {
 // ================================================
 
 async function initialize() {
-    console.log('📊 Inicializando módulo de datos del tablero...');
-    
     try {
         // Inicializar ciclo desde el selector si existe
         setTimeout(() => {
@@ -34,11 +32,14 @@ async function initialize() {
         await cargarDatosIniciales();
         configurarActualizacionAutomatica();
         configurarIntegracionCiclos();
-        console.log('✅ Módulo de datos inicializado');
+        
+        // Configurar carga de portafolios
+        configurarCargaPortafolios();
+        
     } catch (error) {
         // Solo mostrar error si no es un problema de conexión
         if (!error.message?.includes('Failed to fetch')) {
-            console.error('❌ Error en inicialización de datos:', error);
+            // Error en inicialización de datos
         }
         throw error;
     }
@@ -48,12 +49,8 @@ async function initialize() {
  * Inicializar el ciclo seleccionado desde el selector al cargar la página
  */
 function inicializarCicloDesdeSelector() {
-    console.log('🔄 Inicializando ciclo desde selector...');
-    
     const selector = document.querySelector('#selectCiclo');
     if (selector && selector.value && selector.value !== '') {
-        console.log(`📅 Ciclo detectado en selector: ${selector.value}`);
-        
         // Establecer como ciclo seleccionado
         localStorage.setItem('cicloSeleccionado', selector.value);
         
@@ -66,7 +63,7 @@ function inicializarCicloDesdeSelector() {
     } else {
         // Solo mostrar warning si no es un problema de servidor offline
         if (!dataState.servidorOffline) {
-            console.log('⚠️ No se encontró selector de ciclo con valor');
+            // No se encontró selector de ciclo con valor
         }
     }
 }
@@ -81,13 +78,11 @@ function inicializarCicloDesdeSelector() {
 async function cargarDatosIniciales() {
     // Evitar cargas múltiples simultáneas
     if (dataState.cargando) {
-        console.log('⚠️ Carga de datos ya en progreso, evitando duplicación');
         return;
     }
     
     // Verificar autenticación antes de hacer peticiones
     if (!window.AUTH?.verificarAutenticacion()) {
-        console.warn('🔐 Usuario no autenticado, evitando peticiones API');
         return;
     }
     
@@ -115,12 +110,15 @@ async function cargarDatosIniciales() {
             ciclos
         });
         
+        // Cargar portafolios del ciclo después de cargar los datos principales
+        await cargarPortafoliosDelCiclo();
+        
         dataState.ultimaActualizacion = new Date();
         
     } catch (error) {
         // Solo mostrar error si no es un problema de conexión o autenticación
         if (!error.message?.includes('Failed to fetch') && error.status !== 401) {
-            console.error('❌ Error cargando datos iniciales:', error);
+            // Error cargando datos iniciales
         }
         throw error;
     } finally {
@@ -138,7 +136,7 @@ function procesarResultados(resultados) {
     } else {
         // Solo mostrar error si no es un problema de conexión
         if (!resultados.estadoSistema.reason?.message?.includes('Failed to fetch')) {
-            console.error('Error cargando estado del sistema:', resultados.estadoSistema.reason);
+            // Error cargando estado del sistema
         }
     }
     
@@ -148,7 +146,7 @@ function procesarResultados(resultados) {
     } else {
         // Solo mostrar error si no es un problema de conexión
         if (!resultados.metricas.reason?.message?.includes('Failed to fetch')) {
-            console.error('Error cargando métricas:', resultados.metricas.reason);
+            // Error cargando métricas
         }
     }
     
@@ -158,7 +156,7 @@ function procesarResultados(resultados) {
     } else {
         // Solo mostrar error si no es un problema de conexión
         if (!resultados.cicloActual.reason?.message?.includes('Failed to fetch')) {
-            console.error('Error cargando ciclo actual:', resultados.cicloActual.reason);
+            // Error cargando ciclo actual
         }
     }
     
@@ -168,17 +166,27 @@ function procesarResultados(resultados) {
     } else {
         // Solo mostrar error si no es un problema de conexión
         if (!resultados.actividades.reason?.message?.includes('Failed to fetch')) {
-            console.error('Error cargando actividades:', resultados.actividades.reason);
+            // Error cargando actividades
         }
     }
     
     // Ciclos disponibles
     if (resultados.ciclos.status === 'fulfilled') {
         dataState.ciclosDisponibles = resultados.ciclos.value || [];
+        
+        // Establecer ciclo activo si no hay uno seleccionado
+        if (!obtenerCicloSeleccionado() && dataState.ciclosDisponibles.length > 0) {
+            const cicloActivo = dataState.ciclosDisponibles.find(c => c.estado === 'activo');
+            if (cicloActivo) {
+                // Estableciendo ciclo activo automáticamente
+                localStorage.setItem('cicloSeleccionado', cicloActivo.id);
+                dataState.cicloActual = cicloActivo;
+            }
+        }
     } else {
         // Solo mostrar error si no es un problema de conexión
         if (!resultados.ciclos.reason?.message?.includes('Failed to fetch')) {
-            console.error('Error cargando ciclos disponibles:', resultados.ciclos.reason);
+            // Error cargando ciclos disponibles
         }
     }
 }
@@ -194,12 +202,12 @@ async function cargarEstadoSistema(endpoint) {
     if (!endpoint) return { activo: true, mensaje: 'Sistema operativo' };
     
     try {
-        const response = await window.apiRequest(`${CONFIG.API.ENDPOINTS.DASHBOARD}/stats`, 'GET');
+        const response = await window.apiRequest(`${CONFIG.API.ENDPOINTS.DASHBOARD}/estadisticas`, 'GET');
         return response.data || { activo: true, mensaje: 'Sistema operativo' };
     } catch (error) {
         // Solo mostrar warning si no es un error de red común
         if (!error.message?.includes('Failed to fetch') && !error.message?.includes('NetworkError')) {
-            console.warn('⚠️ Error obteniendo estado del sistema:', error.message);
+            // Error obteniendo estado del sistema
         }
         return { activo: true, mensaje: 'Estado no disponible' };
     }
@@ -215,7 +223,6 @@ async function cargarMetricas(endpoint) {
     try {
         // Obtener ciclo seleccionado
         const cicloSeleccionado = obtenerCicloSeleccionado();
-        console.log('📅 Ciclo seleccionado para métricas:', cicloSeleccionado);
         
         // Construir URL con parámetros de ciclo
         let url = `${CONFIG.API.ENDPOINTS.DASHBOARD}/estadisticas`;
@@ -223,23 +230,8 @@ async function cargarMetricas(endpoint) {
             url += `?ciclo=${cicloSeleccionado}`;
         }
         
-        // Usar el endpoint correcto para estadísticas (probando múltiples endpoints)
-        let response;
-        try {
-            response = await window.apiRequest(url, 'GET');
-        } catch (firstError) {
-            // Solo mostrar warning si no es un error de conexión
-            if (!firstError.message?.includes('Failed to fetch')) {
-                console.warn('⚠️ Endpoint /estadisticas no disponible, probando /stats');
-            }
-            let fallbackUrl = `${CONFIG.API.ENDPOINTS.DASHBOARD}/stats`;
-            if (cicloSeleccionado) {
-                fallbackUrl += `?ciclo=${cicloSeleccionado}`;
-            }
-            response = await window.apiRequest(fallbackUrl, 'GET');
-        }
-        
-        console.log('📊 Respuesta de estadísticas:', response);
+        // Usar el endpoint unificado para estadísticas
+        const response = await window.apiRequest(url, 'GET');
         
         // Procesar la respuesta estructurada del backend
         if (response && (response.success || response.data)) {
@@ -254,11 +246,10 @@ async function cargarMetricas(endpoint) {
                 verificaciones: data.verificaciones?.total || 0,
                 portafolios: data.portafolios?.total || data.portafolios?.activos || 0,
                 timestamp: data.timestamp || new Date().toISOString(),
-                ciclo: data.ciclo || null,
+                ciclo: data.ciclo || cicloSeleccionado,
                 sistema: data.sistema || null
             };
             
-            console.log('📊 Métricas procesadas:', metricas);
             return metricas;
         }
         
@@ -266,7 +257,7 @@ async function cargarMetricas(endpoint) {
     } catch (error) {
         // Solo mostrar warning si no es un error de red común
         if (!error.message?.includes('Failed to fetch') && !error.message?.includes('NetworkError')) {
-            console.warn('⚠️ Error obteniendo métricas:', error.message);
+            // Error obteniendo métricas
         }
         return obtenerMetricasPorDefecto();
     }
@@ -284,7 +275,7 @@ async function cargarCicloActual(endpoint) {
     } catch (error) {
         // Solo mostrar warning si no es un error de red común
         if (!error.message?.includes('Failed to fetch') && !error.message?.includes('NetworkError')) {
-            console.warn('⚠️ Error obteniendo ciclo actual:', error.message);
+            // Error obteniendo ciclo actual
         }
         return null;
     }
@@ -302,7 +293,7 @@ async function cargarActividadesRecientes(endpoint) {
     } catch (error) {
         // Solo mostrar warning si no es un error de red común
         if (!error.message?.includes('Failed to fetch') && !error.message?.includes('NetworkError')) {
-            console.warn('⚠️ Error obteniendo actividades recientes:', error.message);
+            // Error obteniendo actividades recientes
         }
         return [];
     }
@@ -320,7 +311,7 @@ async function cargarCiclosDisponibles(endpoint) {
     } catch (error) {
         // Solo mostrar warning si no es un error de red común
         if (!error.message?.includes('Failed to fetch') && !error.message?.includes('NetworkError')) {
-            console.warn('⚠️ Error obteniendo ciclos disponibles:', error.message);
+            // Error obteniendo ciclos disponibles
         }
         return [];
     }
@@ -362,7 +353,6 @@ function configurarActualizacionAutomatica() {
     intervaloActualizacion = setInterval(async () => {
         // Solo actualizar si no hay errores de conexión previos
         if (!dataState.servidorOffline) {
-            console.log('🔄 Actualizando datos automáticamente...');
             try {
                 await cargarDatosIniciales();
                 if (window.UITablero?.actualizarInterfaz) {
@@ -375,11 +365,9 @@ function configurarActualizacionAutomatica() {
             dataState.servidorOffline = true;
             // Solo mostrar mensaje si no es un error de conexión común
             if (!error.message?.includes('Failed to fetch')) {
-                console.log('📡 Servidor no disponible, pausando actualizaciones automáticas');
+                // Servidor no disponible, pausando actualizaciones automáticas
             }
         }
-        } else {
-            console.log('⚠️ Servidor offline, omitiendo actualización automática');
         }
     }, INTERVALO_ACTUALIZACION * 2); // Duplicar intervalo a 60s
 }
@@ -434,7 +422,6 @@ function obtenerUltimaActualizacion() {
  * Actualizar datos manualmente
  */
 async function actualizarDatos() {
-    console.log('🔄 Actualizando datos manualmente...');
     await cargarDatosIniciales();
     
     // Notificar a la UI
@@ -455,6 +442,79 @@ function limpiarCache() {
     dataState.ultimaActualizacion = null;
 }
 
+/**
+ * Limpiar caché completo del sistema (localStorage, sessionStorage y estado)
+ */
+function limpiarCacheCompleto() {
+    // Limpiar estado interno
+    limpiarCache();
+    
+    // Limpiar almacenamiento local
+    try {
+        localStorage.removeItem('cicloSeleccionado');
+        localStorage.removeItem('portafolio_docente_token');
+        localStorage.removeItem('temp_token');
+        localStorage.removeItem('temp_usuario');
+        
+        sessionStorage.removeItem('cicloSeleccionado');
+        sessionStorage.removeItem('portafolio_docente_token');
+        
+    } catch (error) {
+        // Error limpiando almacenamiento
+    }
+    
+    // Limpiar caché de window.DataTablero si existe
+    if (window.DataTablero) {
+        window.DataTablero = {
+            ...window.DataTablero,
+            estadoSistema: null,
+            metricas: null,
+            cicloActual: null,
+            actividadesRecientes: [],
+            ciclosDisponibles: []
+        };
+    }
+}
+
+/**
+ * Forzar sincronización completa de datos
+ */
+async function forzarSincronizacion() {
+    try {
+        // Limpiar caché completo
+        limpiarCacheCompleto();
+        
+        // Esperar un momento para asegurar limpieza
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // Recargar datos desde cero
+        await cargarDatosIniciales();
+        
+        // Actualizar interfaz
+        if (window.UITablero?.actualizarInterfaz) {
+            window.UITablero.actualizarInterfaz();
+        }
+        
+        // Emitir evento de sincronización completa
+        const evento = new CustomEvent('sincronizacion-completa', {
+            detail: { timestamp: new Date().toISOString() }
+        });
+        document.dispatchEvent(evento);
+        
+        // Mostrar notificación al usuario
+        if (window.mostrarNotificacion) {
+            window.mostrarNotificacion('Datos sincronizados correctamente', 'success');
+        }
+        
+    } catch (error) {
+        if (window.mostrarNotificacion) {
+            window.mostrarNotificacion('Error al sincronizar datos', 'error');
+        }
+        
+        throw error;
+    }
+}
+
 // ================================================
 // GESTIÓN DE CICLO SELECCIONADO
 // ================================================
@@ -471,36 +531,28 @@ function obtenerCicloSeleccionado() {
         '#cicloAcademico'
     ];
     
-    console.log('🔍 Buscando ciclo seleccionado en selectores...');
-    
     for (const selector of selectores) {
         const elemento = document.querySelector(selector);
         if (elemento) {
-            console.log(`📋 Selector ${selector} encontrado:`, {
-                value: elemento.value,
-                selectedIndex: elemento.selectedIndex,
-                options: Array.from(elemento.options).map(opt => ({ value: opt.value, text: opt.text, selected: opt.selected }))
-            });
-            
             if (elemento.value && elemento.value !== '') {
-                console.log(`✅ Ciclo seleccionado encontrado: ${elemento.value}`);
                 // Guardar en almacenamiento para consistencia
                 localStorage.setItem('cicloSeleccionado', elemento.value);
                 return elemento.value;
             }
-        } else {
-            console.log(`❌ Selector ${selector} no encontrado`);
         }
     }
     
     // Fallback: obtener desde almacenamiento local o sesión
     const cicloAlmacenado = localStorage.getItem('cicloSeleccionado') || sessionStorage.getItem('cicloSeleccionado');
     if (cicloAlmacenado) {
-        console.log(`📦 Ciclo recuperado del almacenamiento: ${cicloAlmacenado}`);
         return cicloAlmacenado;
     }
     
-    console.log('⚠️ No se encontró ningún ciclo seleccionado');
+    // Último fallback: obtener el ciclo activo desde el estado
+    const cicloActivo = dataState.cicloActual;
+    if (cicloActivo && cicloActivo.id) {
+        return cicloActivo.id;
+    }
     return null;
 }
 
@@ -508,7 +560,6 @@ function obtenerCicloSeleccionado() {
  * Establecer ciclo seleccionado y actualizar datos
  */
 async function establecerCicloSeleccionado(cicloId) {
-    console.log('📅 Estableciendo ciclo seleccionado:', cicloId);
     
     // Guardar en almacenamiento
     if (cicloId) {
@@ -540,20 +591,106 @@ async function establecerCicloSeleccionado(cicloId) {
  * Configurar integración con el sistema de sincronización de ciclos
  */
 function configurarIntegracionCiclos() {
-    console.log('🔗 Configurando integración con sistema de ciclos...');
-    
     // Escuchar cambios de ciclo del sistema de sincronización
     document.addEventListener('ciclo-cambiado', async (event) => {
         const { ciclo } = event.detail;
-        console.log('🔄 Ciclo cambiado detectado en datos, actualizando...', ciclo);
         
         if (ciclo && ciclo.id) {
             // Actualizar datos con el nuevo ciclo
             await actualizarDatos();
+            // También actualizar portafolios
+            await cargarPortafoliosDelCiclo();
         }
     });
+}
+
+/**
+ * Configurar carga de portafolios
+ */
+function configurarCargaPortafolios() {
+    // Cargar portafolios iniciales
+    cargarPortafoliosDelCiclo();
     
-    console.log('✅ Integración con sistema de ciclos configurada');
+    // Escuchar eventos de portafolios generados
+    document.addEventListener('portafolios-generados', async (event) => {
+        await cargarPortafoliosDelCiclo();
+    });
+}
+
+/**
+ * Cargar portafolios del ciclo actual
+ */
+async function cargarPortafoliosDelCiclo() {
+    try {
+        const cicloSeleccionado = obtenerCicloSeleccionado();
+        if (!cicloSeleccionado) {
+            return;
+        }
+        
+        // Usar el sistema de generación de portafolios si está disponible
+        if (window.GeneracionPortafolios && typeof window.GeneracionPortafolios.cargarPortafoliosExistentes === 'function') {
+            await window.GeneracionPortafolios.cargarPortafoliosExistentes();
+        } else {
+            // Fallback: cargar directamente desde la API
+            await cargarPortafoliosDirectamente(cicloSeleccionado);
+        }
+        
+    } catch (error) {
+        // Error cargando portafolios del ciclo
+    }
+}
+
+/**
+ * Cargar portafolios directamente desde la API
+ */
+async function cargarPortafoliosDirectamente(cicloId) {
+    try {
+        const response = await window.apiRequest(`${CONFIG.API.ENDPOINTS.PORTAFOLIOS}?ciclo=${cicloId}`, 'GET');
+        
+        if (response.success && response.data) {
+            const portafolios = Array.isArray(response.data) ? response.data : [];
+            
+            // Actualizar estadísticas en la interfaz
+            actualizarEstadisticasPortafolios(portafolios);
+        }
+        
+    } catch (error) {
+        // Error en carga directa de portafolios
+    }
+}
+
+/**
+ * Actualizar estadísticas de portafolios en la interfaz
+ */
+function actualizarEstadisticasPortafolios(portafolios) {
+    if (!Array.isArray(portafolios)) return;
+    
+    const estadisticas = {
+        total: portafolios.length,
+        activos: portafolios.filter(p => p.estado === 'activo' || p.estado === 'aprobado').length,
+        completados: portafolios.filter(p => p.estado === 'completado' || p.estado === 'aprobado').length,
+        pendientes: portafolios.filter(p => p.estado === 'pendiente').length,
+        enVerificacion: portafolios.filter(p => p.estado === 'en_revision' || p.estado === 'verificacion').length
+    };
+    
+    // Calcular progreso promedio
+    const progresoPromedio = portafolios.length > 0 
+        ? Math.round(portafolios.reduce((sum, p) => sum + (p.progreso || 0), 0) / portafolios.length)
+        : 0;
+    
+    // Actualizar elementos en la interfaz
+    const actualizarElemento = (id, valor) => {
+        const elemento = document.getElementById(id);
+        if (elemento) {
+            elemento.textContent = valor;
+        }
+    };
+    
+    actualizarElemento('totalPortafolios', estadisticas.total);
+    actualizarElemento('activePortafolios', estadisticas.activos);
+    actualizarElemento('completedPortafolios', estadisticas.completados);
+    actualizarElemento('averageProgress', `${progresoPromedio}%`);
+    actualizarElemento('inVerificationPortafolios', estadisticas.enVerificacion);
 }
 
 // ================================================
@@ -580,10 +717,12 @@ window.DataTablero = {
     // Acciones
     actualizarDatos,
     limpiarCache,
+    limpiarCacheCompleto,
+    forzarSincronizacion,
     
     // Control de actualización
     configurarActualizacionAutomatica,
     detenerActualizacionAutomatica
 };
 
-console.log('✅ Módulo Data del Tablero cargado'); 
+// Módulo Data del Tablero cargado

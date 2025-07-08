@@ -17,7 +17,7 @@ export class CiclosUI {
      */
     inicializarDataTable() {
         if (typeof $ === 'undefined' || typeof $.fn.DataTable === 'undefined') {
-            console.warn('jQuery o DataTables no disponible');
+            // jQuery o DataTables no disponible
             return false;
         }
 
@@ -60,9 +60,13 @@ export class CiclosUI {
                         render: (data) => {
                             const badges = {
                                 'preparacion': '<span class="badge badge-warning">Preparación</span>',
+                                'inicializacion': '<span class="badge badge-info">Inicialización</span>',
                                 'activo': '<span class="badge badge-success">Activo</span>',
-                                'cerrado': '<span class="badge badge-secondary">Cerrado</span>',
-                                'archivado': '<span class="badge badge-info">Archivado</span>'
+                                'verificacion': '<span class="badge badge-primary">Verificación</span>',
+                                'finalizacion': '<span class="badge badge-secondary">Finalización</span>',
+                                'archivado': '<span class="badge badge-dark">Archivado</span>',
+                                // Estados legacy para compatibilidad
+                                'cerrado': '<span class="badge badge-secondary">Cerrado</span>'
                             };
                             return badges[data] || `<span class="badge badge-light">${data}</span>`;
                         }
@@ -100,7 +104,7 @@ export class CiclosUI {
             this.log('DataTable inicializada exitosamente');
             return true;
         } catch (error) {
-            console.error('Error al inicializar DataTable:', error);
+            // Error al inicializar DataTable
             return false;
         }
     }
@@ -111,63 +115,114 @@ export class CiclosUI {
     generarBotonesAccion(ciclo) {
         let botones = `<div class="btn-group btn-group-sm" role="group">`;
         
-        // Botón editar (siempre disponible)
-        botones += `
-            <button type="button" class="btn btn-info btn-editar" data-id="${ciclo.id}" title="Editar">
-                <i class="fas fa-edit"></i>
-            </button>
-        `;
-        
-        // Botones específicos según estado
+        // Botón editar (disponible solo en preparación)
         if (ciclo.estado === 'preparacion') {
-            // Botón inicializar ciclo (activar + habilitar carga)
             botones += `
-                <button type="button" class="btn btn-success btn-inicializar" data-id="${ciclo.id}" title="Inicializar Ciclo">
-                    <i class="fas fa-rocket"></i>
-                </button>
-            `;
-            
-            // Botón eliminar (solo para ciclos en preparación)
-            botones += `
-                <button type="button" class="btn btn-danger btn-eliminar" data-id="${ciclo.id}" title="Eliminar">
-                    <i class="fas fa-trash"></i>
-                </button>
-            `;
-        } else if (ciclo.estado === 'activo') {
-            // Verificar estados de módulos para mostrar botones específicos
-            const cargaDatosHabilitada = ciclo.estados_sistema?.some(e => e.modulo === 'carga_datos' && e.habilitado);
-            const verificacionHabilitada = ciclo.estados_sistema?.some(e => e.modulo === 'verificacion' && e.habilitado);
-            
-            if (cargaDatosHabilitada && !verificacionHabilitada) {
-                // Si carga de datos está habilitada pero verificación no
-                botones += `
-                    <button type="button" class="btn btn-warning btn-finalizar-carga" data-id="${ciclo.id}" title="Finalizar Carga de Datos">
-                        <i class="fas fa-check"></i>
-                    </button>
-                `;
-            }
-            
-            // Botón gestionar estados (siempre para ciclos activos)
-            botones += `
-                <button type="button" class="btn btn-primary btn-estados" data-id="${ciclo.id}" title="Gestionar Estados">
-                    <i class="fas fa-cogs"></i>
-                </button>
-            `;
-            
-            // Botón cerrar ciclo
-            botones += `
-                <button type="button" class="btn btn-secondary btn-cerrar" data-id="${ciclo.id}" title="Cerrar Ciclo">
-                    <i class="fas fa-stop"></i>
-                </button>
-            `;
-        } else if (ciclo.estado === 'cerrado') {
-            // Para ciclos cerrados, solo permitir reactivar
-            botones += `
-                <button type="button" class="btn btn-outline-success btn-reactivar" data-id="${ciclo.id}" title="Reactivar Ciclo">
-                    <i class="fas fa-play"></i>
+                <button type="button" class="btn btn-info btn-editar" data-id="${ciclo.id}" title="Editar">
+                    <i class="fas fa-edit"></i>
                 </button>
             `;
         }
+        
+        // Botones específicos según estado
+        switch (ciclo.estado) {
+            case 'preparacion':
+                // Botón inicializar ciclo
+                botones += `
+                    <button type="button" class="btn btn-success btn-inicializar" data-id="${ciclo.id}" title="Inicializar Ciclo">
+                        <i class="fas fa-rocket"></i>
+                    </button>
+                `;
+                
+                // Botón eliminar (solo para ciclos en preparación)
+                botones += `
+                    <button type="button" class="btn btn-danger btn-eliminar" data-id="${ciclo.id}" title="Eliminar">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                `;
+                break;
+                
+            case 'inicializacion':
+                // Botón activar
+                botones += `
+                    <button type="button" class="btn btn-success btn-activar" data-id="${ciclo.id}" title="Activar Ciclo">
+                        <i class="fas fa-play"></i>
+                    </button>
+                `;
+                
+                // Botón volver a preparación
+                botones += `
+                    <button type="button" class="btn btn-warning btn-volver-preparacion" data-id="${ciclo.id}" title="Volver a Preparación">
+                        <i class="fas fa-undo"></i>
+                    </button>
+                `;
+                break;
+                
+            case 'activo':
+                // Botón gestionar estados
+                botones += `
+                    <button type="button" class="btn btn-primary btn-estados" data-id="${ciclo.id}" title="Gestionar Estados">
+                        <i class="fas fa-cogs"></i>
+                    </button>
+                `;
+                
+                // Botón iniciar verificación
+                botones += `
+                    <button type="button" class="btn btn-info btn-iniciar-verificacion" data-id="${ciclo.id}" title="Iniciar Verificación">
+                        <i class="fas fa-search"></i>
+                    </button>
+                `;
+                
+                // Botón volver a preparación
+                botones += `
+                    <button type="button" class="btn btn-warning btn-volver-preparacion" data-id="${ciclo.id}" title="Volver a Preparación">
+                        <i class="fas fa-undo"></i>
+                    </button>
+                `;
+                break;
+                
+            case 'verificacion':
+                // Botón finalizar
+                botones += `
+                    <button type="button" class="btn btn-success btn-finalizar" data-id="${ciclo.id}" title="Finalizar Ciclo">
+                        <i class="fas fa-flag-checkered"></i>
+                    </button>
+                `;
+                
+                // Botón volver a activo
+                botones += `
+                    <button type="button" class="btn btn-primary btn-volver-activo" data-id="${ciclo.id}" title="Volver a Activo">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                `;
+                break;
+                
+            case 'finalizacion':
+            case 'cerrado': // Compatibilidad con estado legacy
+                // Botón archivar
+                botones += `
+                    <button type="button" class="btn btn-secondary btn-archivar" data-id="${ciclo.id}" title="Archivar Ciclo">
+                        <i class="fas fa-archive"></i>
+                    </button>
+                `;
+                break;
+                
+            case 'archivado':
+                // Botón reactivar (volver a preparación)
+                botones += `
+                    <button type="button" class="btn btn-outline-success btn-reactivar" data-id="${ciclo.id}" title="Reactivar Ciclo">
+                        <i class="fas fa-play"></i>
+                    </button>
+                `;
+                break;
+        }
+        
+        // Botón ver detalles (siempre disponible)
+        botones += `
+            <button type="button" class="btn btn-outline-info btn-ver-detalles" data-id="${ciclo.id}" title="Ver Detalles">
+                <i class="fas fa-eye"></i>
+            </button>
+        `;
         
         botones += `</div>`;
         return botones;
@@ -193,7 +248,7 @@ export class CiclosUI {
             this.log('Tabla actualizada con', ciclos.length, 'ciclos');
             return true;
         } catch (error) {
-            console.error('Error al actualizar tabla:', error);
+            // Error al actualizar tabla
             return false;
         } finally {
             this.core.ocultarCargando();
@@ -206,7 +261,7 @@ export class CiclosUI {
     configurarModalCiclo() {
         const modal = document.getElementById('modalCiclo');
         if (!modal) {
-            console.warn('Modal de ciclo no encontrado');
+            // Modal de ciclo no encontrado
             return;
         }
 
@@ -270,7 +325,7 @@ export class CiclosUI {
             
             this.log('Modal editar ciclo mostrado:', cicloId);
         } catch (error) {
-            console.error('Error al mostrar modal de edición:', error);
+            // Error al mostrar modal de edición
             if (typeof toastr !== 'undefined') {
                 toastr.error('Error al cargar los datos del ciclo');
             }
@@ -312,7 +367,7 @@ export class CiclosUI {
             
             this.log('Modal estados mostrado para ciclo:', cicloId);
         } catch (error) {
-            console.error('Error al mostrar modal de estados:', error);
+            // Error al mostrar modal de estados
             if (typeof toastr !== 'undefined') {
                 toastr.error('Error al cargar los estados del ciclo');
             }
@@ -565,7 +620,7 @@ export class CiclosUI {
 
             this.log('Estadísticas actualizadas:', stats);
         } catch (error) {
-            console.error('Error al actualizar estadísticas:', error);
+            // Error al actualizar estadísticas
         }
     }
 
@@ -574,7 +629,7 @@ export class CiclosUI {
      */
     log(...args) {
         if (this.debug) {
-            console.log('[CiclosUI]', ...args);
+            // Log de CiclosUI
         }
     }
 
@@ -588,7 +643,7 @@ export class CiclosUI {
                 this.tablaCiclos = null;
                 this.log('DataTable destruida');
             } catch (error) {
-                console.error('Error al destruir DataTable:', error);
+                // Error al destruir DataTable
             }
         }
     }
@@ -604,4 +659,4 @@ export class CiclosUI {
             tablaCiclosDisponible: !!document.getElementById('tablaCiclos')
         };
     }
-} 
+}

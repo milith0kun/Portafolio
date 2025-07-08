@@ -7,16 +7,7 @@
 // INFORMACIÓN DEL SISTEMA MODULAR
 // ================================================
 
-console.log(`
-🚀 SISTEMA TABLERO ADMINISTRADOR MODULAR
-================================================
-📂 Módulos disponibles:
-   • Core     → Inicialización y autenticación
-   • Data     → Manejo de datos y API
-   • UI       → Interfaz de usuario y renderizado  
-   • Eventos  → Manejo de eventos e interacciones
-================================================
-`);
+// Sistema Tablero Admin v2.0.0
 
 // ================================================
 // ESTADO DE INICIALIZACIÓN
@@ -43,12 +34,11 @@ const sistemaTablero = {
  */
 async function inicializarSistemaTablero() {
     if (sistemaTablero.inicializando || sistemaTablero.inicializado) {
-        console.warn('⚠️ Sistema ya está inicializando o inicializado');
-        return;
+        return; // Sistema ya inicializado
     }
     
     sistemaTablero.inicializando = true;
-    console.log('🔧 Iniciando sistema modular del tablero...');
+    // Iniciando sistema modular del tablero
     
     try {
         // 1. Verificar disponibilidad de módulos
@@ -60,17 +50,19 @@ async function inicializarSistemaTablero() {
         // 3. Verificar inicialización completa
         verificarInicializacionCompleta();
         
-        // 4. Configurar manejo de errores global
+        // 4. Configurar sincronización de ciclos
+        configurarSincronizacionCiclos();
+        
+        // 5. Configurar manejo de errores global
         configurarManejoErrores();
         
         sistemaTablero.inicializado = true;
-        console.log('✅ Sistema tablero inicializado completamente');
+        // Sistema tablero inicializado
         
-        // 5. Emitir evento de sistema listo
+        // 6. Emitir evento de sistema listo
         emitirEventoSistemaListo();
         
     } catch (error) {
-        console.error('❌ Error fatal en inicialización del sistema:', error);
         sistemaTablero.errores.push(error);
         mostrarErrorFatal(error);
     } finally {
@@ -83,8 +75,6 @@ async function inicializarSistemaTablero() {
 // ================================================
 
 async function verificarModulosDisponibles() {
-    console.log('🔍 Verificando disponibilidad de módulos...');
-    
     const modulos = [
         { nombre: 'TableroCore', archivo: 'core.js' },
         { nombre: 'DataTablero', archivo: 'data.js' },
@@ -97,9 +87,6 @@ async function verificarModulosDisponibles() {
     modulos.forEach(modulo => {
         if (!window[modulo.nombre]) {
             modulosFaltantes.push(modulo);
-            console.error(`❌ Módulo ${modulo.nombre} no disponible (${modulo.archivo})`);
-        } else {
-            console.log(`✅ Módulo ${modulo.nombre} disponible`);
         }
     });
     
@@ -113,8 +100,6 @@ async function verificarModulosDisponibles() {
 // ================================================
 
 async function inicializarModulos() {
-    console.log('🔄 Inicializando módulos en orden de dependencia...');
-    
     // Orden de inicialización basado en dependencias
     const ordenInicializacion = [
         { nombre: 'core', modulo: window.TableroCore, descripcion: 'Core del sistema' },
@@ -125,19 +110,14 @@ async function inicializarModulos() {
     
     for (const { nombre, modulo, descripcion } of ordenInicializacion) {
         try {
-            console.log(`🔧 Inicializando ${descripcion}...`);
-            
             if (modulo && typeof modulo.initialize === 'function') {
                 await modulo.initialize();
                 sistemaTablero.modulos[nombre] = true;
-                console.log(`✅ ${descripcion} inicializado`);
             } else {
-                console.warn(`⚠️ Módulo ${nombre} no tiene método initialize`);
                 sistemaTablero.modulos[nombre] = 'sin-initialize';
             }
             
         } catch (error) {
-            console.error(`❌ Error inicializando ${descripcion}:`, error);
             sistemaTablero.errores.push({ modulo: nombre, error });
             
             // Continuar con otros módulos en caso de error no crítico
@@ -156,35 +136,24 @@ async function inicializarModulos() {
 // ================================================
 
 async function inicializarSistemasGestion() {
-    console.log('🔧 Inicializando sistemas de gestión...');
-    
     try {
         // Inicializar sistema de sincronización de ciclos
         if (window.SincronizacionCiclos && typeof window.SincronizacionCiclos.inicializar === 'function') {
-            console.log('🔄 Inicializando sincronización de ciclos...');
             await window.SincronizacionCiclos.inicializar();
             sistemaTablero.modulos.sincronizacionCiclos = true;
-            console.log('✅ Sistema de sincronización de ciclos inicializado');
         } else {
-            console.warn('⚠️ Sistema de sincronización de ciclos no disponible');
             sistemaTablero.modulos.sincronizacionCiclos = false;
         }
         
         // Inicializar sistema de generación de portafolios
         if (window.GeneracionPortafolios && typeof window.GeneracionPortafolios.inicializar === 'function') {
-            console.log('🔄 Inicializando generación de portafolios...');
             await window.GeneracionPortafolios.inicializar();
             sistemaTablero.modulos.generacionPortafolios = true;
-            console.log('✅ Sistema de generación de portafolios inicializado');
         } else {
-            console.warn('⚠️ Sistema de generación de portafolios no disponible');
             sistemaTablero.modulos.generacionPortafolios = false;
         }
         
-        console.log('✅ Sistemas de gestión inicializados');
-        
     } catch (error) {
-        console.error('❌ Error inicializando sistemas de gestión:', error);
         sistemaTablero.errores.push({ modulo: 'sistemas-gestion', error });
     }
 }
@@ -194,24 +163,14 @@ async function inicializarSistemasGestion() {
 // ================================================
 
 function verificarInicializacionCompleta() {
-    console.log('🔍 Verificando estado de inicialización...');
-    
     const estadoModulos = Object.entries(sistemaTablero.modulos)
         .map(([nombre, estado]) => ({ nombre, estado }));
-    
-    console.table(estadoModulos);
     
     const modulosExitosos = estadoModulos.filter(m => m.estado === true).length;
     const totalModulos = estadoModulos.length;
     
-    console.log(`📊 Resumen: ${modulosExitosos}/${totalModulos} módulos inicializados correctamente`);
-    
     if (modulosExitosos === 0) {
         throw new Error('Ningún módulo se inicializó correctamente');
-    }
-    
-    if (sistemaTablero.errores.length > 0) {
-        console.warn(`⚠️ Se encontraron ${sistemaTablero.errores.length} errores durante la inicialización`);
     }
 }
 
@@ -223,13 +182,7 @@ function configurarManejoErrores() {
     // Manejar errores no capturados del sistema
     window.addEventListener('error', (event) => {
         if (event.filename?.includes('tablero/')) {
-            console.error('❌ Error en módulo del tablero:', {
-                mensaje: event.message,
-                archivo: event.filename,
-                linea: event.lineno,
-                columna: event.colno,
-                error: event.error
-            });
+            // Error en módulo del tablero
             
             sistemaTablero.errores.push({
                 tipo: 'runtime',
@@ -241,7 +194,7 @@ function configurarManejoErrores() {
     
     // Manejar promesas rechazadas
     window.addEventListener('unhandledrejection', (event) => {
-        console.error('❌ Promesa rechazada en sistema tablero:', event.reason);
+        // Promesa rechazada en sistema tablero
         
         sistemaTablero.errores.push({
             tipo: 'promise',
@@ -250,7 +203,7 @@ function configurarManejoErrores() {
         });
     });
     
-    console.log('✅ Manejo de errores global configurado');
+    // Manejo de errores global configurado
 }
 
 // ================================================
@@ -268,7 +221,7 @@ function emitirEventoSistemaListo() {
     });
     
     document.dispatchEvent(evento);
-    console.log('📡 Evento sistema-listo emitido');
+    // Evento sistema-listo emitido
 }
 
 // ================================================
@@ -290,7 +243,7 @@ function obtenerEstadoSistema() {
  * Reinicializar sistema (para debugging)
  */
 async function reinicializarSistema() {
-    console.log('🔄 Reinicializando sistema...');
+    // Reinicializando sistema
     
     // Resetear estado
     Object.keys(sistemaTablero.modulos).forEach(key => {
@@ -323,7 +276,7 @@ function verificarSaludSistema() {
         inicializado: sistemaTablero.inicializado
     };
     
-    console.log('🏥 Estado de salud del sistema:', salud);
+    // Estado de salud del sistema
     return salud;
 }
 
@@ -332,7 +285,7 @@ function verificarSaludSistema() {
 // ================================================
 
 function mostrarErrorFatal(error) {
-    console.error('💀 ERROR FATAL DEL SISTEMA:', error);
+    // ERROR FATAL DEL SISTEMA
     
     // Intentar mostrar error en la interfaz si está disponible
     if (window.UITablero?.mostrarErrorEnInterfaz) {
@@ -346,12 +299,56 @@ function mostrarErrorFatal(error) {
 }
 
 // ================================================
+// CONFIGURACIÓN DE SINCRONIZACIÓN DE CICLOS
+// ================================================
+
+function configurarSincronizacionCiclos() {
+    // Configurando sincronización de ciclos para tablero
+    
+    // Escuchar cambios de ciclo activo
+    document.addEventListener('cicloActivoCambiado', (event) => {
+        // Ciclo activo cambiado en tablero
+        
+        // Actualizar datos del tablero según el nuevo ciclo
+        if (window.DataTablero && typeof window.DataTablero.actualizarDatosPorCiclo === 'function') {
+            window.DataTablero.actualizarDatosPorCiclo(event.detail.cicloId);
+        }
+        
+        // Actualizar interfaz del tablero
+        if (window.UITablero && typeof window.UITablero.actualizarInterfazPorCiclo === 'function') {
+            window.UITablero.actualizarInterfazPorCiclo(event.detail.cicloId);
+        }
+    });
+    
+    // Mantener compatibilidad con eventos legacy
+    document.addEventListener('sincronizar-ciclo', (event) => {
+        // Evento legacy sincronizar-ciclo recibido en tablero
+        
+        // Recargar datos del tablero
+        if (window.DataTablero && typeof window.DataTablero.recargarDatos === 'function') {
+            window.DataTablero.recargarDatos();
+        }
+    });
+    
+    document.addEventListener('ciclo-cambiado', (event) => {
+        // Evento legacy ciclo-cambiado recibido en tablero
+        
+        // Actualizar tablero con el nuevo ciclo
+        if (window.DataTablero && typeof window.DataTablero.actualizarDatosPorCiclo === 'function') {
+            window.DataTablero.actualizarDatosPorCiclo(event.detail?.cicloId);
+        }
+    });
+    
+    // Sincronización de ciclos configurada para tablero
+}
+
+// ================================================
 // FUNCIONES DE DEBUGGING
 // ================================================
 
 function habilitarModoDebug() {
     window.TABLERO_DEBUG = true;
-    console.log('🐛 Modo debug habilitado');
+    // Modo debug habilitado
     
     // Exponer funciones de debugging
     window.tableroDebug = {
@@ -392,4 +389,4 @@ window.SistemaTablero = {
     autor: 'Sistema Portafolio Docente'
 };
 
-console.log('✅ Coordinador principal del tablero cargado'); 
+// Coordinador principal del tablero cargado

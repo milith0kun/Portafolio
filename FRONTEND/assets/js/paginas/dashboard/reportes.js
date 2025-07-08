@@ -54,7 +54,7 @@ class SistemaReportes {
     }
 
     async obtenerEstadisticas() {
-        const response = await fetch(`${CONFIG.API.BASE_URL}${CONFIG.API.ENDPOINTS.DASHBOARD}/stats`, {
+        const response = await fetch(`${CONFIG.API.BASE_URL}${CONFIG.API.ENDPOINTS.DASHBOARD}/estadisticas`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem(CONFIG.STORAGE.TOKEN)}`,
                 'Content-Type': 'application/json'
@@ -442,6 +442,38 @@ class SistemaReportes {
                 elemento.addEventListener('change', () => this.manejarCambioFiltro());
             }
         });
+
+        // Eventos de sincronización de ciclos
+        this.configurarEventosSincronizacion();
+    }
+
+    configurarEventosSincronizacion() {
+        // Escuchar evento de cambio de ciclo activo
+        document.addEventListener('cicloActivoCambiado', (event) => {
+            console.log('🔄 Ciclo activo cambiado en reportes:', event.detail);
+            
+            // Actualizar filtro de ciclo si existe
+            const filtroCiclo = document.getElementById('filtro-ciclo');
+            if (filtroCiclo && event.detail.cicloActivo) {
+                filtroCiclo.value = event.detail.cicloActivo.id || '';
+                this.filtros.cicloAcademico = event.detail.cicloActivo.id;
+            }
+            
+            // Recargar datos con el nuevo ciclo
+            setTimeout(() => {
+                this.cargarDatosIniciales();
+            }, 100);
+        });
+        
+        // Eventos legacy para compatibilidad
+        document.addEventListener('ciclo-cambiado', (event) => {
+            console.log('🔄 Ciclo cambiado en reportes (legacy):', event.detail);
+            setTimeout(() => {
+                this.cargarDatosIniciales();
+            }, 100);
+        });
+        
+        console.log('✅ Eventos de sincronización configurados en reportes');
     }
 
     manejarCambioFiltro() {
@@ -620,4 +652,4 @@ class SistemaReportes {
 // Instancia global
 window.REPORTES = new SistemaReportes();
 
-console.log('📊 Sistema de reportes avanzado inicializado'); 
+console.log('📊 Sistema de reportes avanzado inicializado');

@@ -14,7 +14,7 @@ class CiclosManager {
         this.inicializado = false;
         this.modulos = {};
         
-        this.log('CiclosManager creado');
+        // CiclosManager creado
     }
 
     /**
@@ -22,12 +22,12 @@ class CiclosManager {
      */
     async inicializar() {
         if (this.inicializado) {
-            this.log('Sistema ya inicializado');
+            // Sistema ya inicializado
             return;
         }
 
         try {
-            this.log('Iniciando inicialización del sistema de ciclos...');
+            // Iniciando inicialización del sistema de ciclos
             
             // Fase 1: Crear módulos
             await this.crearModulos();
@@ -48,13 +48,13 @@ class CiclosManager {
             this.configurarVerificacionPeriodica();
             
             this.inicializado = true;
-            this.log('✅ Sistema de ciclos inicializado exitosamente');
+            // Sistema de ciclos inicializado exitosamente
             
             // Emitir evento de inicialización completa
             this.emitirEventoInicializacion();
             
         } catch (error) {
-            console.error('❌ Error crítico al inicializar sistema de ciclos:', error);
+            // Error crítico al inicializar sistema de ciclos
             this.manejarErrorInicializacion(error);
         }
     }
@@ -63,7 +63,7 @@ class CiclosManager {
      * Crear instancias de todos los módulos
      */
     async crearModulos() {
-        this.log('Creando módulos...');
+        // Creando módulos
         
         // Orden de creación importante para dependencias
         this.modulos.core = new CiclosCore();
@@ -71,14 +71,14 @@ class CiclosManager {
         this.modulos.ui = new CiclosUI(this.modulos.core, this.modulos.data);
         this.modulos.eventos = new CiclosEventos(this.modulos.core, this.modulos.data, this.modulos.ui);
         
-        this.log('Módulos creados:', Object.keys(this.modulos));
+        // Módulos creados
     }
 
     /**
      * Verificar dependencias necesarias
      */
     async verificarDependencias() {
-        this.log('Verificando dependencias...');
+        // Verificando dependencias
         
         const dependencias = {
             jquery: typeof $ !== 'undefined',
@@ -95,7 +95,7 @@ class CiclosManager {
             .map(([nombre]) => nombre);
 
         if (faltantes.length > 0) {
-            console.warn('⚠️ Dependencias faltantes:', faltantes);
+            // Dependencias faltantes
             
             // Solo toastr y swal son opcionales
             const criticas = faltantes.filter(dep => !['toastr', 'swal'].includes(dep));
@@ -104,14 +104,14 @@ class CiclosManager {
             }
         }
 
-        this.log('✅ Verificación de dependencias completada');
+        // Verificación de dependencias completada
     }
 
     /**
      * Configurar componentes de UI
      */
     async configurarComponentes() {
-        this.log('Configurando componentes...');
+        // Configurando componentes
         
         // Configurar toastr
         this.modulos.core.configurarToastr();
@@ -125,19 +125,19 @@ class CiclosManager {
         // Configurar modal
         this.modulos.ui.configurarModalCiclo();
         
-        this.log('✅ Componentes configurados');
+        // Componentes configurados
     }
 
     /**
      * Cargar datos iniciales
      */
     async cargarDatosIniciales() {
-        this.log('Cargando datos iniciales...');
+        // Cargando datos iniciales
         
         const datosIniciales = await this.modulos.data.obtenerDatosIniciales();
         
         if (datosIniciales.errores.length > 0) {
-            console.warn('⚠️ Algunos datos no se pudieron cargar:', datosIniciales.errores);
+            // Algunos datos no se pudieron cargar
         }
         
         // Actualizar UI con datos cargados
@@ -152,16 +152,73 @@ class CiclosManager {
         // Actualizar interfaz de ciclo activo
         this.modulos.ui.actualizarInterfazCicloActivo();
         
-        this.log('✅ Datos iniciales cargados');
+        // Datos iniciales cargados
     }
 
     /**
      * Configurar eventos
      */
     configurarEventos() {
-        this.log('Configurando eventos...');
+        // Configurando eventos
         this.modulos.eventos.configurarEventos();
-        this.log('✅ Eventos configurados');
+        
+        // Configurar eventos de sincronización
+        this.configurarEventosSincronizacion();
+        
+        // Eventos configurados
+    }
+
+    /**
+     * Configurar eventos de sincronización de ciclos
+     */
+    configurarEventosSincronizacion() {
+        // Escuchar evento de cambio de ciclo activo
+        document.addEventListener('cicloActivoCambiado', async (event) => {
+            // Evento cicloActivoCambiado recibido
+            
+            try {
+                // Actualizar datos del ciclo activo en el core
+                if (this.modulos.core) {
+                    this.modulos.core.cicloActivo = event.detail.cicloActivo;
+                }
+                
+                // Recargar datos de ciclos
+                await this.recargarDatos();
+                
+                // Actualizar interfaz
+                this.modulos.ui.actualizarInterfazCicloActivo();
+                
+                // Sincronización de ciclo activo completada
+            } catch (error) {
+                // Error al sincronizar ciclo activo
+            }
+        });
+        
+        // Eventos de sincronización configurados
+    }
+
+    /**
+     * Recargar datos de ciclos
+     */
+    async recargarDatos() {
+        try {
+            // Recargando datos de ciclos
+            
+            const datosActualizados = await this.modulos.data.obtenerDatosIniciales();
+            
+            if (datosActualizados.ciclos.length > 0) {
+                this.modulos.ui.tablaCiclos.clear();
+                this.modulos.ui.tablaCiclos.rows.add(datosActualizados.ciclos);
+                this.modulos.ui.tablaCiclos.draw();
+                
+                this.modulos.ui.actualizarEstadisticas(datosActualizados.ciclos);
+            }
+            
+            // Datos de ciclos recargados
+        } catch (error) {
+            // Error al recargar datos de ciclos
+            throw error;
+        }
     }
 
     /**
@@ -173,11 +230,11 @@ class CiclosManager {
             try {
                 await this.modulos.data.verificarCicloActivoSilencioso();
             } catch (error) {
-                this.log('Error en verificación periódica:', error.message);
+                // Error en verificación periódica
             }
         }, 5 * 60 * 1000);
         
-        this.log('✅ Verificación periódica configurada');
+        // Verificación periódica configurada
     }
 
     /**
@@ -193,7 +250,7 @@ class CiclosManager {
         });
         
         document.dispatchEvent(evento);
-        this.log('🎉 Evento de inicialización emitido');
+        // Evento de inicialización emitido
     }
 
     /**
@@ -221,14 +278,14 @@ class CiclosManager {
             `;
         }
         
-        this.log('❌ Error de inicialización manejado');
+        // Error de inicialización manejado
     }
 
     /**
      * Reinicializar sistema (para desarrollo)
      */
     async reinicializar() {
-        this.log('🔄 Reinicializando sistema...');
+        // Reinicializando sistema
         
         // Destruir módulos existentes
         this.destruir();
@@ -236,14 +293,14 @@ class CiclosManager {
         // Reinicializar
         await this.inicializar();
         
-        this.log('🔄 Sistema reinicializado');
+        // Sistema reinicializado
     }
 
     /**
      * Destruir sistema y limpiar recursos
      */
     destruir() {
-        this.log('🧹 Destruyendo sistema...');
+        // Destruyendo sistema
         
         try {
             // Destruir módulos en orden inverso
@@ -259,9 +316,9 @@ class CiclosManager {
             this.modulos = {};
             this.inicializado = false;
             
-            this.log('🧹 Sistema destruido');
+            // Sistema destruido
         } catch (error) {
-            console.error('Error al destruir sistema:', error);
+            // Error al destruir sistema
         }
     }
 
@@ -286,7 +343,7 @@ class CiclosManager {
      */
     log(...args) {
         if (this.debug) {
-            console.log('[CiclosManager]', ...args);
+            // [CiclosManager]
         }
     }
 }
@@ -299,7 +356,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Verificar autenticación antes de inicializar
     if (typeof verificarAutenticacion === 'function') {
         if (!verificarAutenticacion(['administrador'])) {
-            console.log('Usuario no autorizado para acceder a ciclos académicos');
+            // Usuario no autorizado para acceder a ciclos académicos
             return;
         }
     }
@@ -314,10 +371,10 @@ if (typeof window !== 'undefined') {
     
     if (window.ciclosDebug) {
         window.CiclosManager = ciclosManager;
-        console.log('🔧 Modo debug activado para Ciclos');
-        console.log('Acceso: window.CiclosManager');
+        // Modo debug activado para Ciclos
+        // Acceso: window.CiclosManager
     }
 }
 
 // Exportar para uso en otros módulos si es necesario
-export default ciclosManager; 
+export default ciclosManager;
