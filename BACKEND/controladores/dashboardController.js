@@ -8,16 +8,12 @@ const { Actividad, Usuario, Notificacion } = require('../modelos');
  * Ahora con soporte para filtrado por ciclo académico
  */
 const obtenerMetricas = async (req, res) => {
-  console.log('=== INICIO DE OBTENCIÓN DE MÉTRICAS ===');
-  
   try {
     // Obtener ciclo desde parámetros de consulta
     const cicloId = req.query.ciclo || req.query.cicloId;
-    console.log('📅 Ciclo solicitado:', cicloId);
     
     // Verificar conexión a la base de datos
     await sequelize.authenticate();
-    console.log('Conexión a la base de datos establecida correctamente.');
     
     // Obtener modelos después de verificar la conexión
     const { Usuario, UsuarioRol, Portafolio, DocenteAsignatura, CicloAcademico, Carrera, Asignatura } = require('../modelos');
@@ -26,10 +22,13 @@ const obtenerMetricas = async (req, res) => {
     let cicloInfo = null;
     if (cicloId) {
       try {
-        cicloInfo = await CicloAcademico.findByPk(cicloId);
-        console.log('📅 Información del ciclo:', cicloInfo?.nombre || 'No encontrado');
+        cicloInfo = await CicloAcademico.findByPk(cicloId, {
+          attributes: {
+            exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+          }
+        });
       } catch (error) {
-        console.warn('⚠️ Error obteniendo información del ciclo:', error.message);
+        // Error silencioso al obtener información del ciclo
       }
     }
     
@@ -61,7 +60,7 @@ const obtenerMetricas = async (req, res) => {
         return { ...acc, [clave]: parseInt(total) };
       }, { ...distribucionRoles });
     } catch (error) {
-      console.error('Error al obtener distribución de roles:', error);
+      // Error silencioso al obtener distribución de roles
     }
     
     // Obtener métricas de carreras
@@ -76,9 +75,9 @@ const obtenerMetricas = async (req, res) => {
         activas: totalCarreras
       };
       
-      console.log('📊 Métricas de carreras:', carrerasMetricas);
+
     } catch (error) {
-      console.error('Error al obtener métricas de carreras:', error);
+      // Error silencioso al obtener métricas de carreras
     }
     
     // Obtener métricas de asignaturas (filtradas por ciclo si se especifica)
@@ -104,15 +103,15 @@ const obtenerMetricas = async (req, res) => {
           activas: asignaturasEnCiclo
         };
         
-        console.log('📊 Métricas de asignaturas por ciclo:', asignaturasMetricas);
+
       } catch (error) {
-        console.error('Error al obtener métricas de asignaturas:', error);
+        // Error silencioso al obtener métricas de asignaturas
         // Fallback: contar todas las asignaturas activas
         try {
           const totalAsignaturas = await Asignatura.count({ where: { activo: true } });
           asignaturasMetricas = { total: totalAsignaturas, activas: totalAsignaturas };
         } catch (fallbackError) {
-          console.error('Error en fallback de asignaturas:', fallbackError);
+          // Error silencioso en fallback de asignaturas
         }
       }
     } else {
@@ -121,7 +120,7 @@ const obtenerMetricas = async (req, res) => {
         const totalAsignaturas = await Asignatura.count({ where: { activo: true } });
         asignaturasMetricas = { total: totalAsignaturas, activas: totalAsignaturas };
       } catch (error) {
-        console.error('Error al obtener total de asignaturas:', error);
+        // Error silencioso al obtener total de asignaturas
       }
     }
     
@@ -173,9 +172,9 @@ const obtenerMetricas = async (req, res) => {
           progresoPromedio
         };
         
-        console.log('📊 Métricas de portafolios por ciclo:', portafoliosMetricas);
+
       } catch (error) {
-        console.error('Error al obtener métricas de portafolios:', error);
+        // Error silencioso al obtener métricas de portafolios
       }
     }
     
@@ -195,9 +194,9 @@ const obtenerMetricas = async (req, res) => {
           activas: totalAsignaciones
         };
         
-        console.log('📊 Métricas de asignaciones por ciclo:', asignacionesMetricas);
+
       } catch (error) {
-        console.error('Error al obtener métricas de asignaciones:', error);
+        // Error silencioso al obtener métricas de asignaciones
       }
     }
     
@@ -236,7 +235,7 @@ const obtenerMetricas = async (req, res) => {
       timestamp: new Date().toISOString()
     };
     
-    console.log('📊 Métricas generadas exitosamente');
+
     
     // Devolver respuesta exitosa
     return res.status(200).json({
@@ -246,7 +245,6 @@ const obtenerMetricas = async (req, res) => {
     });
     
   } catch (error) {
-    console.error('❌ Error al obtener métricas:', error);
     return res.status(500).json({
       success: false,
       message: 'Error al obtener métricas del dashboard',
@@ -260,7 +258,6 @@ const obtenerMetricas = async (req, res) => {
  */
 const obtenerActividades = async (req, res) => {
   try {
-    console.log('📊 Obteniendo actividades del sistema...');
     
     // Obtener actividades con información de usuario usando las asociaciones
     const actividades = await Actividad.findAll({
@@ -274,7 +271,7 @@ const obtenerActividades = async (req, res) => {
       limit: 10
     });
 
-    console.log(`📋 ${actividades.length} actividades encontradas`);
+
 
     const actividadesFormateadas = actividades.map(actividad => ({
       id: actividad.id,
@@ -293,7 +290,6 @@ const obtenerActividades = async (req, res) => {
     });
     
   } catch (error) {
-    console.error('❌ Error al obtener actividades:', error);
     // Retornar array vacío en lugar de error 500
     return res.status(200).json({
       success: true,
@@ -352,7 +348,6 @@ const obtenerNotificaciones = async (req, res) => {
     });
     
   } catch (error) {
-    console.error('Error al obtener notificaciones:', error);
     return res.status(500).json({
       success: false,
       message: 'Error al obtener notificaciones',
@@ -371,10 +366,9 @@ const obtenerCicloActual = async (req, res) => {
     
     const cicloActivo = await CicloAcademico.findOne({
       where: { estado: 'activo' },
-      include: [{
-        model: EstadoSistema,
-        as: 'estados_sistema'
-      }]
+      attributes: {
+        exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+      }
     });
 
     if (!cicloActivo) {
@@ -385,11 +379,22 @@ const obtenerCicloActual = async (req, res) => {
       });
     }
 
-    // Calcular progreso basado en estados de módulos
-    const estadosModulos = cicloActivo.estados_sistema || [];
-    const modulosHabilitados = estadosModulos.filter(e => e.habilitado).length;
-    const totalModulos = estadosModulos.length;
-    const progreso = totalModulos > 0 ? Math.round((modulosHabilitados / totalModulos) * 100) : 0;
+    // Obtener estados del sistema por separado
+    let estadosModulos = [];
+    let progreso = 0;
+    
+    if (cicloActivo) {
+      try {
+        estadosModulos = await EstadoSistema.findAll({
+          where: { ciclo_id: cicloActivo.id }
+        });
+        const modulosHabilitados = estadosModulos.filter(e => e.habilitado).length;
+        const totalModulos = estadosModulos.length;
+        progreso = totalModulos > 0 ? Math.round((modulosHabilitados / totalModulos) * 100) : 0;
+      } catch (error) {
+        console.log('Error al obtener estados del sistema:', error.message);
+      }
+    }
 
     const cicloActual = {
       id: cicloActivo.id,
@@ -414,7 +419,6 @@ const obtenerCicloActual = async (req, res) => {
     });
     
   } catch (error) {
-    console.error('Error al obtener ciclo actual:', error);
     return res.status(500).json({
       success: false,
       message: 'Error al obtener ciclo académico actual',
@@ -428,11 +432,11 @@ const obtenerCicloActual = async (req, res) => {
  */
 const obtenerEstadisticas = async (req, res) => {
   try {
-    console.log('=== OBTENIENDO ESTADÍSTICAS DEL SISTEMA ===');
+    // Obtener ciclo desde parámetros de consulta
+    const cicloId = req.query.ciclo || req.query.cicloId;
     
     // Verificar conexión a la base de datos
     await sequelize.authenticate();
-    console.log('✅ Conexión a la base de datos verificada');
     
     // Obtener modelos
     const { 
@@ -448,12 +452,24 @@ const obtenerEstadisticas = async (req, res) => {
       Observacion
     } = require('../modelos');
     
-    // Obtener ciclo académico activo
-    const cicloActivo = await CicloAcademico.findOne({
-      where: { estado: 'activo' }
-    });
+    // Obtener ciclo académico (específico o activo)
+    let cicloActivo;
+    if (cicloId) {
+      cicloActivo = await CicloAcademico.findByPk(cicloId, {
+        attributes: {
+          exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+        }
+      });
+    } else {
+      cicloActivo = await CicloAcademico.findOne({
+        where: { estado: 'activo' },
+        attributes: {
+          exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+        }
+      });
+    }
 
-    // Filtros por ciclo activo
+    // Filtros por ciclo
     const filtrosCiclo = cicloActivo ? { ciclo_id: cicloActivo.id } : {};
     
     // Obtener estadísticas de usuarios y roles
@@ -488,7 +504,7 @@ const obtenerEstadisticas = async (req, res) => {
       Carrera.count(),
       Asignatura.count(cicloActivo ? { where: filtrosCiclo } : {}),
       DocenteAsignatura.count(cicloActivo ? { where: filtrosCiclo } : {}),
-      VerificadorDocente.count(),
+      sequelize.query('SELECT COUNT(*) as count FROM verificadores_docentes WHERE activo = true', { type: sequelize.QueryTypes.SELECT }).then(result => result[0].count),
       Portafolio.count(cicloActivo ? { where: filtrosCiclo } : {}),
       Portafolio.count(cicloActivo ? { 
         where: { ...filtrosCiclo, estado: 'activo' } 
@@ -545,11 +561,10 @@ const obtenerEstadisticas = async (req, res) => {
       timestamp: new Date().toISOString()
     };
 
-    console.log('✅ Estadísticas calculadas:', estadisticas);
+
     return res.status(200).json(estadisticas);
     
   } catch (error) {
-    console.error('❌ Error al obtener estadísticas:', error);
     return res.status(500).json({
       success: false,
       message: 'Error al obtener estadísticas del sistema',
@@ -563,39 +578,26 @@ const obtenerEstadisticas = async (req, res) => {
  */
 const obtenerAsignaciones = async (req, res) => {
   try {
-    console.log('=== OBTENIENDO ASIGNACIONES DOCENTE-ASIGNATURA ===');
-    
     // Verificar conexión a la base de datos
     await sequelize.authenticate();
     
     // Obtener modelos
-    const { DocenteAsignatura, Usuario, Asignatura, Carrera } = require('../modelos');
+    const { DocenteAsignatura, Usuario, Asignatura } = require('../modelos');
     
-    let asignaciones = [];
-    
-    if (DocenteAsignatura) {
-      asignaciones = await DocenteAsignatura.findAll({
-        include: [
-          {
-            model: Usuario,
-            as: 'docente',
-            attributes: ['id', 'nombres', 'apellidos', 'correo']
-          },
-          {
-            model: Asignatura,
-            as: 'asignatura',
-            attributes: ['id', 'codigo', 'nombre', 'creditos'],
-            include: Carrera ? [{
-              model: Carrera,
-              as: 'carrera',
-              attributes: ['id', 'nombre', 'codigo']
-            }] : []
-          }
-        ]
-      });
-    }
-
-    console.log(`✅ ${asignaciones.length} asignaciones encontradas`);
+    const asignaciones = await DocenteAsignatura.findAll({
+      include: [
+        {
+          model: Usuario,
+          as: 'docente',
+          attributes: ['id', 'nombres', 'apellidos', 'correo']
+        },
+        {
+          model: Asignatura,
+          as: 'asignatura',
+          attributes: ['id', 'codigo', 'nombre', 'creditos', 'carrera']
+        }
+      ]
+    });
 
     return res.status(200).json({
       success: true,
@@ -604,7 +606,6 @@ const obtenerAsignaciones = async (req, res) => {
     });
     
   } catch (error) {
-    console.error('❌ Error al obtener asignaciones:', error);
     return res.status(500).json({
       success: false,
       message: 'Error al obtener asignaciones docente-asignatura',
@@ -619,43 +620,60 @@ const obtenerAsignaciones = async (req, res) => {
  */
 const obtenerVerificaciones = async (req, res) => {
   try {
-    console.log('=== OBTENIENDO VERIFICACIONES ===');
-    
     // Verificar conexión a la base de datos
     await sequelize.authenticate();
     
-    // Obtener modelos
-    const { VerificadorDocente, Usuario } = require('../modelos');
-    
-    let verificaciones = [];
-    
-    if (VerificadorDocente) {
-      verificaciones = await VerificadorDocente.findAll({
-        include: [
-          {
-            model: Usuario,
-            as: 'verificador',
-            attributes: ['id', 'nombres', 'apellidos', 'correo']
-          },
-          {
-            model: Usuario,
-            as: 'docente',
-            attributes: ['id', 'nombres', 'apellidos', 'correo']
-          }
-        ]
-      });
-    }
+    // Usar SQL directo para evitar problemas con asociaciones
+    const verificaciones = await sequelize.query(`
+      SELECT 
+        vd.id,
+        vd.verificador_id,
+        vd.docente_id,
+        vd.ciclo_id,
+        vd.activo,
+        vd.fecha_asignacion,
+        u1.nombres as verificador_nombres,
+        u1.apellidos as verificador_apellidos,
+        u1.correo as verificador_correo,
+        u2.nombres as docente_nombres,
+        u2.apellidos as docente_apellidos,
+        u2.correo as docente_correo
+      FROM verificadores_docentes vd
+      LEFT JOIN usuarios u1 ON vd.verificador_id = u1.id
+      LEFT JOIN usuarios u2 ON vd.docente_id = u2.id
+      WHERE vd.activo = true
+      ORDER BY vd.fecha_asignacion DESC
+    `, { type: sequelize.QueryTypes.SELECT });
 
-    console.log(`✅ ${verificaciones.length} verificaciones encontradas`);
+    // Formatear respuesta
+    const verificacionesFormateadas = verificaciones.map(v => ({
+      id: v.id,
+      verificador_id: v.verificador_id,
+      docente_id: v.docente_id,
+      ciclo_id: v.ciclo_id,
+      activo: v.activo,
+      fecha_asignacion: v.fecha_asignacion,
+      verificador: {
+        id: v.verificador_id,
+        nombres: v.verificador_nombres,
+        apellidos: v.verificador_apellidos,
+        correo: v.verificador_correo
+      },
+      docente: {
+        id: v.docente_id,
+        nombres: v.docente_nombres,
+        apellidos: v.docente_apellidos,
+        correo: v.docente_correo
+      }
+    }));
 
     return res.status(200).json({
       success: true,
       message: 'Verificaciones obtenidas correctamente',
-      data: verificaciones
+      data: verificacionesFormateadas
     });
     
   } catch (error) {
-    console.error('❌ Error al obtener verificaciones:', error);
     return res.status(500).json({
       success: false,
       message: 'Error al obtener verificaciones',
@@ -670,39 +688,31 @@ const obtenerVerificaciones = async (req, res) => {
  */
 const obtenerPortafolios = async (req, res) => {
   try {
-    console.log('=== OBTENIENDO PORTAFOLIOS ===');
-    
     // Verificar conexión a la base de datos
     await sequelize.authenticate();
     
     // Obtener modelos
     const { Portafolio, Usuario, Asignatura, CicloAcademico } = require('../modelos');
     
-    let portafolios = [];
-    
-    if (Portafolio) {
-      portafolios = await Portafolio.findAll({
-        include: [
-          {
-            model: Usuario,
-            as: 'docente',
-            attributes: ['id', 'nombres', 'apellidos', 'correo']
-          },
-          {
-            model: Asignatura,
-            as: 'asignatura',
-            attributes: ['id', 'codigo', 'nombre']
-          },
-          CicloAcademico ? {
-            model: CicloAcademico,
-            as: 'ciclo',
-            attributes: ['id', 'nombre', 'estado']
-          } : null
-        ].filter(Boolean)
-      });
-    }
-
-    console.log(`✅ ${portafolios.length} portafolios encontrados`);
+    const portafolios = await Portafolio.findAll({
+      include: [
+        {
+          model: Usuario,
+          as: 'docente',
+          attributes: ['id', 'nombres', 'apellidos', 'correo']
+        },
+        {
+          model: Asignatura,
+          as: 'asignatura',
+          attributes: ['id', 'codigo', 'nombre']
+        },
+        {
+          model: CicloAcademico,
+          as: 'ciclo',
+          attributes: ['id', 'nombre', 'estado']
+        }
+      ]
+    });
 
     return res.status(200).json({
       success: true,
@@ -711,7 +721,6 @@ const obtenerPortafolios = async (req, res) => {
     });
     
   } catch (error) {
-    console.error('❌ Error al obtener portafolios:', error);
     return res.status(500).json({
       success: false,
       message: 'Error al obtener portafolios',

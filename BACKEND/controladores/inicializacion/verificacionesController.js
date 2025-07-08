@@ -94,14 +94,22 @@ const procesar = async (archivo, transaction) => {
                 let cicloId = null;
                 const ciclosActivos = await CicloAcademico.findOne({
                     where: { estado: 'activo' },
-                    transaction
+                    transaction,
+                    attributes: {
+                        exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+                    }
                 });
                 
                 if (ciclosActivos) {
                     cicloId = ciclosActivos.id;
                 } else {
                     // Si no hay ciclo activo, usar el primero disponible
-                    const primerCiclo = await CicloAcademico.findOne({ transaction });
+                    const primerCiclo = await CicloAcademico.findOne({ 
+                        transaction,
+                        attributes: {
+                            exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+                        }
+                    });
                     if (primerCiclo) {
                         cicloId = primerCiclo.id;
                     } else {

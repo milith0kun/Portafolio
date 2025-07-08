@@ -15,15 +15,7 @@ router.get('/estadisticas',
   dashboardController.obtenerEstadisticas
 );
 
-// Ruta alternativa para mantener compatibilidad con código existente
-router.get('/stats', 
-  verificarToken, 
-  verificarRol(['administrador']), 
-  (req, res) => {
-    console.log('⚠️ Usando endpoint /stats (deprecado). Por favor usar /estadisticas');
-    return dashboardController.obtenerEstadisticas(req, res);
-  }
-);
+
 
 /**
  * @route GET /api/dashboard/actividades

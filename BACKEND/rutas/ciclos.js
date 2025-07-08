@@ -18,6 +18,13 @@ router.get('/', verificarToken, verificarRol(['administrador']), ciclosControlle
 router.get('/activo', verificarToken, ciclosController.obtenerCicloActivo);
 
 /**
+ * @route   GET /api/ciclos/verificacion
+ * @desc    Obtener el ciclo académico en verificación
+ * @access  Privado (Todos los roles)
+ */
+router.get('/verificacion', verificarToken, ciclosController.obtenerCicloEnVerificacion);
+
+/**
  * @route   GET /api/ciclos/:id/estadisticas
  * @desc    Obtener estadísticas específicas de un ciclo académico
  * @access  Privado (Admin)

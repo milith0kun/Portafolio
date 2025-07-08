@@ -199,6 +199,9 @@ const procesar = async (archivo, transaction) => {
         // Obtener ciclo activo
         const cicloActivo = await CicloAcademico.findOne({
             where: { estado: 'activo' },
+            attributes: {
+                exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+            },
             transaction
         });
 

@@ -9,6 +9,11 @@ const { logger } = require('../config/logger');
  */
 exports.obtenerActividadesRecientes = async (req, res) => {
     try {
+        // Verificar que los modelos estén disponibles
+        if (!Actividad || !Usuario) {
+            throw new Error('Modelos no disponibles');
+        }
+
         // Obtener las últimas 10 actividades ordenadas por fecha de creación descendente
         const actividades = await Actividad.findAll({
             limit: 10,
@@ -17,7 +22,7 @@ exports.obtenerActividadesRecientes = async (req, res) => {
                 model: Usuario,
                 as: 'usuario',
                 attributes: ['id', 'nombres', 'apellidos', 'correo'],
-                required: false
+                required: true // Cambiar a true ya que usuario_id es requerido
             }],
             attributes: [
                 'id',
@@ -114,8 +119,8 @@ exports.registrarActividad = async (datos, usuarioId = null, req = null) => {
         
         return true;
     } catch (error) {
-        // Usar console.error como respaldo si hay un error con el logger
-        console.error('Error al registrar actividad:', error);
+  
+        
         return false;
     }
 };

@@ -24,7 +24,10 @@ const validarCicloActivoParaDocente = async (req, res, next) => {
         
         // Verificar que existe un ciclo activo
         const cicloActivo = await CicloAcademico.findOne({
-            where: { estado: 'activo' }
+            where: { estado: 'activo' },
+            attributes: {
+                exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+            }
         });
         
         if (!cicloActivo) {
@@ -73,6 +76,9 @@ const validarCicloActivoParaVerificador = async (req, res, next) => {
         const cicloEnProceso = await CicloAcademico.findOne({
             where: { 
                 estado: ['activo', 'verificacion'] 
+            },
+            attributes: {
+                exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
             }
         });
         
@@ -149,7 +155,10 @@ const validarCicloSegunRol = async (req, res, next) => {
 const validarCicloActivoUnico = async (req, res, next) => {
     try {
         const ciclosActivos = await CicloAcademico.findAll({
-            where: { estado: 'activo' }
+            where: { estado: 'activo' },
+            attributes: {
+                exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+            }
         });
         
         if (ciclosActivos.length > 1) {
@@ -186,6 +195,9 @@ const obtenerCicloActivo = async (req, res, next) => {
     try {
         const cicloActivo = await CicloAcademico.findOne({
             where: { estado: 'activo' },
+            attributes: {
+                exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+            },
             include: [{
                 model: require('../modelos').EstadoSistema,
                 as: 'estados_sistema'
@@ -218,4 +230,4 @@ module.exports = {
     validarCicloSegunRol,
     validarCicloActivoUnico,
     obtenerCicloActivo
-}; 
+};

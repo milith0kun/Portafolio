@@ -257,7 +257,11 @@ async function procesarAsignaturas(filePath, cicloId) {
   };
 
   // Obtener ciclo académico
-  const ciclo = await CicloAcademico.findByPk(cicloId);
+  const ciclo = await CicloAcademico.findByPk(cicloId, {
+    attributes: {
+      exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+    }
+  });
   if (!ciclo) {
     throw new Error('Ciclo académico no encontrado');
   }
@@ -355,7 +359,10 @@ exports.cargarArchivos = [
 
       // Obtener ciclo académico activo
       const cicloActivo = await CicloAcademico.findOne({
-        where: { estado: 'activo' }
+        where: { estado: 'activo' },
+        attributes: {
+          exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+        }
       });
 
       if (!cicloActivo) {
@@ -476,4 +483,4 @@ exports.obtenerPlantillas = async (req, res) => {
       error: error.message
     });
   }
-}; 
+};

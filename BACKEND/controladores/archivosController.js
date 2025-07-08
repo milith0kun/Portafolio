@@ -77,7 +77,6 @@ const uploadMiddleware = upload.array('archivos', 10);
  */
 const subirArchivos = async (req, res) => {
   try {
-    console.log('=== SUBIENDO ARCHIVOS ===');
     
     const { portafolioId } = req.params;
     const usuarioId = req.usuario.id;
@@ -154,7 +153,7 @@ const subirArchivos = async (req, res) => {
           subido_en: archivoSubido.subido_en
         });
         
-        console.log(`📎 Archivo subido: ${file.originalname} (${file.size} bytes)`);
+        // Archivo subido
       }
       
       await transaction.commit();
@@ -180,7 +179,7 @@ const subirArchivos = async (req, res) => {
         try {
           await fs.unlink(file.path);
         } catch (unlinkError) {
-          console.error('Error al eliminar archivo:', unlinkError);
+          
         }
       }
       
@@ -188,7 +187,7 @@ const subirArchivos = async (req, res) => {
     }
     
   } catch (error) {
-    console.error('❌ Error al subir archivos:', error);
+    
     return ResponseHandler.error(res, error.message, 500);
   }
 };
@@ -198,7 +197,6 @@ const subirArchivos = async (req, res) => {
  */
 const descargarArchivo = async (req, res) => {
   try {
-    console.log('=== DESCARGANDO ARCHIVO ===');
     
     const { archivoId } = req.params;
     const usuarioId = req.usuario.id;
@@ -253,10 +251,10 @@ const descargarArchivo = async (req, res) => {
     // Enviar archivo
     res.sendFile(rutaCompleta);
     
-    console.log(`📥 Archivo descargado: ${archivo.nombre_original} por usuario ${usuarioId}`);
+    // Archivo descargado
     
   } catch (error) {
-    console.error('❌ Error al descargar archivo:', error);
+    
     return ResponseHandler.error(res, error.message, 500);
   }
 };
@@ -451,7 +449,7 @@ async function actualizarProgresoPortafolio(portafolioId) {
       });
     }
     
-    console.log(`📊 Progreso actualizado: ${progresoPorcentaje}% para portafolio ${portafolioId}`);
+    // Progreso actualizado
     
   } catch (error) {
     console.error('Error al actualizar progreso:', error);
@@ -463,4 +461,4 @@ module.exports = {
   subirArchivos,
   descargarArchivo,
   eliminarArchivo
-}; 
+};

@@ -58,7 +58,11 @@ exports.reporteAsignaturasPorCiclo = async (req, res) => {
         const { ciclo_id } = req.params;
         
         // Verificar que el ciclo exista
-        const ciclo = await CicloAcademico.findByPk(ciclo_id);
+        const ciclo = await CicloAcademico.findByPk(ciclo_id, {
+            attributes: {
+                exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+            }
+        });
         
         if (!ciclo) {
             return res.status(404).json({
@@ -104,7 +108,11 @@ exports.reporteAsignacionesPorCiclo = async (req, res) => {
         const { ciclo_id } = req.params;
         
         // Verificar que el ciclo exista
-        const ciclo = await CicloAcademico.findByPk(ciclo_id);
+        const ciclo = await CicloAcademico.findByPk(ciclo_id, {
+            attributes: {
+                exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+            }
+        });
         
         if (!ciclo) {
             return res.status(404).json({
@@ -172,7 +180,11 @@ exports.reporteAsignaturasPorDocente = async (req, res) => {
         }
         
         // Verificar que el ciclo exista
-        const ciclo = await CicloAcademico.findByPk(ciclo_id);
+        const ciclo = await CicloAcademico.findByPk(ciclo_id, {
+            attributes: {
+                exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+            }
+        });
         
         if (!ciclo) {
             return res.status(404).json({
@@ -264,7 +276,11 @@ exports.exportarReporteExcel = async (req, res) => {
                 break;
                 
             case 'asignaturas-por-ciclo':
-                const ciclo = await CicloAcademico.findByPk(id);
+                const ciclo = await CicloAcademico.findByPk(id, {
+                    attributes: {
+                        exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+                    }
+                });
                 if (!ciclo) {
                     return res.status(404).json({
                         success: false,
@@ -288,7 +304,11 @@ exports.exportarReporteExcel = async (req, res) => {
                 break;
                 
             case 'asignaciones-por-ciclo':
-                const cicloPorAsignacion = await CicloAcademico.findByPk(id);
+                const cicloPorAsignacion = await CicloAcademico.findByPk(id, {
+                    attributes: {
+                        exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+                    }
+                });
                 if (!cicloPorAsignacion) {
                     return res.status(404).json({
                         success: false,

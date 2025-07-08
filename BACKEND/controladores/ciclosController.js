@@ -11,6 +11,9 @@ const { logger } = require('../config/logger');
 exports.obtenerCiclos = async (req, res) => {
     try {
         const ciclos = await CicloAcademico.findAll({
+            attributes: {
+                exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+            },
             include: [
                 {
                     model: Usuario,
@@ -50,6 +53,9 @@ exports.obtenerCicloPorId = async (req, res) => {
         const { id } = req.params;
         
         const ciclo = await CicloAcademico.findByPk(id, {
+            attributes: {
+                exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+            },
             include: [
                 { 
                     model: EstadoSistema, 
@@ -220,7 +226,11 @@ exports.actualizarCiclo = async (req, res) => {
         logger.info('Actualizando ciclo:', { id, datos: req.body, usuario: req.usuario.id });
         
         // Verificar que el ciclo exista
-        const ciclo = await CicloAcademico.findByPk(id);
+        const ciclo = await CicloAcademico.findByPk(id, {
+            attributes: {
+                exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+            }
+        });
         
         if (!ciclo) {
             await transaction.rollback();
@@ -248,6 +258,9 @@ exports.actualizarCiclo = async (req, res) => {
                 where: {
                     nombre,
                     id: { [Op.ne]: id }
+                },
+                attributes: {
+                    exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
                 }
             });
             
@@ -423,7 +436,11 @@ exports.actualizarEstadoModulo = async (req, res) => {
         const { habilitado, observaciones } = req.body;
         
         // Verificar que el ciclo existe
-        const ciclo = await CicloAcademico.findByPk(ciclo_id);
+        const ciclo = await CicloAcademico.findByPk(ciclo_id, {
+            attributes: {
+                exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+            }
+        });
         if (!ciclo) {
             return res.status(404).json({
                 success: false,
@@ -496,7 +513,11 @@ exports.eliminarCiclo = async (req, res) => {
     try {
         const { id } = req.params;
         
-        const ciclo = await CicloAcademico.findByPk(id);
+        const ciclo = await CicloAcademico.findByPk(id, {
+            attributes: {
+                exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+            }
+        });
         
         if (!ciclo) {
             return res.status(404).json({
@@ -583,18 +604,9 @@ exports.obtenerCicloActivo = async (req, res) => {
     try {
         const cicloActivo = await CicloAcademico.findOne({
             where: { estado: 'activo' },
-            include: [
-                {
-                    model: EstadoSistema,
-                    as: 'estados_sistema'
-                },
-                {
-                    model: Semestre,
-                    as: 'semestres',
-                    where: { activo: true },
-                    required: false
-                }
-            ]
+            attributes: {
+                exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+            }
         });
         
         if (!cicloActivo) {
@@ -620,6 +632,42 @@ exports.obtenerCicloActivo = async (req, res) => {
 };
 
 /**
+ * Obtiene el ciclo académico en verificación
+ * @param {Object} req - Objeto de solicitud Express
+ * @param {Object} res - Objeto de respuesta Express
+ */
+exports.obtenerCicloEnVerificacion = async (req, res) => {
+    try {
+        const cicloEnVerificacion = await CicloAcademico.findOne({
+            where: { estado: 'verificacion' },
+            attributes: {
+                exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+            }
+        });
+        
+        if (!cicloEnVerificacion) {
+            return res.status(404).json({
+                success: false,
+                message: 'No hay ningún ciclo académico en verificación',
+                data: null
+            });
+        }
+        
+        return res.status(200).json({
+            success: true,
+            data: cicloEnVerificacion,
+            message: 'Ciclo académico en verificación obtenido exitosamente'
+        });
+    } catch (error) {
+        logger.error('Error al obtener ciclo en verificación:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Error al obtener ciclo en verificación'
+        });
+    }
+};
+
+/**
  * Obtiene estadísticas específicas de un ciclo académico
  * @param {Object} req - Objeto de solicitud Express
  * @param {Object} res - Objeto de respuesta Express
@@ -629,7 +677,11 @@ exports.obtenerEstadisticasCiclo = async (req, res) => {
         const { id } = req.params;
         
         // Verificar que el ciclo existe
-        const ciclo = await CicloAcademico.findByPk(id);
+        const ciclo = await CicloAcademico.findByPk(id, {
+            attributes: {
+                exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+            }
+        });
         if (!ciclo) {
             return res.status(404).json({
                 success: false,
@@ -793,7 +845,11 @@ exports.obtenerArchivosCargaPorCiclo = async (req, res) => {
         const { id } = req.params;
         
         // Verificar que el ciclo existe
-        const ciclo = await CicloAcademico.findByPk(id);
+        const ciclo = await CicloAcademico.findByPk(id, {
+            attributes: {
+                exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+            }
+        });
         if (!ciclo) {
             return res.status(404).json({
                 success: false,
@@ -899,6 +955,9 @@ async function validarCambioEstado(estadoActual, nuevoEstado, cicloId) {
             where: { 
                 estado: 'activo',
                 id: { [Op.ne]: cicloId }
+            },
+            attributes: {
+                exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
             }
         });
         
@@ -925,7 +984,11 @@ exports.cambiarEstadoCiclo = async (req, res) => {
         
         logger.info(`Cambiando estado del ciclo ${id} a: ${nuevoEstado}`);
         
-        const ciclo = await CicloAcademico.findByPk(id);
+        const ciclo = await CicloAcademico.findByPk(id, {
+            attributes: {
+                exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+            }
+        });
         if (!ciclo) {
             return res.status(404).json({
                 success: false,
@@ -933,7 +996,7 @@ exports.cambiarEstadoCiclo = async (req, res) => {
             });
         }
         
-        // Validar transición de estado
+        // Validar estados válidos
         const estadosValidos = ['preparacion', 'inicializacion', 'activo', 'verificacion', 'finalizacion', 'archivado'];
         if (!estadosValidos.includes(nuevoEstado)) {
             return res.status(400).json({
@@ -942,34 +1005,8 @@ exports.cambiarEstadoCiclo = async (req, res) => {
             });
         }
         
-        // Validaciones específicas según el estado
-        if (nuevoEstado === 'verificacion') {
-            // Solo puede haber un ciclo en verificación
-            const cicloEnVerificacion = await CicloAcademico.findOne({
-                where: {
-                    estado: 'verificacion',
-                    id: { [Op.ne]: id }
-                }
-            });
-            
-            if (cicloEnVerificacion) {
-                return res.status(400).json({
-                    success: false,
-                    message: `Ya existe un ciclo en verificación: ${cicloEnVerificacion.nombre}`
-                });
-            }
-        }
-        
-        // Actualizar estado
-        ciclo.estado = nuevoEstado;
-        
-        // Si se finaliza, registrar fecha de cierre
-        if (nuevoEstado === 'finalizacion') {
-            ciclo.fecha_cierre_real = new Date();
-            ciclo.cerrado_por = usuario_id || req.usuario?.id;
-        }
-        
-        await ciclo.save();
+        // Usar el método del modelo para cambiar estado con validaciones
+        await ciclo.cambiarEstado(nuevoEstado, usuario_id || req.usuario?.id);
         
         logger.info(`Estado del ciclo ${id} cambiado exitosamente a: ${nuevoEstado}`);
         
@@ -980,16 +1017,31 @@ exports.cambiarEstadoCiclo = async (req, res) => {
                 id: ciclo.id,
                 nombre: ciclo.nombre,
                 estado: ciclo.estado,
+                fecha_inicializacion: ciclo.fecha_inicializacion,
+                fecha_activacion: ciclo.fecha_activacion,
+                fecha_inicio_verificacion: ciclo.fecha_inicio_verificacion,
+                fecha_cierre_real: ciclo.fecha_cierre_real,
                 puedeRecibirArchivos: ['preparacion', 'inicializacion'].includes(ciclo.estado),
                 estaEnVerificacion: ciclo.estado === 'verificacion',
                 puedeSerActivado: ciclo.estado === 'preparacion',
                 puedeSerFinalizado: ciclo.estado === 'verificacion',
-                fecha_cierre_real: ciclo.fecha_cierre_real
+                configuracion_estados: ciclo.configuracion_estados
             }
         });
         
     } catch (error) {
         logger.error('Error al cambiar estado del ciclo:', error);
+        
+        // Manejar errores específicos de validación
+        if (error.message.includes('Transición no válida') || 
+            error.message.includes('Solo puede haber') ||
+            error.message.includes('Solo se puede')) {
+            return res.status(400).json({
+                success: false,
+                message: error.message
+            });
+        }
+        
         return res.status(500).json({
             success: false,
             message: 'Error al cambiar estado del ciclo',

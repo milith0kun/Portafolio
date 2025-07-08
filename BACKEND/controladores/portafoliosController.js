@@ -13,14 +13,14 @@ const ResponseHandler = require('./utils/responseHandler');
  */
 const obtenerPortafolios = async (req, res) => {
   try {
-    console.log('=== OBTENIENDO TODOS LOS PORTAFOLIOS ===');
+    // Obteniendo todos los portafolios
     
     // Obtener parámetros de filtrado
     const cicloId = req.query.ciclo || req.query.cicloId;
     const estado = req.query.estado;
     const docenteId = req.query.docente || req.query.docenteId;
     
-    console.log('🔍 Filtros aplicados:', { cicloId, estado, docenteId });
+    // Filtros aplicados
     
     await sequelize.authenticate();
     
@@ -56,14 +56,17 @@ const obtenerPortafolios = async (req, res) => {
         {
           model: CicloAcademico,
           as: 'ciclo',
-          attributes: ['id', 'nombre', 'estado', 'fecha_inicio', 'fecha_fin']
+          attributes: {
+            include: ['id', 'nombre', 'estado', 'fecha_inicio', 'fecha_fin'],
+            exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+          }
         }
       ],
       where: whereConditions,
       order: [['actualizado_en', 'DESC']]
     });
 
-    console.log(`✅ ${portafolios.length} portafolios encontrados con filtros aplicados`);
+    // Portafolios encontrados con filtros aplicados
 
     // Agregar información adicional en la respuesta
     const responseData = {
@@ -95,7 +98,7 @@ const obtenerPortafolios = async (req, res) => {
     return ResponseHandler.success(res, responseData, `${portafolios.length} portafolios obtenidos correctamente`);
     
   } catch (error) {
-    console.error('❌ Error al obtener portafolios:', error);
+    
     return ResponseHandler.error(res, error.message, 500);
   }
 };
@@ -105,7 +108,7 @@ const obtenerPortafolios = async (req, res) => {
  */
 const obtenerMisPortafolios = async (req, res) => {
   try {
-    console.log('=== OBTENIENDO PORTAFOLIOS DEL DOCENTE ===');
+    // Obteniendo portafolios del docente
     
     const usuarioId = req.usuario.id;
     
@@ -128,7 +131,10 @@ const obtenerMisPortafolios = async (req, res) => {
         {
           model: CicloAcademico,
           as: 'ciclo',
-          attributes: ['id', 'nombre', 'estado']
+          attributes: {
+            include: ['id', 'nombre', 'estado'],
+            exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+          }
         },
         {
           model: Semestre,
@@ -143,12 +149,12 @@ const obtenerMisPortafolios = async (req, res) => {
       order: [['actualizado_en', 'DESC']]
     });
 
-    console.log(`✅ ${portafolios.length} portafolios encontrados para el docente ${usuarioId}`);
+    // Portafolios encontrados para el docente
 
     return ResponseHandler.success(res, portafolios, 'Portafolios del docente obtenidos correctamente');
     
   } catch (error) {
-    console.error('❌ Error al obtener portafolios del docente:', error);
+    
     return ResponseHandler.error(res, error.message, 500);
   }
 };
@@ -160,7 +166,7 @@ const obtenerMisPortafolios = async (req, res) => {
  */
 const generarPortafoliosAutomaticos = async (req, res) => {
   try {
-    console.log('=== GENERANDO PORTAFOLIOS AUTOMÁTICAMENTE ===');
+    // Generando portafolios automáticamente
     
     await sequelize.authenticate();
     
@@ -175,14 +181,17 @@ const generarPortafoliosAutomaticos = async (req, res) => {
 
     // Obtener ciclo académico activo
     const cicloActivo = await CicloAcademico.findOne({
-      where: { estado: 'activo' }
+      where: { estado: 'activo' },
+      attributes: {
+        exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+      }
     });
 
     if (!cicloActivo) {
       return ResponseHandler.error(res, 'No hay ciclo académico activo', 400);
     }
 
-    console.log(`📅 Ciclo académico activo: ${cicloActivo.nombre}`);
+    // Ciclo académico activo encontrado
 
     // Obtener asignaciones que no tienen portafolio
     const asignacionesSinPortafolio = await DocenteAsignatura.findAll({
@@ -215,7 +224,7 @@ const generarPortafoliosAutomaticos = async (req, res) => {
       !asignacion.portafolios || asignacion.portafolios.length === 0
     );
 
-    console.log(`📚 ${sinPortafolio.length} asignaciones sin portafolio encontradas`);
+    // Asignaciones sin portafolio encontradas
 
     if (sinPortafolio.length === 0) {
       return ResponseHandler.success(res, {
@@ -256,7 +265,7 @@ const generarPortafoliosAutomaticos = async (req, res) => {
 
           if (resultado.creado) {
             portafoliosCreados++;
-            console.log(`✅ Portafolio generado para ${asignacion.asignatura.nombre} - ${asignacion.docente.nombres} ${asignacion.docente.apellidos}`);
+            // Portafolio generado exitosamente
           }
         } catch (error) {
           errores++;
@@ -266,7 +275,7 @@ const generarPortafoliosAutomaticos = async (req, res) => {
             asignatura: asignacion.asignatura.nombre,
             error: error.message
           });
-          console.error(`❌ Error al crear portafolio para asignación ${asignacion.id}:`, error.message);
+  
         }
       }
 
@@ -277,9 +286,7 @@ const generarPortafoliosAutomaticos = async (req, res) => {
 
       await transaction.commit();
 
-      console.log(`🎉 Generación completada:`);
-      console.log(`  - Portafolios creados: ${portafoliosCreados}`);
-      console.log(`  - Errores: ${errores}`);
+      // Generación completada
 
       return ResponseHandler.success(res, {
         portafoliosCreados,
@@ -294,7 +301,7 @@ const generarPortafoliosAutomaticos = async (req, res) => {
     }
 
   } catch (error) {
-    console.error('❌ Error en generación automática de portafolios:', error);
+    // Error en generación automática de portafolios
     return ResponseHandler.error(res, error.message, 500);
   }
 };
@@ -328,9 +335,9 @@ async function actualizarEstadoSistemaTrasGeneracion(cicloId, userId, transactio
       actualizado_en: new Date()
     }, { transaction });
 
-    console.log(`✅ Estado del sistema actualizado para ciclo ${cicloId}`);
+    // Estado del sistema actualizado
   } catch (error) {
-    console.error(`❌ Error al actualizar estado del sistema: ${error.message}`);
+    
     throw error;
   }
 }
@@ -342,7 +349,7 @@ async function crearPortafolioParaAsignacion(asignacion, asignatura, cicloId, us
   const { Portafolio, Semestre } = require('../modelos');
   
   try {
-    console.log(`🔍 Procesando asignación ${asignacion.id}: docente ${asignacion.docente_id}, asignatura ${asignatura?.id || 'N/A'}`);
+    // Procesando asignación
     
     // Validar datos necesarios
     if (!asignacion || !asignatura) {
@@ -361,7 +368,7 @@ async function crearPortafolioParaAsignacion(asignacion, asignatura, cicloId, us
         descripcion: 'Primer Semestre',
         activo: true
       }, { transaction });
-      console.log(`✅ Semestre creado: ${semestre.nombre}`);
+      // Semestre creado
     }
 
     // Verificar si ya existe
@@ -376,7 +383,7 @@ async function crearPortafolioParaAsignacion(asignacion, asignatura, cicloId, us
     });
 
     if (existente) {
-      console.log(`⚠️ Portafolio ya existe para docente ${asignacion.docente_id}, asignatura ${asignatura.id}`);
+      // Portafolio ya existe
       return { creado: false, portafolio: existente };
     }
 
@@ -384,7 +391,7 @@ async function crearPortafolioParaAsignacion(asignacion, asignatura, cicloId, us
     const grupo = asignacion.grupo || 'A';
     const nombrePortafolio = `${asignatura.nombre} - Grupo ${grupo}`;
     
-    console.log(`📝 Creando portafolio: ${nombrePortafolio}`);
+    // Creando portafolio
 
     const portafolioRaiz = await Portafolio.create({
       nombre: nombrePortafolio,
@@ -405,21 +412,15 @@ async function crearPortafolioParaAsignacion(asignacion, asignatura, cicloId, us
       actualizado_por: userId
     }, { transaction });
 
-    console.log(`✅ Portafolio creado con ID: ${portafolioRaiz.id}`);
+    // Portafolio creado exitosamente
 
     // Crear estructura de carpetas (temporalmente deshabilitada para debug)
     await crearEstructuraPortafolio(portafolioRaiz.id, cicloId, semestre.id, transaction);
-    // console.log(`⚠️ Creación de estructura deshabilitada temporalmente para debug`);
+    
 
     return { creado: true, portafolio: portafolioRaiz };
   } catch (error) {
-    console.error(`❌ Error detallado al crear portafolio:`, {
-      asignacionId: asignacion?.id,
-      docenteId: asignacion?.docente_id,
-      asignaturaId: asignatura?.id,
-      error: error.message,
-      stack: error.stack
-    });
+    // Error detallado al crear portafolio
     throw error;
   }
 }
@@ -490,7 +491,7 @@ async function crearEstructuraBase() {
 
     if (!existente) {
       await Estructura.create(estructura);
-      console.log(`📁 Estructura creada: ${estructura.nombre}`);
+      // Estructura creada
     }
   }
 }
@@ -500,7 +501,7 @@ async function crearEstructuraBase() {
  */
 async function crearEstructuraPortafolio(portafolioId, cicloId, semestreId, transaction = null) {
   try {
-    console.log(`📁 Creando estructura jerárquica para portafolio ${portafolioId}`);
+    // Creando estructura jerárquica para portafolio
     
     const { Portafolio } = require('../modelos');
     
@@ -646,14 +647,14 @@ async function crearEstructuraPortafolio(portafolioId, cicloId, semestreId, tran
     }
     
     const creditosCurso = portafolioRaiz.asignatura?.creditos || 3;
-    console.log(`📊 Curso ${portafolioRaiz.asignatura?.nombre} tiene ${creditosCurso} créditos`);
+    // Información de créditos del curso
     
     const carpetasCreadas = new Map();
     const mapaCarpetas = new Map();
     
     // Crear las carpetas principales y subcarpetas
     for (const [clave, seccion] of Object.entries(estructuraUNSAAC)) {
-      console.log(`📁 Creando sección: ${seccion.nombre}`);
+      // Creando sección
       
       // Crear carpeta principal
       const rutaSeccion = seccion.nombre;
@@ -696,7 +697,7 @@ async function crearEstructuraPortafolio(portafolioId, cicloId, semestreId, tran
       }
     }
     
-    console.log(`✅ Estructura creada: ${carpetasCreadas.size} carpetas para portafolio ${portafolioId}`);
+    // Estructura creada exitosamente
     
     return {
       portafolioId,
@@ -705,7 +706,7 @@ async function crearEstructuraPortafolio(portafolioId, cicloId, semestreId, tran
     };
     
   } catch (error) {
-    console.error('❌ Error al crear estructura:', error);
+    
     throw error;
   }
 }
@@ -717,7 +718,7 @@ async function crearSubcarpetasRecursivamente(subcarpetas, padreId, portafolioRa
   for (const [subClave, subcarpeta] of Object.entries(subcarpetas)) {
     // Verificar condiciones para subcarpetas
     if (subcarpeta.condicional && creditosCurso < 4) {
-      console.log(`⏭️ Omitiendo subcarpeta condicional ${subcarpeta.nombre}`);
+      // Omitiendo subcarpeta condicional
       continue;
     }
     
@@ -791,7 +792,7 @@ const obtenerEstructuraPortafolio = async (req, res) => {
     return ResponseHandler.success(res, estructura, 'Estructura del portafolio obtenida correctamente');
     
   } catch (error) {
-    console.error('❌ Error al obtener estructura del portafolio:', error);
+    
     return ResponseHandler.error(res, error.message, 500);
   }
 };
@@ -801,7 +802,7 @@ const obtenerEstructuraPortafolio = async (req, res) => {
  */
 const inicializarSistemaPortafolios = async (req, res) => {
   try {
-    console.log('=== INICIALIZANDO SISTEMA DE PORTAFOLIOS ===');
+    // Inicializando sistema de portafolios
     
     // Crear estructura base
     await crearEstructuraBase();
@@ -810,7 +811,7 @@ const inicializarSistemaPortafolios = async (req, res) => {
     await generarPortafoliosAutomaticos(req, res);
     
   } catch (error) {
-    console.error('❌ Error al inicializar sistema de portafolios:', error);
+    
     return ResponseHandler.error(res, error.message, 500);
   }
 };
@@ -820,7 +821,7 @@ const inicializarSistemaPortafolios = async (req, res) => {
  */
 const obtenerEstructuraParaRol = async (req, res) => {
   try {
-    console.log('=== OBTENIENDO ESTRUCTURA PARA ROL ===');
+    // Obteniendo estructura para rol
     
     const usuarioId = req.usuario.id;
     const rolActual = req.usuario.rol_actual;
@@ -915,7 +916,7 @@ const obtenerEstructuraParaRol = async (req, res) => {
     return ResponseHandler.success(res, resultado, 'Estructura de portafolios obtenida correctamente');
     
   } catch (error) {
-    console.error('❌ Error al obtener estructura para rol:', error);
+    
     return ResponseHandler.error(res, error.message, 500);
   }
 };
@@ -1034,7 +1035,7 @@ async function obtenerEstadisticasPortafolio(portafolioRaizId) {
  */
 const obtenerArchivosDePortafolio = async (req, res) => {
   try {
-    console.log('=== OBTENIENDO ARCHIVOS DE PORTAFOLIO ===');
+    // Obteniendo archivos de portafolio
     
     const { portafolioId } = req.params;
     const usuarioId = req.usuario.id;
@@ -1128,7 +1129,7 @@ const obtenerArchivosDePortafolio = async (req, res) => {
     return ResponseHandler.success(res, resultado, 'Archivos obtenidos correctamente');
     
   } catch (error) {
-    console.error('❌ Error al obtener archivos:', error);
+    
     return ResponseHandler.error(res, error.message, 500);
   }
 };
@@ -1141,4 +1142,4 @@ module.exports = {
   inicializarSistemaPortafolios,
   obtenerEstructuraParaRol,
   obtenerArchivosDePortafolio
-}; 
+};
