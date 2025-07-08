@@ -8,7 +8,7 @@ module.exports = {
   DB_PORT: process.env.DB_PORT || 3306,
   
   // Servidor
-      PORT: process.env.PORT || 4000,
+  PORT: process.env.PORT || 4001,
   NODE_ENV: process.env.NODE_ENV || 'development',
   
   // JWT
@@ -20,5 +20,5 @@ module.exports = {
   UPLOAD_PATH: process.env.UPLOAD_PATH || './uploads',
   
   // Frontend URL (para CORS)
-  FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:4000'
+  FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:4001'
 }; 

@@ -56,7 +56,7 @@ const DocenteAsignatura = sequelize.define('DocenteAsignatura', {
     timestamps: true,
     paranoid: false,
     createdAt: 'fecha_asignacion',
-    updatedAt: 'actualizado_en',
+    updatedAt: false,
     indexes: [
         {
             name: 'idx_docente_ciclo',

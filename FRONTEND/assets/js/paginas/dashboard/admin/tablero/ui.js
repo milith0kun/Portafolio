@@ -31,7 +31,7 @@ const uiConfig = {
         actividadesRecientes: 'actividadesRecientes',
         
         // Navegación
-        selectorCiclo: 'selectorCiclo',
+        selectorCiclo: 'selectCiclo',
         btnActualizarDatos: 'btnActualizarDatos',
         
         // Indicadores de carga
@@ -55,8 +55,6 @@ const uiConfig = {
 // ================================================
 
 async function initialize() {
-    console.log('🎨 Inicializando módulo UI del tablero...');
-    
     try {
         configurarEventosUI();
         configurarTooltipsYPopovers();
@@ -65,9 +63,7 @@ async function initialize() {
         // Renderizado inicial
         await renderizarInterfazCompleta();
         
-        console.log('✅ Módulo UI inicializado');
     } catch (error) {
-        console.error('❌ Error en inicialización de UI:', error);
         throw error;
     }
 }
@@ -83,16 +79,26 @@ function configurarEventosUI() {
         btnActualizar.addEventListener('click', manejarActualizacionManual);
     }
     
-    // Selector de ciclo
-    const selectorCiclo = document.getElementById(uiConfig.elementos.selectorCiclo);
+    // Selector de ciclo - intentar múltiples métodos
+    let selectorCiclo = document.getElementById(uiConfig.elementos.selectorCiclo);
+    if (!selectorCiclo) {
+        // Fallback directo
+        selectorCiclo = document.getElementById('selectCiclo');
+    }
+    
     if (selectorCiclo) {
         selectorCiclo.addEventListener('change', manejarCambioCiclo);
+    } else {
+        // Configurar evento delegado como fallback
+        document.addEventListener('change', function(event) {
+            if (event.target.id === 'selectCiclo' || event.target.matches('#selectCiclo')) {
+                manejarCambioCiclo(event);
+            }
+        });
     }
     
     // Eventos de teclado para accesibilidad
     document.addEventListener('keydown', manejarEventosTeclado);
-    
-    console.log('✅ Eventos UI configurados');
 }
 
 function configurarTooltipsYPopovers() {
@@ -155,13 +161,18 @@ async function renderizarInterfazCompleta() {
         
         actualizarUltimaActualizacion();
         
+        // Detectar datos disparejos después de renderizar
+        setTimeout(() => {
+            detectarDatosDisparejos();
+        }, 300);
+        
         // Forzar visibilidad de las tarjetas al final
         setTimeout(() => {
             mostrarTarjetasDashboard();
         }, 200);
         
     } catch (error) {
-        console.error('❌ Error renderizando interfaz:', error);
+        // Error renderizando interfaz
         mostrarErrorEnInterfaz('Error al cargar el dashboard');
     } finally {
         mostrarIndicadorCarga(false);
@@ -196,11 +207,14 @@ function renderizarEstadoSistema() {
 function renderizarMetricas() {
     const metricas = window.DataTablero?.obtenerMetricas?.();
     if (!metricas) {
-        console.warn('⚠️ No se recibieron métricas del servidor');
+        // Solo mostrar warning si no es un problema de servidor offline
+        if (!window.DataTablero?.obtenerEstadoSistema?.()?.servidorOffline) {
+        }
+        
         return;
     }
     
-    console.log('📊 Métricas recibidas del servidor:', metricas);
+
     
     // Mapeo correcto usando datos reales del servidor
     const mapeoElementos = {
@@ -229,20 +243,40 @@ function renderizarMetricas() {
         'observedDocuments': metricas.documentos?.observados || 0
     };
     
+    // Verificar si hay un ciclo seleccionado
+    const cicloSeleccionado = window.DataTablero?.obtenerCicloSeleccionado?.();
+    const informacionCiclo = metricas.ciclo || metricas.cicloActivo;
+    
+
+    
     // Mostrar información del ciclo si está disponible
-    if (metricas.cicloActivo) {
-        console.log(`🎯 Estadísticas del ciclo: ${metricas.cicloActivo.nombre}`);
-        
+    if (cicloSeleccionado && informacionCiclo) {
         // Actualizar información del ciclo en la interfaz
         const cicloNombre = document.getElementById('nombreCiclo');
         if (cicloNombre) {
-            cicloNombre.textContent = metricas.cicloActivo.nombre;
+            cicloNombre.textContent = informacionCiclo.nombre || `Ciclo ${cicloSeleccionado}`;
         }
         
-        // Agregar indicador visual de que las estadísticas son del ciclo activo
-        agregarIndicadorCiclo(metricas.cicloActivo);
+        // Crear objeto de ciclo con información completa
+        const cicloInfo = {
+            id: cicloSeleccionado,
+            nombre: informacionCiclo.nombre || `Ciclo ${cicloSeleccionado}`,
+            estado: informacionCiclo.estado || 'activo',
+            ...informacionCiclo
+        };
+        
+        // Agregar indicador visual de que las estadísticas son del ciclo seleccionado
+        agregarIndicadorCiclo(cicloInfo);
+    } else if (cicloSeleccionado) {
+        // Hay ciclo seleccionado pero sin información detallada
+        const cicloInfo = {
+            id: cicloSeleccionado,
+            nombre: `Ciclo ${cicloSeleccionado}`,
+            estado: 'activo'
+        };
+        
+        agregarIndicadorCiclo(cicloInfo);
     } else {
-        console.log('📊 Mostrando estadísticas generales (sin ciclo activo)');
         agregarIndicadorSinCiclo();
     }
     
@@ -250,7 +284,6 @@ function renderizarMetricas() {
     Object.entries(mapeoElementos).forEach(([htmlId, valor]) => {
         const elemento = document.getElementById(htmlId);
         if (!elemento) {
-            console.warn(`⚠️ Elemento no encontrado: ${htmlId}`);
             return;
         }
         const valorActual = parseInt(elemento.textContent) || 0;
@@ -259,10 +292,9 @@ function renderizarMetricas() {
         } else {
             animarNumero(elemento, valorActual, parseInt(valor));
         }
-        console.log(`✅ Actualizado ${htmlId}: ${valorActual} → ${valor}`);
     });
     
-    console.log('✅ Dashboard actualizado con datos reales del servidor');
+
     
     // Asegurar que las tarjetas sean visibles
     mostrarTarjetasDashboard();
@@ -437,9 +469,6 @@ function mostrarTarjetasDashboard() {
             card.style.visibility = 'visible';
         });
         
-        console.log(`✅ ${cards.length} tarjetas del dashboard ahora visibles`);
-    } else {
-        console.warn('⚠️ Contenedor .dashboard-cards no encontrado');
     }
 }
 
@@ -578,35 +607,181 @@ async function manejarActualizacionManual(event) {
     
     const boton = event.target;
     const textoOriginal = boton.textContent;
+    const esSincronizacionCompleta = boton.dataset.action === 'sync-complete';
     
     try {
         boton.disabled = true;
-        boton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Actualizando...';
         
-        if (window.DataTablero?.actualizarDatos) {
-            await window.DataTablero.actualizarDatos();
+        if (esSincronizacionCompleta) {
+            boton.innerHTML = '<i class="fas fa-sync fa-spin"></i> Sincronizando...';
+            
+            // Forzar sincronización completa
+            if (window.DataTablero?.forzarSincronizacion) {
+                await window.DataTablero.forzarSincronizacion();
+            } else {
+                // Fallback: limpiar caché y actualizar
+                if (window.DataTablero?.limpiarCacheCompleto) {
+                    window.DataTablero.limpiarCacheCompleto();
+                }
+                await window.DataTablero?.actualizarDatos();
+            }
+            
             await renderizarInterfazCompleta();
+            mostrarNotificacion('Sincronización completa realizada', 'success');
+            
+        } else {
+            boton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Actualizando...';
+            
+            if (window.DataTablero?.actualizarDatos) {
+                await window.DataTablero.actualizarDatos();
+                await renderizarInterfazCompleta();
+            }
+            
+            mostrarNotificacion('Datos actualizados correctamente', 'success');
         }
         
-        mostrarNotificacion('Datos actualizados correctamente', 'success');
-        
     } catch (error) {
-        console.error('❌ Error en actualización manual:', error);
-        mostrarNotificacion('Error al actualizar datos', 'error');
+        // Error en actualización
+        const mensaje = esSincronizacionCompleta ? 
+            'Error al sincronizar datos' : 'Error al actualizar datos';
+        mostrarNotificacion(mensaje, 'error');
     } finally {
         boton.disabled = false;
         boton.textContent = textoOriginal;
     }
 }
 
-function manejarCambioCiclo(event) {
-    const cicloId = event.target.value;
-    console.log('🔄 Cambiando a ciclo:', cicloId);
+/**
+ * Detectar y manejar datos disparejos
+ */
+function detectarDatosDisparejos() {
+    const metricas = window.DataTablero?.obtenerMetricas?.();
+    if (!metricas) return false;
     
-    // Aquí se implementaría la lógica para cambiar de ciclo
-    // Por ahora solo mostramos una notificación
-    if (cicloId) {
-        mostrarNotificacion(`Ciclo seleccionado: ${cicloId}`, 'info');
+    // Verificar inconsistencias comunes
+    const inconsistencias = [];
+    
+    // Verificar si los totales son coherentes
+    if (metricas.usuariosActivos > metricas.usuarios) {
+        inconsistencias.push('Usuarios activos mayor que total de usuarios');
+    }
+    
+    if (metricas.portafoliosCompletados > metricas.portafolios) {
+        inconsistencias.push('Portafolios completados mayor que total de portafolios');
+    }
+    
+    if (metricas.documentos?.aprobados > metricas.documentos?.total) {
+        inconsistencias.push('Documentos aprobados mayor que total de documentos');
+    }
+    
+    // Verificar valores negativos
+    const campos = ['usuarios', 'portafolios', 'usuariosActivos', 'portafoliosActivos'];
+    campos.forEach(campo => {
+        if (metricas[campo] < 0) {
+            inconsistencias.push(`Valor negativo en ${campo}`);
+        }
+    });
+    
+    if (inconsistencias.length > 0) {
+        mostrarAlertaDatosDisparejos(inconsistencias);
+        return true;
+    }
+    
+    return false;
+}
+
+/**
+ * Mostrar alerta de datos disparejos con opción de sincronización
+ */
+function mostrarAlertaDatosDisparejos(inconsistencias) {
+    const alertaHTML = `
+        <div class="alert alert-warning alert-dismissible fade show" role="alert" id="alerta-datos-disparejos">
+            <i class="fas fa-exclamation-triangle"></i>
+            <strong>Datos inconsistentes detectados:</strong>
+            <ul class="mb-2 mt-2">
+                ${inconsistencias.map(inc => `<li>${inc}</li>`).join('')}
+            </ul>
+            <button type="button" class="btn btn-sm btn-outline-warning me-2" onclick="window.UITablero.forzarSincronizacion()">
+                <i class="fas fa-sync"></i> Sincronizar Datos
+            </button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+    
+    // Insertar alerta al inicio del contenido del dashboard
+    const contenedor = document.querySelector('.dashboard-content') || document.querySelector('.container-fluid');
+    if (contenedor) {
+        // Remover alerta anterior si existe
+        const alertaAnterior = document.getElementById('alerta-datos-disparejos');
+        if (alertaAnterior) {
+            alertaAnterior.remove();
+        }
+        
+        contenedor.insertAdjacentHTML('afterbegin', alertaHTML);
+    }
+}
+
+/**
+ * Función pública para forzar sincronización desde la interfaz
+ */
+async function forzarSincronizacion() {
+    try {
+        mostrarIndicadorCarga(true);
+        
+        if (window.DataTablero?.forzarSincronizacion) {
+            await window.DataTablero.forzarSincronizacion();
+            await renderizarInterfazCompleta();
+            
+            // Remover alerta de datos disparejos
+            const alerta = document.getElementById('alerta-datos-disparejos');
+            if (alerta) {
+                alerta.remove();
+            }
+            
+            mostrarNotificacion('Datos sincronizados correctamente', 'success');
+        }
+        
+    } catch (error) {
+        // Error en sincronización forzada
+        mostrarNotificacion('Error al sincronizar datos', 'error');
+    } finally {
+        mostrarIndicadorCarga(false);
+    }
+}
+
+async function manejarCambioCiclo(event) {
+    const cicloId = event.target.value;
+    
+    try {
+        // Mostrar indicador de carga
+        mostrarIndicadorCarga(true);
+        
+        // Usar el sistema de datos para establecer el ciclo y actualizar
+        if (window.DataTablero?.establecerCicloSeleccionado) {
+            await DataTablero.establecerCicloSeleccionado(cicloId);
+            
+            // Actualizar la interfaz con los nuevos datos
+            await renderizarInterfazCompleta();
+            
+            // Mostrar notificación de éxito
+            const nombreCiclo = document.querySelector('#selectCiclo option:checked')?.textContent || 'Desconocido';
+            mostrarNotificacion(`Datos actualizados para: ${nombreCiclo}`, 'success');
+        } else {
+            // Fallback si no está disponible el módulo de datos
+            localStorage.setItem('cicloSeleccionado', cicloId);
+            mostrarNotificacion(`Ciclo seleccionado: ${cicloId}`, 'info');
+            
+            // Forzar actualización de la interfaz
+            setTimeout(() => {
+                renderizarInterfazCompleta();
+            }, 100);
+        }
+        
+    } catch (error) {
+
+        mostrarNotificacion('Error al cambiar el ciclo académico', 'error');
+    } finally {
+        mostrarIndicadorCarga(false);
     }
 }
 
@@ -710,7 +885,6 @@ function mostrarNotificacion(mensaje, tipo = 'info') {
 // ================================================
 
 async function actualizarInterfaz() {
-    console.log('🔄 Actualizando interfaz completa...');
     await renderizarInterfazCompleta();
 }
 
@@ -732,10 +906,13 @@ window.UITablero = {
     renderizarInformacionCiclo,
     renderizarActividadesRecientes,
     
+    // Detección y sincronización
+    detectarDatosDisparejos,
+    forzarSincronizacion,
+    mostrarAlertaDatosDisparejos,
+    
     // Utilidades
     mostrarNotificacion,
     mostrarIndicadorCarga,
     formatearFecha
 };
-
-console.log('✅ Módulo UI del Tablero cargado'); 

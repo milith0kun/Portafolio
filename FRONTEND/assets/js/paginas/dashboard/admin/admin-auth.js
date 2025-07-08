@@ -12,7 +12,7 @@ const AdminAuth = {
         try {
             // Verificar si el usuario está autenticado
             if (!AUTH.verificarAutenticacion()) {
-                console.log('🚫 Usuario no autenticado, redirigiendo al login');
+                // Usuario no autenticado, redirigiendo al login
                 this.redirigirALogin();
                 return false;
             }
@@ -22,35 +22,35 @@ const AdminAuth = {
             const rolActual = AUTH.obtenerRolActivo();
             
             if (!usuario || !rolActual) {
-                console.log('🚫 No se pudo obtener información del usuario');
+                // No se pudo obtener información del usuario
                 this.redirigirALogin();
                 return false;
             }
 
             // Verificar si tiene rol de administrador
             if (rolActual !== 'administrador' && !AUTH.tieneRol('administrador')) {
-                console.log('🚫 Usuario sin permisos de administrador, rol actual:', rolActual);
+                // Usuario sin permisos de administrador
                 
                 // Verificar si tiene otros roles para redirigir apropiadamente
                 if (AUTH.tieneRol('docente')) {
-                    console.log('🔄 Redirigiendo al dashboard de docente');
+                    // Redirigiendo al dashboard de docente
                     window.location.href = CONFIG.getRoute('DASHBOARD_DOCENTE');
                 } else if (AUTH.tieneRol('verificador')) {
-                    console.log('🔄 Redirigiendo al dashboard de verificador');
+                    // Redirigiendo al dashboard de verificador
                     window.location.href = CONFIG.getRoute('DASHBOARD_VERIFICADOR');
                 } else {
-                    console.log('🔄 Redirigiendo al selector de roles');
+                    // Redirigiendo al selector de roles
                     window.location.href = CONFIG.getRoute('SELECTOR_ROLES');
                 }
                 return false;
             }
 
             // Usuario autenticado y autorizado
-            console.log('✅ Usuario administrador autenticado correctamente');
+            // Usuario administrador autenticado correctamente
             return true;
 
         } catch (error) {
-            console.error('❌ Error al verificar autenticación:', error);
+            // Error al verificar autenticación
             this.redirigirALogin();
             return false;
         }
@@ -116,11 +116,7 @@ const AdminAuth = {
                 }
             });
 
-            console.log('👤 Información del usuario configurada:', {
-                nombre: `${usuario.nombres} ${usuario.apellidos}`,
-                correo: usuario.correo,
-                rol: 'Administrador'
-            });
+            // Información del usuario configurada
         }
     },
 
@@ -146,7 +142,7 @@ const AdminAuth = {
      */
     cerrarSesion() {
         try {
-            console.log('Cerrando Sesión: Hasta pronto!');
+            // Cerrando sesión
             
             // Usar el sistema de autenticación unificado para cerrar sesión
             setTimeout(() => {
@@ -154,7 +150,7 @@ const AdminAuth = {
             }, 1000);
 
         } catch (error) {
-            console.error('Error al cerrar sesión:', error);
+            // Error al cerrar sesión
             // Forzar cierre de sesión incluso si hay error
             AUTH.cerrarSesion();
         }
@@ -193,7 +189,7 @@ const AdminAuth = {
             if (!response.ok) {
                 if (response.status === 401) {
                     // Token expirado o inválido
-                    console.error('Sesión Expirada: Por favor, inicia sesión nuevamente');
+                    // Sesión expirada
                     AUTH.cerrarSesion();
                     return;
                 }
@@ -203,7 +199,7 @@ const AdminAuth = {
             return response;
 
         } catch (error) {
-            console.error('Error en petición API:', error);
+            // Error en petición API
             throw error;
         }
     },
@@ -213,21 +209,21 @@ const AdminAuth = {
      * @param {Error} error - Error a manejar
      */
     manejarErrorAutenticacion(error) {
-        console.error('Error de autenticación:', error);
+        // Error de autenticación
         
         if (error.message.includes('401') || error.message.includes('token')) {
-            console.error('Sesión Expirada: Tu sesión ha expirado. Iniciando sesión nuevamente...');
+            // Sesión expirada
             setTimeout(() => {
                 AUTH.cerrarSesion();
             }, 2000);
         } else {
-            console.error('Error de Autenticación:', error.message);
+            // Error de autenticación
         }
     }
 };
 
 // Inicialización automática cuando se carga el script
-console.log('🔐 Sistema de Autenticación Admin cargado');
+// Sistema de Autenticación Admin cargado
 
 // Exportar para uso global
-window.AdminAuth = AdminAuth; 
+window.AdminAuth = AdminAuth;

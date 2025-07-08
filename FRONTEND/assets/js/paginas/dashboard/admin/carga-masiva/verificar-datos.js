@@ -5,6 +5,13 @@
 
 class VerificacionDatos {
     constructor() {
+        // Evitar múltiples inicializaciones
+        if (window.verificacionDatos && window.verificacionDatos.inicializado) {
+            console.warn('⚠️ VerificacionDatos ya está inicializado, retornando instancia existente');
+            return window.verificacionDatos;
+        }
+        
+        this.inicializado = false;
         this.datosCache = {
             usuarios: [],
             carreras: [],
@@ -25,36 +32,71 @@ class VerificacionDatos {
         
         this.tablas = {};
         this.graficos = {};
+        this.eventosConfigurados = false;
+        this.cargandoDatos = false;
+        this.timeoutIds = new Set();
         
-        this.inicializar();
+        // Solo inicializar si no está ya inicializado
+        if (!this.inicializado) {
+            this.inicializar();
+        }
     }
     
     async inicializar() {
-        console.log('🔍 Inicializando sistema de verificación de datos...');
+        // Evitar múltiples inicializaciones
+        if (this.inicializado) {
+            console.warn('⚠️ VerificacionDatos ya está inicializado');
+            return true;
+        }
+        
+        console.log('🔄 Inicializando sistema de verificación de datos...');
         
         try {
             // Verificar autenticación
             if (!this.verificarAutenticacion()) {
-                return;
+                console.warn('❌ Usuario no autenticado, omitiendo inicialización de verificación');
+                return false;
             }
             
-            // Configurar eventos
-            this.configurarEventos();
+            // Esperar a que el sistema de autenticación esté completamente listo
+            let intentos = 0;
+            const maxIntentos = 20;
             
-            // Cargar datos iniciales
+            while ((!window.AUTH?.verificarAutenticacion() || !window.AUTH?.obtenerToken()) && intentos < maxIntentos) {
+                console.log(`🔄 Esperando autenticación completa... (${intentos + 1}/${maxIntentos})`);
+                await new Promise(resolve => setTimeout(resolve, 200));
+                intentos++;
+            }
+            
+            if (!window.AUTH?.verificarAutenticacion()) {
+                console.warn('⚠️ Autenticación no disponible, omitiendo carga de datos');
+                return false;
+            }
+            
+            // Configurar eventos (solo una vez)
+            if (!this.eventosConfigurados) {
+                this.configurarEventos();
+                this.configurarEventosSincronizacion();
+                this.eventosConfigurados = true;
+            }
+            
+            // Cargar datos iniciales solo si la autenticación está lista
             await this.cargarDatosCompletos();
-            
+                
             // Inicializar tablas
             this.inicializarTablas();
             
             // Inicializar gráficos
             this.inicializarGraficos();
             
+            this.inicializado = true;
             console.log('✅ Sistema de verificación inicializado correctamente');
+            return true;
             
         } catch (error) {
             console.error('❌ Error inicializando verificación:', error);
             this.mostrarError('Error al inicializar el sistema de verificación');
+            return false;
         }
     }
     
@@ -68,7 +110,7 @@ class VerificacionDatos {
             // Fallback a verificación manual
             const usuario = window.AUTH?.obtenerUsuario();
             if (!usuario) {
-                console.error('❌ Usuario no autenticado');
+                // Usuario no autenticado
                 const loginUrl = (typeof CONFIG !== 'undefined' && CONFIG.getRoute) 
                     ? CONFIG.getRoute('LOGIN') 
                     : CONFIG?.ROUTES?.LOGIN || '/FRONTEND/paginas/autenticacion/login.html';
@@ -78,7 +120,7 @@ class VerificacionDatos {
             
             // Verificar rol de administrador usando AUTH.tieneRol
             if (!window.AUTH?.tieneRol('administrador')) {
-                console.error('❌ Usuario sin permisos de administrador');
+                // Usuario sin permisos de administrador
                 this.mostrarError('No tienes permisos para acceder a esta página');
                 setTimeout(() => {
                     const dashboardUrl = (typeof CONFIG !== 'undefined' && CONFIG.getRoute) 
@@ -91,7 +133,7 @@ class VerificacionDatos {
             
             return true;
         } catch (error) {
-            console.error('❌ Error en verificación de autenticación:', error);
+            console.error('Error en verificación de autenticación:', error);
             return false;
         }
     }
@@ -132,8 +174,96 @@ class VerificacionDatos {
         }
     }
     
+    configurarEventosSincronizacion() {
+        // Variables para controlar bucles infinitos
+        let ultimoCiclo = null;
+        let timeoutId = null;
+        
+        // Función para manejar cambios de ciclo con debounce
+        const manejarCambioCiclo = (cicloId) => {
+            // Cancelar timeout anterior si existe
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+                this.timeoutIds.delete(timeoutId);
+            }
+            
+            // Evitar bucles infinitos
+            if (cicloId === ultimoCiclo || this.cargandoDatos) {
+                return;
+            }
+            
+            // Debounce para evitar múltiples llamadas
+            timeoutId = setTimeout(() => {
+                ultimoCiclo = cicloId;
+                this.cargandoDatos = true;
+                
+                console.log(`🔄 Actualizando datos para ciclo: ${cicloId}`);
+                
+                // Recargar solo datos críticos
+                Promise.all([
+                    this.cargarAsignaturas(),
+                    this.cargarAsignaciones()
+                ]).finally(() => {
+                    this.cargandoDatos = false;
+                    console.log(`✅ Datos actualizados para ciclo: ${cicloId}`);
+                });
+                
+                this.timeoutIds.delete(timeoutId);
+            }, 500); // Esperar 500ms antes de ejecutar
+            
+            this.timeoutIds.add(timeoutId);
+        };
+        
+        // Escuchar evento de cambio de ciclo activo (solo una vez)
+        const eventoCicloActivoCambiado = (event) => {
+            const cicloId = event.detail?.cicloId;
+            if (cicloId) {
+                manejarCambioCiclo(cicloId);
+            }
+        };
+        
+        // Remover listener anterior si existe
+        document.removeEventListener('cicloActivoCambiado', eventoCicloActivoCambiado);
+        document.addEventListener('cicloActivoCambiado', eventoCicloActivoCambiado);
+        
+        // Eventos legacy para compatibilidad (con protección)
+        const eventoSincronizarCiclo = () => {
+            if (!this.cargandoDatos) {
+                console.log('🔄 Sincronización legacy solicitada');
+                this.cargandoDatos = true;
+                this.cargarDatosCompletos().finally(() => {
+                    this.cargandoDatos = false;
+                });
+            }
+        };
+        
+        const eventoCicloLegacy = (event) => {
+            const cicloId = event.detail?.cicloId;
+            if (cicloId) {
+                manejarCambioCiclo(cicloId);
+            }
+        };
+        
+        // Remover listeners anteriores
+        document.removeEventListener('sincronizar-ciclo', eventoSincronizarCiclo);
+        document.removeEventListener('ciclo-cambiado', eventoCicloLegacy);
+        
+        // Agregar listeners
+        document.addEventListener('sincronizar-ciclo', eventoSincronizarCiclo);
+        document.addEventListener('ciclo-cambiado', eventoCicloLegacy);
+        
+        console.log('✅ Eventos de sincronización configurados con protección anti-bucles');
+    }
+    
     async cargarDatosCompletos() {
-        console.log('📊 Cargando datos completos del sistema...');
+        // Evitar múltiples cargas simultáneas
+        if (this.cargandoDatos) {
+            console.log('🔄 Carga de datos ya en progreso, omitiendo...');
+            return;
+        }
+        
+        this.cargandoDatos = true;
+        console.log('🔄 Cargando datos completos del sistema...');
         
         try {
             // Mostrar indicadores de carga
@@ -162,6 +292,8 @@ class VerificacionDatos {
         } catch (error) {
             console.error('❌ Error cargando datos:', error);
             this.mostrarError('Error al cargar los datos del sistema');
+        } finally {
+            this.cargandoDatos = false;
         }
     }
     
@@ -169,12 +301,15 @@ class VerificacionDatos {
         try {
             const respuesta = await window.apiRequest('/usuarios', 'GET');
             
-            if (respuesta.success) {
+            if (respuesta.success || respuesta.exito) {
                 this.datosCache.usuarios = respuesta.data || [];
-                console.log(`✅ ${this.datosCache.usuarios.length} usuarios cargados`);
+                console.log(`✅ Usuarios cargados: ${this.datosCache.usuarios.length}`);
+            } else {
+                console.warn('⚠️ Respuesta no exitosa al cargar usuarios');
+                this.datosCache.usuarios = [];
             }
         } catch (error) {
-            console.error('❌ Error cargando usuarios:', error);
+            console.warn('⚠️ Error cargando usuarios:', error.message);
             this.datosCache.usuarios = [];
         }
     }
@@ -183,12 +318,15 @@ class VerificacionDatos {
         try {
             const respuesta = await window.apiRequest('/carreras', 'GET');
             
-            if (respuesta.success) {
+            if (respuesta.success || respuesta.exito) {
                 this.datosCache.carreras = respuesta.data || [];
-                console.log(`✅ ${this.datosCache.carreras.length} carreras cargadas`);
+                console.log(`✅ Carreras cargadas: ${this.datosCache.carreras.length}`);
+            } else {
+                console.warn('⚠️ Respuesta no exitosa al cargar carreras');
+                this.datosCache.carreras = [];
             }
         } catch (error) {
-            console.error('❌ Error cargando carreras:', error);
+            console.warn('⚠️ Error cargando carreras:', error.message);
             this.datosCache.carreras = [];
         }
     }
@@ -197,12 +335,15 @@ class VerificacionDatos {
         try {
             const respuesta = await window.apiRequest('/asignaturas', 'GET');
             
-            if (respuesta.success) {
+            if (respuesta.success || respuesta.exito) {
                 this.datosCache.asignaturas = respuesta.data || [];
-                console.log(`✅ ${this.datosCache.asignaturas.length} asignaturas cargadas`);
+                console.log(`✅ Asignaturas cargadas: ${this.datosCache.asignaturas.length}`);
+            } else {
+                console.warn('⚠️ Respuesta no exitosa al cargar asignaturas');
+                this.datosCache.asignaturas = [];
             }
         } catch (error) {
-            console.error('❌ Error cargando asignaturas:', error);
+            console.warn('⚠️ Error cargando asignaturas:', error.message);
             this.datosCache.asignaturas = [];
         }
     }
@@ -212,12 +353,15 @@ class VerificacionDatos {
             // Cargar asignaciones docente-asignatura
             const respuesta = await window.apiRequest('/dashboard/asignaciones', 'GET');
             
-            if (respuesta.success) {
+            if (respuesta.success || respuesta.exito) {
                 this.datosCache.asignaciones = respuesta.data || [];
-                console.log(`✅ ${this.datosCache.asignaciones.length} asignaciones cargadas`);
+                console.log(`✅ Asignaciones cargadas: ${this.datosCache.asignaciones.length}`);
+            } else {
+                console.warn('⚠️ Respuesta no exitosa al cargar asignaciones');
+                this.datosCache.asignaciones = [];
             }
         } catch (error) {
-            console.error('❌ Error cargando asignaciones:', error);
+            console.warn('⚠️ Error cargando asignaciones:', error.message);
             this.datosCache.asignaciones = [];
         }
     }
@@ -226,12 +370,15 @@ class VerificacionDatos {
         try {
             const respuesta = await window.apiRequest('/dashboard/verificaciones', 'GET');
             
-            if (respuesta.success) {
+            if (respuesta.success || respuesta.exito) {
                 this.datosCache.verificaciones = respuesta.data || [];
-                console.log(`✅ ${this.datosCache.verificaciones.length} verificaciones cargadas`);
+                console.log(`✅ Verificaciones cargadas: ${this.datosCache.verificaciones.length}`);
+            } else {
+                console.warn('⚠️ Respuesta no exitosa al cargar verificaciones');
+                this.datosCache.verificaciones = [];
             }
         } catch (error) {
-            console.error('❌ Error cargando verificaciones:', error);
+            console.warn('⚠️ Error cargando verificaciones:', error.message);
             this.datosCache.verificaciones = [];
         }
     }
@@ -240,12 +387,15 @@ class VerificacionDatos {
         try {
             const respuesta = await window.apiRequest('/dashboard/portafolios', 'GET');
             
-            if (respuesta.success) {
+            if (respuesta.success || respuesta.exito) {
                 this.datosCache.portafolios = respuesta.data || [];
-                console.log(`✅ ${this.datosCache.portafolios.length} portafolios cargados`);
+                console.log(`✅ Portafolios cargados: ${this.datosCache.portafolios.length}`);
+            } else {
+                console.warn('⚠️ Respuesta no exitosa al cargar portafolios');
+                this.datosCache.portafolios = [];
             }
         } catch (error) {
-            console.error('❌ Error cargando portafolios:', error);
+            console.warn('⚠️ Error cargando portafolios:', error.message);
             this.datosCache.portafolios = [];
         }
     }
@@ -576,7 +726,7 @@ class VerificacionDatos {
     }
     
     aplicarFiltros() {
-        console.log('🔍 Aplicando filtros...');
+        console.log('🔄 Aplicando filtros...');
         
         const filtroCarrera = document.getElementById('filtroCarrera').value;
         const filtroRol = document.getElementById('filtroRol').value;
@@ -613,7 +763,7 @@ class VerificacionDatos {
     
     // Métodos de notificación
     mostrarError(mensaje) {
-        console.error('❌', mensaje);
+        console.error('❌ Error:', mensaje);
         if (typeof toastr !== 'undefined') {
             toastr.error(mensaje);
         } else {
@@ -622,22 +772,54 @@ class VerificacionDatos {
     }
     
     mostrarExito(mensaje) {
-        console.log('✅', mensaje);
+        console.log('✅ Éxito:', mensaje);
         if (typeof toastr !== 'undefined') {
             toastr.success(mensaje);
         }
     }
     
     mostrarInfo(mensaje) {
-        console.log('ℹ️', mensaje);
+        console.log('ℹ️ Info:', mensaje);
         if (typeof toastr !== 'undefined') {
             toastr.info(mensaje);
         }
     }
+    
+    // Método para limpiar recursos
+    destruir() {
+        // Limpiar timeouts
+        this.timeoutIds.forEach(id => {
+            clearTimeout(id);
+        });
+        this.timeoutIds.clear();
+        
+        // Destruir tablas
+        Object.values(this.tablas).forEach(tabla => {
+            if (tabla) {
+                tabla.destroy();
+            }
+        });
+        
+        // Destruir gráficos
+        Object.values(this.graficos).forEach(grafico => {
+            if (grafico) {
+                grafico.destroy();
+            }
+        });
+        
+        this.inicializado = false;
+        console.log('🧹 VerificacionDatos destruido correctamente');
+    }
 }
 
-// Inicializar cuando el DOM esté listo
+// Inicializar cuando el DOM esté listo (solo una vez)
 document.addEventListener('DOMContentLoaded', function() {
+    // Evitar múltiples inicializaciones
+    if (window.verificacionDatos) {
+        console.warn('⚠️ VerificacionDatos ya está inicializado');
+        return;
+    }
+    
     // Esperar a que se carguen las dependencias necesarias
     if (typeof window.AUTH !== 'undefined' && typeof window.apiRequest !== 'undefined') {
         window.verificacionDatos = new VerificacionDatos();
@@ -647,10 +829,10 @@ document.addEventListener('DOMContentLoaded', function() {
             if (typeof window.AUTH !== 'undefined' && typeof window.apiRequest !== 'undefined') {
                 window.verificacionDatos = new VerificacionDatos();
             } else {
-                console.error('❌ Dependencias no disponibles para VerificacionDatos');
+                console.warn('⚠️ Dependencias no disponibles para VerificacionDatos');
             }
         }, 1000);
     }
 });
 
-console.log('✅ Script de verificación de datos cargado correctamente');
+console.log('📋 Script de verificación de datos cargado correctamente');

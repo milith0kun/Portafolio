@@ -1,0 +1,51 @@
+id,nombres,apellidos,correo,dni,telefono,departamento,categoria,especialidad,rol_principal,roles_secundarios,fecha_ingreso,activo
+1,Juan Carlos,Quispe Huamán,jc.quispe@unsaac.edu.pe,12345678,984123456,Ingeniería Informática,Principal,Desarrollo de Software,DOCENTE,VERIFICADOR,2020-03-15,SI
+2,María Elena,Flores Salas,me.flores@unsaac.edu.pe,23456789,984123457,Ingeniería Informática,Asociado,Base de Datos,DOCENTE,,2019-05-20,SI
+3,Carlos Augusto,Mamani Puma,ca.mamani@unsaac.edu.pe,34567890,984123458,Ingeniería Civil,Principal,Estructuras,DOCENTE,VERIFICADOR,2018-07-10,SI
+4,Ana Lucía,Quispe Ccahuana,al.quispe@unsaac.edu.pe,45678901,984123459,Administración,Asociado,Finanzas,ADMINISTRADOR,,2023-01-15,SI
+5,Luis Alberto,Chávez Rojas,la.chavez@unsaac.edu.pe,56789012,984123460,Ingeniería Eléctrica,Principal,Redes Eléctricas,DOCENTE,,2020-06-22,SI
+6,Rosa María,Valdivia Soto,rm.valdivia@unsaac.edu.pe,67890123,984123461,Medicina,Asociado,Medicina Interna,DOCENTE,VERIFICADOR,2019-08-30,SI
+7,Pedro Pablo,Huamán Ccama,pp.huaman@unsaac.edu.pe,78901234,984123462,Ingeniería Mecánica,Principal,Térmica,DOCENTE,,2021-02-14,SI
+8,Luisa Fernanda,Mendoza Quispe,lf.mendoza@unsaac.edu.pe,89012345,984123463,Enfermería,Asociado,Enfermería Quirúrgica,DOCENTE,,2022-04-05,SI
+9,Roberto Carlos,Flores Salas,rc.flores@unsaac.edu.pe,90123456,984123464,Derecho,Principal,Derecho Penal,DOCENTE,VERIFICADOR,2017-11-18,SI
+10,Carmen Rosa,Quispe Huaraya,cr.quispe@unsaac.edu.pe,12345670,984123465,Educación,Asociado,Educación Primaria,DOCENTE,,2020-09-10,SI
+11,José Luis,Chávez Mamani,jl.chavez@unsaac.edu.pe,23456701,984123466,Ingeniería Ambiental,Principal,Gestión Ambiental,DOCENTE,,2019-03-25,SI
+12,María del Pilar,Rodríguez Vargas,mp.rodriguez@unsaac.edu.pe,34567012,984123467,Psicología,Asociado,Psicología Clínica,DOCENTE,VERIFICADOR,2021-07-15,SI
+13,Julio César,Quispe Ccanto,jc.quispe2@unsaac.edu.pe,45670123,984123468,Ingeniería Química,Principal,Procesos Químicos,DOCENTE,,2018-10-30,SI
+14,Silvia Patricia,Huamán Rojas,sp.huaman@unsaac.edu.pe,56701234,984123469,Contabilidad,Asociado,Auditoría,DOCENTE,,2022-01-20,SI
+15,Miguel Ángel,Flores Mamani,ma.flores@unsaac.edu.pe,67012345,984123470,Arquitectura,Principal,Diseño Arquitectónico,DOCENTE,VERIFICADOR,2019-06-12,SI
+16,Elena Sofía,Quispe Huillca,es.quispe@unsaac.edu.pe,70123456,984123471,Medicina Veterinaria,Asociado,Medicina Veterinaria,DOCENTE,,2020-11-05,SI
+17,Ricardo Antonio,Mamani Chávez,ra.mamani@unsaac.edu.pe,12345671,984123472,Ingeniería de Minas,Principal,Explotación Minera,DOCENTE,,2018-04-18,SI
+18,Ana Cecilia,Flores Salas,ac.flores@unsaac.edu.pe,23456712,984123473,Enfermería,Asociado,Enfermería Pediátrica,DOCENTE,VERIFICADOR,2021-03-22,SI
+19,Roberto Carlos,Quispe Huamán,rc.quispe2@unsaac.edu.pe,34567123,984123474,Ingeniería Civil,Principal,Hidráulica,DOCENTE,,2019-09-15,SI
+20,María Isabel,Chávez Ccama,mi.chavez@unsaac.edu.pe,45671234,984123475,Administración,Asociado,Marketing,DOCENTE,,2022-05-10,SI
+21,Carlos Alberto,Flores Mamani,ca.flores@unsaac.edu.pe,56712345,984123476,Ingeniería Informática,Principal,Inteligencia Artificial,DOCENTE,VERIFICADOR,2018-12-03,SI
+22,Patricia Elizabeth,Quispe Rojas,pe.quispe@unsaac.edu.pe,67123456,984123477,Medicina,Asociado,Cardiología,DOCENTE,,2021-08-20,SI
+23,Juan Pablo,Huamán Salas,jp.huaman@unsaac.edu.pe,71234560,984123478,Ingeniería Mecánica,Principal,Mecánica de Fluidos,DOCENTE,,2019-11-25,SI
+24,María Elena,Chávez Quispe,me.chavez@unsaac.edu.pe,12345672,984123479,Enfermería,Asociado,Enfermería Geriátrica,DOCENTE,VERIFICADOR,2022-02-18,SI
+25,José Antonio,Flores Huamán,ja.flores@unsaac.edu.pe,23456723,984123480,Derecho,Principal,Derecho Civil,DOCENTE,,2020-07-12,SI
+26,Ana María,Quispe Mamani,am.quispe@unsaac.edu.pe,34567234,984123481,Educación,Asociado,Educación Inicial,DOCENTE,,2021-01-30,SI
+27,Luis Miguel,Chávez Ccanto,lm.chavez@unsaac.edu.pe,45672345,984123482,Ingeniería Ambiental,Principal,Contaminación Ambiental,DOCENTE,VERIFICADOR,2019-04-22,SI
+28,María José,Flores Rojas,mj.flores@unsaac.edu.pe,56723456,984123483,Psicología,Asociado,Psicología Organizacional,DOCENTE,,2022-03-15,SI
+29,Pedro Pablo,Quispe Huillca,pp.quispe@unsaac.edu.pe,67234560,984123484,Ingeniería Química,Principal,Ingeniería de Procesos,DOCENTE,,2020-10-08,SI
+30,Luisa Fernanda,Chávez Salas,lf.chavez@unsaac.edu.pe,12345673,984123485,Contabilidad,Asociado,Contabilidad Gerencial,DOCENTE,VERIFICADOR,2021-05-25,SI
+31,Carlos Enrique,Flores Mamani,ce.flores@unsaac.edu.pe,23456734,984123486,Arquitectura,Principal,Urbanismo,DOCENTE,,2019-08-14,SI
+32,María del Carmen,Quispe Chávez,mc.quispe@unsaac.edu.pe,34567345,984123487,Medicina Veterinaria,Asociado,Cirugía Veterinaria,DOCENTE,,2022-06-10,SI
+33,Juan Carlos,Mamani Quispe,jc.mamani@unsaac.edu.pe,45673456,984123488,Ingeniería de Minas,Principal,Seguridad Minera,DOCENTE,VERIFICADOR,2020-02-28,SI
+34,Ana Patricia,Flores Ccama,ap.flores@unsaac.edu.pe,56734560,984123489,Enfermería,Asociado,Enfermería en Cuidados Intensivos,DOCENTE,,2021-09-22,SI
+35,Roberto José,Quispe Rojas,rj.quispe@unsaac.edu.pe,12345674,984123490,Ingeniería Civil,Principal,Estructuras Sismorresistentes,DOCENTE,,2019-07-18,SI
+36,María Teresa,Chávez Huamán,mt.chavez@unsaac.edu.pe,23456745,984123491,Administración,Asociado,Recursos Humanos,DOCENTE,VERIFICADOR,2022-04-05,SI
+37,Luis Alberto,Flores Ccanto,la.flores@unsaac.edu.pe,34567456,984123492,Ingeniería Informática,Principal,Seguridad Informática,DOCENTE,,2020-11-30,SI
+38,Ana Cecilia,Quispe Mamani,ac.quispe@unsaac.edu.pe,45674560,984123493,Medicina,Asociado,Neurología,DOCENTE,,2021-06-15,SI
+39,Jorge Luis,Huamán Salas,jl.huaman@unsaac.edu.pe,12345675,984123494,Ingeniería Mecánica,Principal,Mecatrónica,DOCENTE,VERIFICADOR,2019-10-22,SI
+40,María Elena,Chávez Quispe,me.chavez2@unsaac.edu.pe,23456756,984123495,Enfermería,Asociado,Enfermería en Emergencias,DOCENTE,,2022-01-10,SI
+41,Carlos Andrés,Flores Huamán,ca.flores2@unsaac.edu.pe,34567560,984123496,Derecho,Principal,Derecho Constitucional,DOCENTE,,2020-08-25,SI
+42,Ana Lucía,Quispe Mamani,al.quispe2@unsaac.edu.pe,12345676,984123497,Educación,Asociado,Educación Secundaria,DOCENTE,VERIFICADOR,2021-03-18,SI
+43,Luis Miguel,Chávez Ccama,lm.chavez2@unsaac.edu.pe,23456765,984123498,Ingeniería Ambiental,Principal,Evaluación de Impacto Ambiental,DOCENTE,,2019-12-05,SI
+44,María José,Flores Rojas,mj.flores2@unsaac.edu.pe,34567650,984123499,Psicología,Asociado,Psicología Educativa,DOCENTE,,2022-05-20,SI
+45,Pedro Pablo,Quispe Huillca,pp.quispe2@unsaac.edu.pe,12345677,984124000,Ingeniería Química,Principal,Ingeniería de Alimentos,DOCENTE,VERIFICADOR,2020-09-14,SI
+46,Luisa Fernanda,Chávez Salas,lf.chavez2@unsaac.edu.pe,23456776,984124001,Contabilidad,Asociado,Costos,DOCENTE,,2021-04-30,SI
+47,Carlos Enrique,Flores Mamani,ce.flores2@unsaac.edu.pe,34567760,984124002,Arquitectura,Principal,Diseño Sostenible,DOCENTE,,2022-02-15,SI
+48,María del Carmen,Quispe Chávez,mc.quispe2@unsaac.edu.pe,12345678,984124003,Medicina Veterinaria,Asociado,Medicina de Animales Mayores,DOCENTE,VERIFICADOR,2020-07-22,SI
+49,Juan Carlos,Mamani Quispe,jc.mamani2@unsaac.edu.pe,23456787,984124004,Ingeniería de Minas,Principal,Geomecánica,DOCENTE,,2021-12-10,SI
+50,Ana Patricia,Flores Ccama,ap.flores2@unsaac.edu.pe,34567870,984124005,ADMINISTRADOR,,,ADMINISTRADOR,,2020-05-18,SI

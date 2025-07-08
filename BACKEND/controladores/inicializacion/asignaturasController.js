@@ -38,7 +38,10 @@ const procesar = async (archivo, transaction) => {
         // Obtener el ciclo académico activo
         const cicloActivo = await CicloAcademico.findOne({
             where: { estado: 'activo' },
-            attributes: ['id', 'nombre'],
+            attributes: {
+                include: ['id', 'nombre'],
+                exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+            },
             transaction
         });
 
@@ -115,7 +118,7 @@ const procesar = async (archivo, transaction) => {
                     
                     // Actualizar asignatura con verificación explícita
                     try {
-                        const [updateCount] = await asignatura.update(updateData, { transaction });
+                        await asignatura.update(updateData, { transaction });
                         logger.info(`Asignatura actualizada: ${codigo} - ${nombre}`, { updateData: Object.keys(updateData) });
                         
                         // Verificar que la actualización se haya realizado correctamente

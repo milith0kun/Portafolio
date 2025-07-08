@@ -1,20 +1,36 @@
 const { sequelize } = require('../config/database');
 const { Op } = require('sequelize');
 const ResponseHandler = require('./utils/responseHandler');
+const { Actividad, Usuario, Notificacion } = require('../modelos');
 
 /**
  * Obtiene las métricas del dashboard con datos reales de la base de datos
+ * Ahora con soporte para filtrado por ciclo académico
  */
 const obtenerMetricas = async (req, res) => {
-  console.log('=== INICIO DE OBTENCIÓN DE MÉTRICAS ===');
-  
   try {
+    // Obtener ciclo desde parámetros de consulta
+    const cicloId = req.query.ciclo || req.query.cicloId;
+    
     // Verificar conexión a la base de datos
     await sequelize.authenticate();
-    console.log('Conexión a la base de datos establecida correctamente.');
     
     // Obtener modelos después de verificar la conexión
-    const { Usuario, UsuarioRol } = require('../modelos');
+    const { Usuario, UsuarioRol, Portafolio, DocenteAsignatura, CicloAcademico, Carrera, Asignatura } = require('../modelos');
+    
+    // Obtener información del ciclo académico
+    let cicloInfo = null;
+    if (cicloId) {
+      try {
+        cicloInfo = await CicloAcademico.findByPk(cicloId, {
+          attributes: {
+            exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+          }
+        });
+      } catch (error) {
+        // Error silencioso al obtener información del ciclo
+      }
+    }
     
     // Obtener total de usuarios
     const totalUsuarios = await Usuario.count();
@@ -44,7 +60,144 @@ const obtenerMetricas = async (req, res) => {
         return { ...acc, [clave]: parseInt(total) };
       }, { ...distribucionRoles });
     } catch (error) {
-      console.error('Error al obtener distribución de roles:', error);
+      // Error silencioso al obtener distribución de roles
+    }
+    
+    // Obtener métricas de carreras
+    let carrerasMetricas = { total: 0, activas: 0 };
+    try {
+      const totalCarreras = await Carrera.count({
+        where: { activo: true }
+      });
+      
+      carrerasMetricas = {
+        total: totalCarreras,
+        activas: totalCarreras
+      };
+      
+
+    } catch (error) {
+      // Error silencioso al obtener métricas de carreras
+    }
+    
+    // Obtener métricas de asignaturas (filtradas por ciclo si se especifica)
+    let asignaturasMetricas = { total: 0, activas: 0 };
+    if (cicloId) {
+      try {
+        // Contar asignaturas que tienen asignaciones en el ciclo específico
+        const asignaturasEnCiclo = await Asignatura.count({
+          include: [{
+            model: DocenteAsignatura,
+            as: 'asignaciones_docente',
+            where: { 
+              ciclo_id: cicloId,
+              activo: true 
+            },
+            required: true
+          }],
+          where: { activo: true }
+        });
+        
+        asignaturasMetricas = {
+          total: asignaturasEnCiclo,
+          activas: asignaturasEnCiclo
+        };
+        
+
+      } catch (error) {
+        // Error silencioso al obtener métricas de asignaturas
+        // Fallback: contar todas las asignaturas activas
+        try {
+          const totalAsignaturas = await Asignatura.count({ where: { activo: true } });
+          asignaturasMetricas = { total: totalAsignaturas, activas: totalAsignaturas };
+        } catch (fallbackError) {
+          // Error silencioso en fallback de asignaturas
+        }
+      }
+    } else {
+      // Si no hay ciclo específico, contar todas las asignaturas
+      try {
+        const totalAsignaturas = await Asignatura.count({ where: { activo: true } });
+        asignaturasMetricas = { total: totalAsignaturas, activas: totalAsignaturas };
+      } catch (error) {
+        // Error silencioso al obtener total de asignaturas
+      }
+    }
+    
+    // Obtener métricas de portafolios (filtradas por ciclo si se especifica)
+    let portafoliosMetricas = { total: 0, activos: 0, completados: 0, progresoPromedio: 0 };
+    if (cicloId) {
+      try {
+        const totalPortafoliosCiclo = await Portafolio.count({
+          where: { 
+            ciclo_id: cicloId,
+            activo: true 
+          }
+        });
+        
+        const portafoliosActivos = await Portafolio.count({
+          where: { 
+            ciclo_id: cicloId,
+            activo: true,
+            estado: 'activo'
+          }
+        });
+        
+        const portafoliosCompletados = await Portafolio.count({
+          where: { 
+            ciclo_id: cicloId,
+            activo: true,
+            estado: 'completado'
+          }
+        });
+        
+        // Calcular progreso promedio
+        const portafoliosConProgreso = await Portafolio.findAll({
+          where: { 
+            ciclo_id: cicloId,
+            activo: true 
+          },
+          attributes: ['progreso'],
+          raw: true
+        });
+        
+        const progresoPromedio = portafoliosConProgreso.length > 0 
+          ? Math.round(portafoliosConProgreso.reduce((sum, p) => sum + (p.progreso || 0), 0) / portafoliosConProgreso.length)
+          : 0;
+        
+        portafoliosMetricas = {
+          total: totalPortafoliosCiclo,
+          activos: portafoliosActivos,
+          completados: portafoliosCompletados,
+          progresoPromedio
+        };
+        
+
+      } catch (error) {
+        // Error silencioso al obtener métricas de portafolios
+      }
+    }
+    
+    // Obtener métricas de asignaciones (filtradas por ciclo si se especifica)
+    let asignacionesMetricas = { total: 0, activas: 0 };
+    if (cicloId) {
+      try {
+        const totalAsignaciones = await DocenteAsignatura.count({
+          where: { 
+            ciclo_id: cicloId,
+            activo: true 
+          }
+        });
+        
+        asignacionesMetricas = {
+          total: totalAsignaciones,
+          activas: totalAsignaciones
+        };
+        
+
+      } catch (error) {
+        // Error silencioso al obtener métricas de asignaciones
+      }
     }
     
     // Estructura de respuesta
@@ -53,14 +206,25 @@ const obtenerMetricas = async (req, res) => {
         estado: 'activo',
         version: '1.0.0',
         modo: 'produccion',
-        mensaje: 'Datos en tiempo real desde la base de datos'
+        mensaje: cicloId ? `Datos del ciclo: ${cicloInfo?.nombre || 'Desconocido'}` : 'Datos generales del sistema'
       },
+      ciclo: cicloInfo ? {
+        id: cicloInfo.id,
+        nombre: cicloInfo.nombre,
+        estado: cicloInfo.estado,
+        fechaInicio: cicloInfo.fecha_inicio,
+        fechaFin: cicloInfo.fecha_fin
+      } : null,
       usuarios: {
         total: totalUsuarios,
         activos: usuariosActivos,
         pendientes: totalUsuarios - usuariosActivos
       },
       roles: distribucionRoles,
+      carreras: carrerasMetricas,
+      asignaturas: asignaturasMetricas,
+      portafolios: portafoliosMetricas,
+      asignaciones: asignacionesMetricas,
       documentos: {
         // Estos valores se actualizarán cuando se implemente el módulo de documentos
         total: 0,
@@ -68,11 +232,10 @@ const obtenerMetricas = async (req, res) => {
         pendientes: 0,
         observados: 0
       },
-      // No incluimos cicloActual ya que el modelo no está disponible
       timestamp: new Date().toISOString()
     };
     
-    console.log('📊 Métricas generadas exitosamente');
+
     
     // Devolver respuesta exitosa
     return res.status(200).json({
@@ -82,7 +245,6 @@ const obtenerMetricas = async (req, res) => {
     });
     
   } catch (error) {
-    console.error('❌ Error al obtener métricas:', error);
     return res.status(500).json({
       success: false,
       message: 'Error al obtener métricas del dashboard',
@@ -96,48 +258,61 @@ const obtenerMetricas = async (req, res) => {
  */
 const obtenerActividades = async (req, res) => {
   try {
-    // Por ahora devolvemos datos de ejemplo
-    const actividades = [
-      {
-        id: 1,
-        tipo: 'usuario',
-        titulo: 'Nuevo usuario registrado',
-        descripcion: 'Juan Pérez (Docente) se ha registrado en el sistema',
-        fecha: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // Hace 2 horas
-        icono: 'fas fa-user-plus'
-      },
-      {
-        id: 2,
-        tipo: 'documento',
-        titulo: 'Documentos subidos',
-        descripcion: '15 nuevos documentos subidos en las últimas 24 horas',
-        fecha: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(), // Hace 5 horas
-        icono: 'fas fa-file-upload'
-      },
-      {
-        id: 3,
-        tipo: 'sistema',
-        titulo: 'Configuración actualizada',
-        descripcion: 'Se actualizaron los plazos de entrega para el ciclo 2025-I',
-        fecha: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // Hace 1 día
-        icono: 'fas fa-cog'
-      }
-    ];
+    
+    // Obtener actividades con información de usuario usando las asociaciones
+    const actividades = await Actividad.findAll({
+      include: [{
+        model: Usuario,
+        as: 'usuario',
+        attributes: ['id', 'nombres', 'apellidos'],
+        required: false
+      }],
+      order: [['fecha_creacion', 'DESC']],
+      limit: 10
+    });
+
+
+
+    const actividadesFormateadas = actividades.map(actividad => ({
+      id: actividad.id,
+      tipo: actividad.tipo,
+      titulo: actividad.modulo, // Usar módulo como título
+      descripcion: actividad.descripcion,
+      fecha: actividad.fecha_creacion,
+      icono: obtenerIconoActividad(actividad.tipo),
+      usuario: actividad.usuario ? `${actividad.usuario.nombres} ${actividad.usuario.apellidos}` : null
+    }));
 
     return res.status(200).json({
       success: true,
       message: 'Actividades obtenidas correctamente',
-      data: actividades
+      data: actividadesFormateadas
     });
     
   } catch (error) {
-    console.error('Error al obtener actividades:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Error al obtener actividades recientes',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    // Retornar array vacío en lugar de error 500
+    return res.status(200).json({
+      success: true,
+      message: 'No hay actividades disponibles',
+      data: []
     });
   }
+};
+
+// Función auxiliar para obtener iconos según el tipo de actividad
+const obtenerIconoActividad = (tipo) => {
+  const iconos = {
+    'login': 'fas fa-sign-in-alt',
+    'logout': 'fas fa-sign-out-alt',
+    'creacion': 'fas fa-plus-circle',
+    'actualizacion': 'fas fa-edit',
+    'eliminacion': 'fas fa-trash-alt',
+    'carga_masiva': 'fas fa-upload',
+    'descarga': 'fas fa-download',
+    'cambio_estado': 'fas fa-exchange-alt',
+    'error': 'fas fa-exclamation-triangle'
+  };
+  return iconos[tipo] || 'fas fa-info-circle';
 };
 
 /**
@@ -145,34 +320,34 @@ const obtenerActividades = async (req, res) => {
  */
 const obtenerNotificaciones = async (req, res) => {
   try {
-    // Por ahora devolvemos datos de ejemplo
-    const notificaciones = [
-      {
-        id: 1,
-        tipo: 'info',
-        titulo: 'Sistema actualizado',
-        mensaje: 'El sistema ha sido actualizado a la versión 1.0.0',
-        fecha: new Date().toISOString(),
-        leida: false
+    // Obtener notificaciones reales de la base de datos
+    const { Notificacion } = require('../modelos');
+    
+    const notificaciones = await Notificacion.findAll({
+      where: { 
+        usuario_id: req.usuario.id,
+        leida: false 
       },
-      {
-        id: 2,
-        tipo: 'advertencia',
-        titulo: 'Mantenimiento programado',
-        mensaje: 'Se realizará mantenimiento el próximo domingo de 2:00 AM a 4:00 AM',
-        fecha: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
-        leida: false
-      }
-    ];
+      order: [['fecha_creacion', 'DESC']],
+      limit: 10
+    });
+
+    const notificacionesFormateadas = notificaciones.map(notif => ({
+      id: notif.id,
+      tipo: notif.tipo,
+      titulo: notif.titulo,
+      mensaje: notif.mensaje,
+      fecha: notif.fecha_creacion,
+      leida: notif.leida
+    }));
 
     return res.status(200).json({
       success: true,
       message: 'Notificaciones obtenidas correctamente',
-      data: notificaciones
+      data: notificacionesFormateadas
     });
     
   } catch (error) {
-    console.error('Error al obtener notificaciones:', error);
     return res.status(500).json({
       success: false,
       message: 'Error al obtener notificaciones',
@@ -191,10 +366,9 @@ const obtenerCicloActual = async (req, res) => {
     
     const cicloActivo = await CicloAcademico.findOne({
       where: { estado: 'activo' },
-      include: [{
-        model: EstadoSistema,
-        as: 'estados_sistema'
-      }]
+      attributes: {
+        exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+      }
     });
 
     if (!cicloActivo) {
@@ -205,11 +379,22 @@ const obtenerCicloActual = async (req, res) => {
       });
     }
 
-    // Calcular progreso basado en estados de módulos
-    const estadosModulos = cicloActivo.estados_sistema || [];
-    const modulosHabilitados = estadosModulos.filter(e => e.habilitado).length;
-    const totalModulos = estadosModulos.length;
-    const progreso = totalModulos > 0 ? Math.round((modulosHabilitados / totalModulos) * 100) : 0;
+    // Obtener estados del sistema por separado
+    let estadosModulos = [];
+    let progreso = 0;
+    
+    if (cicloActivo) {
+      try {
+        estadosModulos = await EstadoSistema.findAll({
+          where: { ciclo_id: cicloActivo.id }
+        });
+        const modulosHabilitados = estadosModulos.filter(e => e.habilitado).length;
+        const totalModulos = estadosModulos.length;
+        progreso = totalModulos > 0 ? Math.round((modulosHabilitados / totalModulos) * 100) : 0;
+      } catch (error) {
+        console.log('Error al obtener estados del sistema:', error.message);
+      }
+    }
 
     const cicloActual = {
       id: cicloActivo.id,
@@ -234,7 +419,6 @@ const obtenerCicloActual = async (req, res) => {
     });
     
   } catch (error) {
-    console.error('Error al obtener ciclo actual:', error);
     return res.status(500).json({
       success: false,
       message: 'Error al obtener ciclo académico actual',
@@ -248,11 +432,11 @@ const obtenerCicloActual = async (req, res) => {
  */
 const obtenerEstadisticas = async (req, res) => {
   try {
-    console.log('=== OBTENIENDO ESTADÍSTICAS DEL SISTEMA ===');
+    // Obtener ciclo desde parámetros de consulta
+    const cicloId = req.query.ciclo || req.query.cicloId;
     
     // Verificar conexión a la base de datos
     await sequelize.authenticate();
-    console.log('✅ Conexión a la base de datos verificada');
     
     // Obtener modelos
     const { 
@@ -268,12 +452,24 @@ const obtenerEstadisticas = async (req, res) => {
       Observacion
     } = require('../modelos');
     
-    // Obtener ciclo académico activo
-    const cicloActivo = await CicloAcademico.findOne({
-      where: { estado: 'activo' }
-    });
+    // Obtener ciclo académico (específico o activo)
+    let cicloActivo;
+    if (cicloId) {
+      cicloActivo = await CicloAcademico.findByPk(cicloId, {
+        attributes: {
+          exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+        }
+      });
+    } else {
+      cicloActivo = await CicloAcademico.findOne({
+        where: { estado: 'activo' },
+        attributes: {
+          exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+        }
+      });
+    }
 
-    // Filtros por ciclo activo
+    // Filtros por ciclo
     const filtrosCiclo = cicloActivo ? { ciclo_id: cicloActivo.id } : {};
     
     // Obtener estadísticas de usuarios y roles
@@ -308,7 +504,7 @@ const obtenerEstadisticas = async (req, res) => {
       Carrera.count(),
       Asignatura.count(cicloActivo ? { where: filtrosCiclo } : {}),
       DocenteAsignatura.count(cicloActivo ? { where: filtrosCiclo } : {}),
-      VerificadorDocente.count(),
+      sequelize.query('SELECT COUNT(*) as count FROM verificadores_docentes WHERE activo = true', { type: sequelize.QueryTypes.SELECT }).then(result => result[0].count),
       Portafolio.count(cicloActivo ? { where: filtrosCiclo } : {}),
       Portafolio.count(cicloActivo ? { 
         where: { ...filtrosCiclo, estado: 'activo' } 
@@ -365,11 +561,10 @@ const obtenerEstadisticas = async (req, res) => {
       timestamp: new Date().toISOString()
     };
 
-    console.log('✅ Estadísticas calculadas:', estadisticas);
+
     return res.status(200).json(estadisticas);
     
   } catch (error) {
-    console.error('❌ Error al obtener estadísticas:', error);
     return res.status(500).json({
       success: false,
       message: 'Error al obtener estadísticas del sistema',
@@ -383,39 +578,26 @@ const obtenerEstadisticas = async (req, res) => {
  */
 const obtenerAsignaciones = async (req, res) => {
   try {
-    console.log('=== OBTENIENDO ASIGNACIONES DOCENTE-ASIGNATURA ===');
-    
     // Verificar conexión a la base de datos
     await sequelize.authenticate();
     
     // Obtener modelos
-    const { DocenteAsignatura, Usuario, Asignatura, Carrera } = require('../modelos');
+    const { DocenteAsignatura, Usuario, Asignatura } = require('../modelos');
     
-    let asignaciones = [];
-    
-    if (DocenteAsignatura) {
-      asignaciones = await DocenteAsignatura.findAll({
-        include: [
-          {
-            model: Usuario,
-            as: 'docente',
-            attributes: ['id', 'nombres', 'apellidos', 'correo']
-          },
-          {
-            model: Asignatura,
-            as: 'asignatura',
-            attributes: ['id', 'codigo', 'nombre', 'creditos'],
-            include: Carrera ? [{
-              model: Carrera,
-              as: 'carrera',
-              attributes: ['id', 'nombre', 'codigo']
-            }] : []
-          }
-        ]
-      });
-    }
-
-    console.log(`✅ ${asignaciones.length} asignaciones encontradas`);
+    const asignaciones = await DocenteAsignatura.findAll({
+      include: [
+        {
+          model: Usuario,
+          as: 'docente',
+          attributes: ['id', 'nombres', 'apellidos', 'correo']
+        },
+        {
+          model: Asignatura,
+          as: 'asignatura',
+          attributes: ['id', 'codigo', 'nombre', 'creditos', 'carrera']
+        }
+      ]
+    });
 
     return res.status(200).json({
       success: true,
@@ -424,7 +606,6 @@ const obtenerAsignaciones = async (req, res) => {
     });
     
   } catch (error) {
-    console.error('❌ Error al obtener asignaciones:', error);
     return res.status(500).json({
       success: false,
       message: 'Error al obtener asignaciones docente-asignatura',
@@ -439,43 +620,60 @@ const obtenerAsignaciones = async (req, res) => {
  */
 const obtenerVerificaciones = async (req, res) => {
   try {
-    console.log('=== OBTENIENDO VERIFICACIONES ===');
-    
     // Verificar conexión a la base de datos
     await sequelize.authenticate();
     
-    // Obtener modelos
-    const { VerificadorDocente, Usuario } = require('../modelos');
-    
-    let verificaciones = [];
-    
-    if (VerificadorDocente) {
-      verificaciones = await VerificadorDocente.findAll({
-        include: [
-          {
-            model: Usuario,
-            as: 'verificador',
-            attributes: ['id', 'nombres', 'apellidos', 'correo']
-          },
-          {
-            model: Usuario,
-            as: 'docente',
-            attributes: ['id', 'nombres', 'apellidos', 'correo']
-          }
-        ]
-      });
-    }
+    // Usar SQL directo para evitar problemas con asociaciones
+    const verificaciones = await sequelize.query(`
+      SELECT 
+        vd.id,
+        vd.verificador_id,
+        vd.docente_id,
+        vd.ciclo_id,
+        vd.activo,
+        vd.fecha_asignacion,
+        u1.nombres as verificador_nombres,
+        u1.apellidos as verificador_apellidos,
+        u1.correo as verificador_correo,
+        u2.nombres as docente_nombres,
+        u2.apellidos as docente_apellidos,
+        u2.correo as docente_correo
+      FROM verificadores_docentes vd
+      LEFT JOIN usuarios u1 ON vd.verificador_id = u1.id
+      LEFT JOIN usuarios u2 ON vd.docente_id = u2.id
+      WHERE vd.activo = true
+      ORDER BY vd.fecha_asignacion DESC
+    `, { type: sequelize.QueryTypes.SELECT });
 
-    console.log(`✅ ${verificaciones.length} verificaciones encontradas`);
+    // Formatear respuesta
+    const verificacionesFormateadas = verificaciones.map(v => ({
+      id: v.id,
+      verificador_id: v.verificador_id,
+      docente_id: v.docente_id,
+      ciclo_id: v.ciclo_id,
+      activo: v.activo,
+      fecha_asignacion: v.fecha_asignacion,
+      verificador: {
+        id: v.verificador_id,
+        nombres: v.verificador_nombres,
+        apellidos: v.verificador_apellidos,
+        correo: v.verificador_correo
+      },
+      docente: {
+        id: v.docente_id,
+        nombres: v.docente_nombres,
+        apellidos: v.docente_apellidos,
+        correo: v.docente_correo
+      }
+    }));
 
     return res.status(200).json({
       success: true,
       message: 'Verificaciones obtenidas correctamente',
-      data: verificaciones
+      data: verificacionesFormateadas
     });
     
   } catch (error) {
-    console.error('❌ Error al obtener verificaciones:', error);
     return res.status(500).json({
       success: false,
       message: 'Error al obtener verificaciones',
@@ -490,39 +688,31 @@ const obtenerVerificaciones = async (req, res) => {
  */
 const obtenerPortafolios = async (req, res) => {
   try {
-    console.log('=== OBTENIENDO PORTAFOLIOS ===');
-    
     // Verificar conexión a la base de datos
     await sequelize.authenticate();
     
     // Obtener modelos
     const { Portafolio, Usuario, Asignatura, CicloAcademico } = require('../modelos');
     
-    let portafolios = [];
-    
-    if (Portafolio) {
-      portafolios = await Portafolio.findAll({
-        include: [
-          {
-            model: Usuario,
-            as: 'docente',
-            attributes: ['id', 'nombres', 'apellidos', 'correo']
-          },
-          {
-            model: Asignatura,
-            as: 'asignatura',
-            attributes: ['id', 'codigo', 'nombre']
-          },
-          CicloAcademico ? {
-            model: CicloAcademico,
-            as: 'ciclo',
-            attributes: ['id', 'nombre', 'estado']
-          } : null
-        ].filter(Boolean)
-      });
-    }
-
-    console.log(`✅ ${portafolios.length} portafolios encontrados`);
+    const portafolios = await Portafolio.findAll({
+      include: [
+        {
+          model: Usuario,
+          as: 'docente',
+          attributes: ['id', 'nombres', 'apellidos', 'correo']
+        },
+        {
+          model: Asignatura,
+          as: 'asignatura',
+          attributes: ['id', 'codigo', 'nombre']
+        },
+        {
+          model: CicloAcademico,
+          as: 'ciclo',
+          attributes: ['id', 'nombre', 'estado']
+        }
+      ]
+    });
 
     return res.status(200).json({
       success: true,
@@ -531,7 +721,6 @@ const obtenerPortafolios = async (req, res) => {
     });
     
   } catch (error) {
-    console.error('❌ Error al obtener portafolios:', error);
     return res.status(500).json({
       success: false,
       message: 'Error al obtener portafolios',

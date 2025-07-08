@@ -12,6 +12,7 @@ const Carrera = require('./Carrera');
 const CodigoInstitucional = require('./CodigoInstitucional');
 const Asignatura = require('./Asignatura');
 const DocenteAsignatura = require('./DocenteAsignatura');
+const Actividad = require('./Actividad');
 const Portafolio = require('./Portafolio');
 const Estructura = require('./Estructura');
 const Notificacion = require('./Notificacion');
@@ -26,6 +27,20 @@ Usuario.hasMany(UsuarioRol, { foreignKey: 'usuario_id', as: 'roles' });
 UsuarioRol.belongsTo(Usuario, { foreignKey: 'usuario_id', as: 'usuario' });
 UsuarioRol.belongsTo(Usuario, { foreignKey: 'asignado_por', as: 'asignador' });
 
+// Asociaciones de Actividad
+Actividad.belongsTo(Usuario, { 
+    foreignKey: 'usuario_id', 
+    as: 'usuario',
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE'
+});
+Usuario.hasMany(Actividad, { 
+    foreignKey: 'usuario_id', 
+    as: 'actividades',
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE'
+});
+
 // Asociaciones de CicloAcademico
 CicloAcademico.belongsTo(Usuario, { foreignKey: 'creado_por', as: 'creador' });
 CicloAcademico.belongsTo(Usuario, { foreignKey: 'cerrado_por', as: 'cerrador' });
@@ -33,15 +48,15 @@ CicloAcademico.belongsTo(Usuario, { foreignKey: 'cerrado_por', as: 'cerrador' })
 // Asociaciones de Semestre
 Semestre.belongsTo(CicloAcademico, { foreignKey: 'ciclo_id', as: 'ciclo' });
 CicloAcademico.hasMany(Semestre, { foreignKey: 'ciclo_id', as: 'semestres' });
-
+ 
 // Asociaciones de Asignatura
 Asignatura.belongsTo(CicloAcademico, { foreignKey: 'ciclo_id', as: 'ciclo' });
 CicloAcademico.hasMany(Asignatura, { foreignKey: 'ciclo_id', as: 'asignaturas' });
 
-// Nota: La asociación con Carrera se omite por ahora porque:
-// - El campo 'carrera' en asignaturas es STRING, no un ID de referencia
-// - Causaba conflicto de nombres con el atributo 'carrera'
-// TODO: Revisar si se necesita una asociación personalizada usando el campo 'carrera' como clave
+// Asociaciones de Asignatura con Carrera - COMENTADO porque no existe carrera_id
+// La tabla asignaturas tiene 'carrera' como string, no como foreign key
+// Asignatura.belongsTo(Carrera, { foreignKey: 'carrera_id', as: 'carrera_info' });
+// Carrera.hasMany(Asignatura, { foreignKey: 'carrera_id', as: 'asignaturas' });
 
 // Asociaciones de DocenteAsignatura (docentes_asignaturas)
 DocenteAsignatura.belongsTo(Usuario, { foreignKey: 'docente_id', as: 'docente' });
@@ -60,9 +75,11 @@ VerificadorDocente.belongsTo(Usuario, { foreignKey: 'verificador_id', as: 'verif
 VerificadorDocente.belongsTo(Usuario, { foreignKey: 'docente_id', as: 'docente' });
 VerificadorDocente.belongsTo(CicloAcademico, { foreignKey: 'ciclo_id', as: 'ciclo' });
 VerificadorDocente.belongsTo(Usuario, { foreignKey: 'asignado_por', as: 'asignador' });
+VerificadorDocente.belongsTo(Portafolio, { foreignKey: 'portafolio_id', as: 'portafolio' });
 
 Usuario.hasMany(VerificadorDocente, { foreignKey: 'verificador_id', as: 'docentes_asignados' });
 Usuario.hasMany(VerificadorDocente, { foreignKey: 'docente_id', as: 'verificadores_asignados' });
+Portafolio.hasMany(VerificadorDocente, { foreignKey: 'portafolio_id', as: 'verificadores' });
 
 // Asociaciones de Estructura
 Estructura.belongsTo(Estructura, { foreignKey: 'carpeta_padre_id', as: 'padre' });

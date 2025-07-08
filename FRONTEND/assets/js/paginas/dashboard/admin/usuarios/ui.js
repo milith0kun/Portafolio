@@ -8,18 +8,14 @@
 // ================================================
 
 async function initialize() {
-    console.log('🎨 Inicializando módulo UI de usuarios...');
-    
     try {
         verificarDependencias();
         await inicializarDataTable();
         configurarElementosUI();
         
-        console.log('✅ Módulo UI de usuarios inicializado');
         return true;
         
     } catch (error) {
-        console.error('❌ Error en inicialización UI usuarios:', error);
         throw error;
     }
 }
@@ -36,8 +32,6 @@ function verificarDependencias() {
     if (typeof $.fn.DataTable === 'undefined') {
         throw new Error('DataTables no está disponible');
     }
-    
-    console.log('✅ Dependencias verificadas');
 }
 
 // ================================================
@@ -45,8 +39,6 @@ function verificarDependencias() {
 // ================================================
 
 async function inicializarDataTable() {
-    console.log('📊 Inicializando DataTable...');
-    
     try {
         const tabla = $('#tablaUsuarios').DataTable({
             language: {
@@ -93,10 +85,8 @@ async function inicializarDataTable() {
         });
         
         window.UsuariosCore.establecerTablaUsuarios(tabla);
-        console.log('✅ DataTable inicializada');
         
     } catch (error) {
-        console.error('❌ Error inicializando DataTable:', error);
         throw error;
     }
 }
@@ -106,7 +96,7 @@ async function inicializarDataTable() {
 // ================================================
 
 async function actualizarTabla() {
-    console.log('🔄 Actualizando tabla de usuarios...');
+    // Actualizando tabla de usuarios
     
     try {
         mostrarCargando(true);
@@ -122,11 +112,11 @@ async function actualizarTabla() {
             tabla.rows.add(datosFormateados);
             tabla.draw();
             
-            console.log(`✅ Tabla actualizada con ${datosFormateados.length} usuarios`);
+            // Tabla actualizada con usuarios
         }
         
     } catch (error) {
-        console.error('❌ Error actualizando tabla:', error);
+        // Error actualizando tabla
         mostrarError('Error al cargar usuarios: ' + error.message);
     } finally {
         mostrarCargando(false);
@@ -138,7 +128,7 @@ async function actualizarTabla() {
 // ================================================
 
 function llenarFormulario(datosUsuario) {
-    console.log('📝 Llenando formulario con datos del usuario');
+    // Llenando formulario con datos del usuario
     
     const campos = {
         'usuario_id': datosUsuario.id || '',
@@ -161,7 +151,7 @@ function llenarFormulario(datosUsuario) {
 }
 
 function limpiarFormulario() {
-    console.log('🧹 Limpiando formulario');
+    // Limpiando formulario
     
     const form = document.getElementById('formularioUsuario');
     if (form) {
@@ -203,7 +193,7 @@ function mostrarCargando(mostrar = true) {
 // ================================================
 
 function mostrarError(mensaje) {
-    console.error('❌ Error UI:', mensaje);
+    // Error UI
     
     // Intentar usar diferentes sistemas de notificación
     if (window.mostrarNotificacion) {
@@ -216,7 +206,7 @@ function mostrarError(mensaje) {
 }
 
 function mostrarExito(mensaje) {
-    console.log('✅ Éxito UI:', mensaje);
+    // Éxito UI
     
     if (window.mostrarNotificacion) {
         window.mostrarNotificacion(mensaje, 'success');
@@ -266,8 +256,6 @@ function configurarElementosUI() {
             width: '100%'
         });
     }
-    
-    console.log('✅ Elementos UI configurados');
 }
 
 // ================================================
@@ -321,4 +309,4 @@ window.UIUsuarios = {
     actualizarContadores
 };
 
-console.log('✅ Módulo UI de Usuarios cargado'); 
+// Módulo UI de Usuarios cargado

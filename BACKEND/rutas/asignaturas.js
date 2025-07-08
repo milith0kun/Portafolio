@@ -3,6 +3,7 @@ const router = express.Router();
 const { Asignatura, CicloAcademico, Carrera } = require('../modelos');
 const { verificarToken } = require('../middleware/authJwt');
 
+
 /**
  * Obtener todas las asignaturas
  */
@@ -11,40 +12,35 @@ router.get('/', verificarToken, async (req, res) => {
     console.log('📖 Obteniendo lista de asignaturas...');
     
     const { ciclo_id, carrera, semestre } = req.query;
+    const { sequelize } = require('../config/database');
     
-    // Construir condiciones de filtro
-    let whereConditions = { activo: true };
+    // Construir consulta SQL directa para evitar problemas de asociaciones
+    let sqlQuery = 'SELECT a.*, c.nombre as ciclo_nombre FROM asignaturas a LEFT JOIN ciclos_academicos c ON a.ciclo_id = c.id WHERE a.activo = true';
+    let params = [];
     
     if (ciclo_id) {
-      whereConditions.ciclo_id = ciclo_id;
+      sqlQuery += ' AND a.ciclo_id = ?';
+      params.push(ciclo_id);
     } else {
       // Si no se especifica ciclo, usar el ciclo activo
-      const cicloActivo = await CicloAcademico.findOne({
-        where: { estado: 'activo' }
-      });
-      if (cicloActivo) {
-        whereConditions.ciclo_id = cicloActivo.id;
-      }
+      sqlQuery += ' AND c.estado = "activo"';
     }
     
     if (carrera) {
-      whereConditions.carrera = carrera;
+      sqlQuery += ' AND a.carrera = ?';
+      params.push(carrera);
     }
     
     if (semestre) {
-      whereConditions.semestre = semestre;
+      sqlQuery += ' AND a.semestre = ?';
+      params.push(semestre);
     }
+    
+    sqlQuery += ' ORDER BY a.carrera ASC, a.semestre ASC, a.nombre ASC';
 
-    const asignaturas = await Asignatura.findAll({
-      where: whereConditions,
-      include: [
-        {
-          model: CicloAcademico,
-          as: 'ciclo',
-          attributes: ['id', 'nombre', 'estado']
-        }
-      ],
-      order: [['carrera', 'ASC'], ['semestre', 'ASC'], ['nombre', 'ASC']]
+    const asignaturas = await sequelize.query(sqlQuery, {
+      replacements: params,
+      type: sequelize.QueryTypes.SELECT
     });
 
     console.log(`✅ Se encontraron ${asignaturas.length} asignaturas`);
@@ -72,15 +68,18 @@ router.get('/:id', verificarToken, async (req, res) => {
   try {
     const { id } = req.params;
     
-    const asignatura = await Asignatura.findByPk(id, {
-      include: [
-        {
-          model: CicloAcademico,
-          as: 'ciclo',
-          attributes: ['id', 'nombre', 'estado']
+    const asignatura = await Asignatura.findByPk(id);
+
+    if (asignatura) {
+      // Obtener información del ciclo por separado
+      const ciclo = await CicloAcademico.findByPk(asignatura.ciclo_id, {
+        attributes: {
+          include: ['id', 'nombre', 'estado'],
+          exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
         }
-      ]
-    });
+      });
+      asignatura.dataValues.ciclo = ciclo || null;
+    }
 
     if (!asignatura) {
       return res.status(404).json({
@@ -133,7 +132,8 @@ router.post('/', verificarToken, async (req, res) => {
     let cicloTarget = ciclo_id;
     if (!cicloTarget) {
       const cicloActivo = await CicloAcademico.findOne({
-        where: { estado: 'activo' }
+        where: { estado: 'activo' },
+        attributes: { exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion'] }
       });
       if (!cicloActivo) {
         return res.status(400).json({
@@ -159,7 +159,9 @@ router.post('/', verificarToken, async (req, res) => {
       });
     }
 
-    const ciclo = await CicloAcademico.findByPk(cicloTarget);
+    const ciclo = await CicloAcademico.findByPk(cicloTarget, {
+      attributes: { exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion'] }
+    });
     
     const nuevaAsignatura = await Asignatura.create({
       codigo: codigo.trim(),
@@ -308,7 +310,8 @@ router.get('/carrera/:carrera', verificarToken, async (req, res) => {
 
     // Usar ciclo académico activo
     const cicloActivo = await CicloAcademico.findOne({
-      where: { estado: 'activo' }
+      where: { estado: 'activo' },
+      attributes: { exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion'] }
     });
     
     if (cicloActivo) {

@@ -1,0 +1,548 @@
+/**
+ * Estilos para el Explorador de Portafolios
+ * Diseño tipo Windows Explorer con 3 paneles
+ */
+
+/* ============================================
+   EXPLORADOR PRINCIPAL
+   ============================================ */
+
+.modal-xl {
+  max-width: 95%;
+}
+
+.modal-xl .modal-content {
+  height: 90vh;
+}
+
+.explorer-container {
+  height: calc(90vh - 120px);
+  overflow: hidden;
+}
+
+.explorer-breadcrumb {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.breadcrumb {
+  margin-bottom: 0;
+  background-color: transparent;
+}
+
+.breadcrumb-item a {
+  color: #0066cc;
+  text-decoration: none;
+}
+
+.breadcrumb-item a:hover {
+  text-decoration: underline;
+}
+
+/* ============================================
+   PANEL IZQUIERDO - ÁRBOL DE CARPETAS
+   ============================================ */
+
+.explorer-sidebar {
+  background-color: #f8f9fa;
+  border-right: 1px solid #dee2e6;
+  overflow-y: auto;
+  max-height: 100%;
+}
+
+.folder-tree {
+  margin-top: 10px;
+}
+
+.folder-item {
+  margin-bottom: 2px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.folder-content {
+  padding: 6px 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.folder-content:hover {
+  background-color: #e9ecef;
+}
+
+.folder-item.selected .folder-content {
+  background-color: #0066cc;
+  color: white;
+}
+
+.folder-name {
+  font-size: 0.9rem;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.file-count {
+  font-size: 0.8rem;
+  opacity: 0.7;
+  margin-left: auto;
+}
+
+/* Estados de las carpetas */
+.folder-empty .folder-content i {
+  color: #6c757d;
+}
+
+.folder-pending .folder-content i {
+  color: #ffc107;
+}
+
+.folder-partial .folder-content i {
+  color: #17a2b8;
+}
+
+.folder-complete .folder-content i {
+  color: #28a745;
+}
+
+.folder-error .folder-content i {
+  color: #dc3545;
+}
+
+/* ============================================
+   PANEL CENTRAL - LISTA DE ARCHIVOS
+   ============================================ */
+
+.explorer-main {
+  background-color: white;
+  overflow-y: auto;
+  max-height: 100%;
+}
+
+.view-options .btn-group-sm .btn {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}
+
+.files-container {
+  min-height: 400px;
+}
+
+.files-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 10px;
+  padding: 10px 0;
+}
+
+.file-item {
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 12px;
+  background-color: white;
+  transition: all 0.2s ease;
+  position: relative;
+  cursor: pointer;
+}
+
+.file-item:hover {
+  border-color: #0066cc;
+  box-shadow: 0 2px 8px rgba(0, 102, 204, 0.15);
+  transform: translateY(-1px);
+}
+
+.file-icon {
+  font-size: 2rem;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.file-info {
+  margin-bottom: 8px;
+}
+
+.file-name {
+  font-weight: 500;
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #333;
+}
+
+.file-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  margin-bottom: 2px;
+}
+
+.file-size {
+  color: #6c757d;
+}
+
+.file-status {
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.file-date {
+  font-size: 0.75rem;
+  color: #6c757d;
+}
+
+.file-actions {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.file-actions .btn {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+}
+
+/* Estados de archivos */
+.file-pending {
+  border-left: 4px solid #ffc107;
+}
+
+.file-pending .file-status {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.file-approved {
+  border-left: 4px solid #28a745;
+}
+
+.file-approved .file-status {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.file-rejected {
+  border-left: 4px solid #dc3545;
+}
+
+.file-rejected .file-status {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.file-review {
+  border-left: 4px solid #17a2b8;
+}
+
+.file-review .file-status {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+.file-observation {
+  border-left: 4px solid #fd7e14;
+}
+
+.file-observation .file-status {
+  background-color: #ffeaa7;
+  color: #985f0d;
+}
+
+/* ============================================
+   PANEL DERECHO - ZONA DE SUBIDA
+   ============================================ */
+
+.explorer-upload {
+  background-color: #f8f9fa;
+  border-left: 1px solid #dee2e6;
+  overflow-y: auto;
+  max-height: 100%;
+}
+
+.zona-subida {
+  border: 2px dashed #dee2e6;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  background-color: white;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  margin-bottom: 15px;
+}
+
+.zona-subida:hover {
+  border-color: #0066cc;
+  background-color: #f8f9fa;
+}
+
+.zona-subida.drag-over {
+  border-color: #28a745;
+  background-color: #d4edda;
+  border-style: solid;
+}
+
+.zona-subida-content i {
+  color: #6c757d;
+  margin-bottom: 10px;
+}
+
+.zona-subida:hover .zona-subida-content i {
+  color: #0066cc;
+}
+
+.zona-subida.drag-over .zona-subida-content i {
+  color: #28a745;
+}
+
+.upload-info {
+  background-color: white;
+  border-radius: 6px;
+  padding: 10px;
+  border: 1px solid #dee2e6;
+}
+
+/* ============================================
+   VISTA DE LISTA
+   ============================================ */
+
+.files-list {
+  display: block;
+}
+
+.files-list .file-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  margin-bottom: 2px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+}
+
+.files-list .file-icon {
+  font-size: 1.2rem;
+  margin-bottom: 0;
+  margin-right: 12px;
+  text-align: left;
+  width: 20px;
+}
+
+.files-list .file-info {
+  flex: 1;
+  margin-bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.files-list .file-name {
+  margin-bottom: 0;
+  min-width: 200px;
+}
+
+.files-list .file-meta {
+  margin-bottom: 0;
+  min-width: 150px;
+}
+
+.files-list .file-date {
+  min-width: 120px;
+}
+
+.files-list .file-actions {
+  margin-top: 0;
+  margin-left: 15px;
+}
+
+/* ============================================
+   PROGRESO DE SUBIDA
+   ============================================ */
+
+.progress {
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  transition: width 0.3s ease;
+}
+
+/* ============================================
+   ESTADOS DE CARGA
+   ============================================ */
+
+.loading-message {
+  padding: 40px 20px;
+  text-align: center;
+  color: #6c757d;
+}
+
+.loading-message i {
+  color: #0066cc;
+  margin-bottom: 15px;
+}
+
+/* ============================================
+   TARJETAS DE ASIGNATURAS
+   ============================================ */
+
+.subject-card {
+  transition: all 0.3s ease;
+  border: 1px solid #dee2e6;
+}
+
+.subject-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-color: #0066cc;
+}
+
+.subject-card .card-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.stats-small {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  font-size: 0.85rem;
+}
+
+.stats-small .stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.stats-small .label {
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.stats-small .value {
+  font-weight: 600;
+}
+
+/* ============================================
+   TOAST NOTIFICATIONS
+   ============================================ */
+
+.toast-container {
+  z-index: 9999;
+}
+
+.toast {
+  min-width: 300px;
+}
+
+.toast .toast-body {
+  display: flex;
+  align-items: center;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 768px) {
+  .modal-xl {
+    max-width: 98%;
+  }
+  
+  .modal-xl .modal-content {
+    height: 95vh;
+  }
+  
+  .explorer-container .row {
+    flex-direction: column;
+  }
+  
+  .explorer-sidebar,
+  .explorer-main,
+  .explorer-upload {
+    border: none;
+    border-bottom: 1px solid #dee2e6;
+  }
+  
+  .files-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .stats-small {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 576px) {
+  .subject-card .card-footer .btn {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+  
+  .file-actions .btn {
+    padding: 0.125rem 0.25rem;
+    font-size: 0.7rem;
+  }
+}
+
+/* ============================================
+   ANIMACIONES
+   ============================================ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.file-item,
+.folder-item,
+.subject-card {
+  animation: fadeIn 0.3s ease forwards;
+}
+
+/* ============================================
+   SCROLLBARS PERSONALIZADOS
+   ============================================ */
+
+.explorer-sidebar::-webkit-scrollbar,
+.explorer-main::-webkit-scrollbar,
+.explorer-upload::-webkit-scrollbar {
+  width: 8px;
+}
+
+.explorer-sidebar::-webkit-scrollbar-track,
+.explorer-main::-webkit-scrollbar-track,
+.explorer-upload::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.explorer-sidebar::-webkit-scrollbar-thumb,
+.explorer-main::-webkit-scrollbar-thumb,
+.explorer-upload::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.explorer-sidebar::-webkit-scrollbar-thumb:hover,
+.explorer-main::-webkit-scrollbar-thumb:hover,
+.explorer-upload::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+} 

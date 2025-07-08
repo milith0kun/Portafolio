@@ -89,7 +89,10 @@ class TestSuite {
     async testCicloActivoUnico() {
         // Verificar que solo hay un ciclo activo
         const ciclosActivos = await CicloAcademico.findAll({
-            where: { estado: 'activo' }
+            where: { estado: 'activo' },
+            attributes: {
+                exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+            }
         });
         
         await this.assert(
@@ -104,7 +107,11 @@ class TestSuite {
 
     async testEstadosCiclosValidos() {
         const estadosValidos = ['preparacion', 'inicializacion', 'activo', 'verificacion', 'finalizacion', 'archivado'];
-        const ciclos = await CicloAcademico.findAll();
+        const ciclos = await CicloAcademico.findAll({
+            attributes: {
+                exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+            }
+        });
         
         for (const ciclo of ciclos) {
             await this.assert(
@@ -175,7 +182,10 @@ class TestSuite {
 
     async testInicializacionPortafolios() {
         const cicloActivo = await CicloAcademico.findOne({
-            where: { estado: 'activo' }
+            where: { estado: 'activo' },
+            attributes: {
+                exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+            }
         });
 
         if (!cicloActivo) {
@@ -203,7 +213,10 @@ class TestSuite {
 
     async testAccesoDocentes() {
         const cicloActivo = await CicloAcademico.findOne({
-            where: { estado: 'activo' }
+            where: { estado: 'activo' },
+            attributes: {
+                exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+            }
         });
 
         if (!cicloActivo) {
@@ -217,7 +230,10 @@ class TestSuite {
 
     async testAccesoVerificadores() {
         const cicloActivo = await CicloAcademico.findOne({
-            where: { estado: ['activo', 'verificacion'] }
+            where: { estado: ['activo', 'verificacion'] },
+            attributes: {
+                exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+            }
         });
 
         if (!cicloActivo) {
@@ -230,7 +246,11 @@ class TestSuite {
     // ==================== TESTS DE DATOS POR CICLO ====================
 
     async testDatosPorCiclo() {
-        const ciclos = await CicloAcademico.findAll();
+        const ciclos = await CicloAcademico.findAll({
+            attributes: {
+                exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+            }
+        });
         
         for (const ciclo of ciclos) {
             // Verificar asignaciones por ciclo
@@ -250,7 +270,11 @@ class TestSuite {
     // ==================== TESTS DE ESTADOS DE SISTEMA ====================
 
     async testEstadosModulos() {
-        const ciclos = await CicloAcademico.findAll();
+        const ciclos = await CicloAcademico.findAll({
+            attributes: {
+                exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+            }
+        });
         
         for (const ciclo of ciclos) {
             const estados = await EstadoSistema.findAll({
@@ -343,4 +367,4 @@ if (require.main === module) {
     runTests();
 }
 
-module.exports = { TestSuite, runTests }; 
+module.exports = { TestSuite, runTests };

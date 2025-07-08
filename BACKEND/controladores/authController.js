@@ -5,7 +5,7 @@ const { Op } = require('sequelize');
 const config = require('../config/env');
 
 // Añadir logs para depuración
-console.log('Módulos cargados correctamente');
+// Módulos cargados correctamente
 
 /**
  * Genera un token JWT con la información del usuario y su rol actual
@@ -33,21 +33,18 @@ const generarToken = (usuario, rolActual) => {
  */
 exports.login = async (req, res) => {
   try {
-    console.log('Intento de login recibido:', req.body);
-    console.log('Tipo de req.body:', typeof req.body);
-    console.log('Claves en req.body:', Object.keys(req.body));
+    // Intento de login recibido
     
     // Extraer email y password del cuerpo de la solicitud
     // Asegurarnos de que estamos extrayendo correctamente los campos
     const email = req.body.email || req.body.correo;
     const password = req.body.password || req.body.contrasena;
     
-    console.log('Email extraído:', email);
-    console.log('Password recibido (longitud):', password ? password.length : 0);
+    // Email extraído y password validado
 
     // Validar que se proporcionen email y contraseña
     if (!email || !password) {
-      console.log('Error: Falta email o password');
+      // Error: Falta email o password
       return res.status(400).json({
         mensaje: 'Por favor, proporcione email y contraseña',
         error: true
@@ -55,19 +52,14 @@ exports.login = async (req, res) => {
     }
 
     // Buscar usuario por correo electrónico
-    console.log(`Buscando usuario con correo: ${email}`);
+    // Buscando usuario por correo
     const usuario = await Usuario.findOne({
       where: { correo: email }
     });
-    
-    console.log(`Usuario encontrado: ${usuario ? 'Sí' : 'No'}`);
-    if (usuario) {
-      console.log(`ID: ${usuario.id}, Nombre: ${usuario.nombres} ${usuario.apellidos}`);
-    }
 
     // Verificar si el usuario existe
     if (!usuario) {
-      console.log(`Usuario con correo ${email} no encontrado`);
+      // Usuario no encontrado
       return res.status(401).json({
         mensaje: 'Credenciales inválidas',
         error: true
@@ -76,7 +68,7 @@ exports.login = async (req, res) => {
 
     // Verificar si el usuario está activo
     if (!usuario.activo) {
-      console.log(`Usuario ${email} está desactivado`);
+      // Usuario desactivado
       return res.status(403).json({
         mensaje: 'Cuenta desactivada. Contacte al administrador.',
         error: true
@@ -85,17 +77,17 @@ exports.login = async (req, res) => {
 
     // Verificar contraseña usando el método del modelo
     const esPasswordValido = await usuario.validarPassword(password);
-    console.log(`Validación de contraseña para ${email}: ${esPasswordValido ? 'Exitosa' : 'Fallida'}`);
+    // Validación de contraseña
     
     if (!esPasswordValido) {
-      console.log(`Contraseña inválida para usuario ${email}`);
+      // Contraseña inválida
       return res.status(401).json({
         mensaje: 'Credenciales inválidas',
         error: true
       });
     }
 
-    console.log(`Verificando roles para usuario ${email} (ID: ${usuario.id})`);
+    // Verificando roles del usuario
     
     // Obtener los roles del usuario
     const rolesUsuario = await UsuarioRol.findAll({
@@ -105,18 +97,18 @@ exports.login = async (req, res) => {
       }
     });
     
-    console.log(`Roles encontrados para usuario ${email}:`, JSON.stringify(rolesUsuario));
+    // Roles encontrados
 
     // Verificar si el usuario tiene al menos un rol asignado
     if (!rolesUsuario || rolesUsuario.length === 0) {
-      console.log(`Usuario ${email} no tiene roles asignados o activos`);
+      // Usuario sin roles asignados
       return res.status(403).json({
         mensaje: 'No tiene permisos para acceder al sistema',
         error: true
       });
     }
     
-    console.log(`Usuario ${email} tiene ${rolesUsuario.length} roles asignados`);
+    // Roles asignados verificados
 
     // Actualizar último acceso
     usuario.ultimo_acceso = new Date();
@@ -125,19 +117,16 @@ exports.login = async (req, res) => {
     // Mapear los roles para la respuesta (simplificado para evitar errores)
     const roles = [];
     for (const ur of rolesUsuario) {
-      console.log('Procesando rol:', ur.id, ur.rol);
       roles.push({
         id: ur.id,
         rol: ur.rol,
         asignado_por: ur.asignado_por
       });
     }
-    
-    console.log('Roles mapeados:', JSON.stringify(roles));
 
     // Si solo hay un rol, lo seleccionamos automáticamente
     const rolActual = roles.length === 1 ? roles[0].rol : null;
-    console.log('Rol actual seleccionado:', rolActual);
+    // Rol actual seleccionado
     
     // Generar token JWT con el rol actual (si solo hay uno)
     const token = generarToken(usuario, rolActual);
@@ -161,7 +150,7 @@ exports.login = async (req, res) => {
       tieneMultiplesRoles: roles.length > 1
     });
   } catch (error) {
-    console.error('Error en el controlador de login:', error);
+    // Error en el controlador de login
     return res.status(500).json({
       mensaje: 'Error en el servidor al iniciar sesión',
       error: true,
@@ -208,7 +197,7 @@ exports.getUsuarioActual = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error al obtener información del usuario:', error);
+    
     res.status(500).json({
       mensaje: 'Error al obtener información del usuario',
       error: error.message
@@ -222,9 +211,7 @@ exports.cambiarRol = async (req, res) => {
     const { rolId, rolNombre } = req.body;
     const usuarioId = req.usuario.id;
 
-    console.log('=== CAMBIO DE ROL ===');
-    console.log('Body recibido:', req.body);
-    console.log('Usuario ID:', usuarioId);
+    // Procesando cambio de rol
 
     // Aceptar tanto rolId como rolNombre para compatibilidad
     let rolUsuario;
@@ -261,7 +248,7 @@ exports.cambiarRol = async (req, res) => {
       });
     }
 
-    console.log('Rol encontrado:', rolUsuario.rol);
+    // Rol encontrado
 
     // Obtener el usuario con sus roles asignados
     const usuario = await Usuario.findByPk(usuarioId, {
@@ -296,7 +283,7 @@ exports.cambiarRol = async (req, res) => {
       rolActual: rolUsuario.rol
     };
 
-    console.log('Token generado exitosamente para rol:', rolUsuario.rol);
+    // Token generado exitosamente
 
     res.status(200).json({
       mensaje: 'Rol cambiado exitosamente',
@@ -306,7 +293,7 @@ exports.cambiarRol = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error al cambiar de rol:', error);
+
     res.status(500).json({
       mensaje: 'Error al cambiar de rol',
       error: true,
@@ -366,7 +353,7 @@ exports.verificarToken = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error al verificar token:', error);
+
     res.status(500).json({
       mensaje: 'Error al verificar token',
       error: true,
@@ -407,7 +394,7 @@ exports.renovarToken = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error al renovar token:', error);
+
     res.status(500).json({
       mensaje: 'Error al renovar token',
       error: true,

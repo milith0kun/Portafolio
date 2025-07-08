@@ -20,6 +20,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Configurar eventos
     configurarEventos();
+    
+    // Configurar eventos de sincronización de ciclos
+    configurarEventosSincronizacion();
 });
 
 /**
@@ -47,6 +50,44 @@ function inicializarComponentes() {
         positionClass: "toast-top-right",
         timeOut: 5000
     };
+}
+
+/**
+ * Configura los eventos de sincronización de ciclos
+ */
+function configurarEventosSincronizacion() {
+    // Escuchar eventos de cambio de ciclo
+    document.addEventListener('ciclo-cambiado', function(event) {
+        const cicloId = event.detail.cicloId;
+        // Ciclo cambiado en reportes
+        
+        // Actualizar el selector de ciclo
+        const selectCiclo = document.getElementById('selectCiclo');
+        if (selectCiclo && cicloId) {
+            selectCiclo.value = cicloId;
+            // Disparar evento change para actualizar reportes si es necesario
+            selectCiclo.dispatchEvent(new Event('change'));
+        }
+    });
+    
+    // Escuchar eventos de sincronización
+    document.addEventListener('sincronizar-ciclo', function(event) {
+        // Sincronizando datos de reportes
+        // Recargar ciclos y datos relacionados
+        cargarCiclos();
+        cargarDocentes();
+    });
+    
+    // Evento legacy para compatibilidad
+    document.addEventListener('cicloSeleccionado', function(event) {
+        const cicloId = event.detail.cicloId;
+        // Ciclo seleccionado (legacy) en reportes
+        
+        const selectCiclo = document.getElementById('selectCiclo');
+        if (selectCiclo && cicloId) {
+            selectCiclo.value = cicloId;
+        }
+    });
 }
 
 /**
@@ -150,7 +191,7 @@ function cargarCiclos() {
         }
     })
     .catch(error => {
-        console.error('Error:', error);
+        // Error
         toastr.error('Error al cargar los ciclos académicos');
     })
     .finally(() => {
@@ -194,7 +235,7 @@ function cargarDocentes() {
         }
     })
     .catch(error => {
-        console.error('Error:', error);
+        // Error
         toastr.error('Error al cargar los docentes');
     })
     .finally(() => {
@@ -251,9 +292,9 @@ function generarReporteUsuarios() {
         }
     })
     .catch(error => {
-        console.error('Error:', error);
-        toastr.error('Error al generar el reporte de usuarios');
-    })
+         // Error
+         toastr.error('Error al generar el reporte de usuarios');
+     })
     .finally(() => {
         ocultarCargando();
     });
@@ -312,7 +353,7 @@ function generarReporteAsignaturas() {
         }
     })
     .catch(error => {
-        console.error('Error:', error);
+        // Error
         toastr.error('Error al generar el reporte de asignaturas');
     })
     .finally(() => {
@@ -366,7 +407,7 @@ function generarReporteAsignaciones() {
         }
     })
     .catch(error => {
-        console.error('Error:', error);
+        // Error
         toastr.error('Error al generar el reporte de asignaciones');
     })
     .finally(() => {
@@ -432,7 +473,7 @@ function generarReporteDocenteAsignaturas() {
         }
     })
     .catch(error => {
-        console.error('Error:', error);
+        // Error
         toastr.error('Error al generar el reporte de asignaturas por docente');
     })
     .finally(() => {

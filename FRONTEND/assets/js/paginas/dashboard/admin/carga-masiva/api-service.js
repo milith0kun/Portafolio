@@ -176,12 +176,12 @@ async function validarArchivoCodigosInstitucionales(file) {
  * Carga los ciclos académicos disponibles usando APP global
  * @returns {Promise<Array>} Lista de ciclos académicos
  */
-export async function cargarCiclos() {
+async function cargarCiclos() {
     try {
         const data = await APP.apiRequest(`${window.CONFIG.API.ENDPOINTS.CICLOS}`, 'GET');
         return data.ciclos || [];
     } catch (error) {
-        console.error('Error al cargar ciclos:', error);
+        // Error al cargar ciclos
         APP.mostrarNotificacion('Error al cargar ciclos académicos', 'error');
         return [];
     }
@@ -192,7 +192,7 @@ export async function cargarCiclos() {
  * @param {FormData} formData - Datos del formulario con el archivo
  * @returns {Promise<Object>} Resultado del procesamiento
  */
-export async function procesarCargaUsuarios(formData) {
+async function procesarCargaUsuarios(formData) {
     try {
         const response = await fetch(`${window.CONFIG.API.BASE_URL}${window.CONFIG.API.ENDPOINTS.INICIALIZACION}/usuarios`, {
             method: 'POST',
@@ -210,7 +210,7 @@ export async function procesarCargaUsuarios(formData) {
         
         return resultado;
     } catch (error) {
-        console.error('Error en procesarCargaUsuarios:', error);
+        // Error en procesarCargaUsuarios
         throw error;
     }
 }
@@ -220,7 +220,7 @@ export async function procesarCargaUsuarios(formData) {
  * @param {FormData} formData - Datos del formulario con el archivo
  * @returns {Promise<Object>} Resultado del procesamiento
  */
-export async function procesarCargaAsignaturas(formData) {
+async function procesarCargaAsignaturas(formData) {
     try {
         const response = await fetch(`${window.CONFIG.API.BASE_URL}${window.CONFIG.API.ENDPOINTS.INICIALIZACION}/asignaturas`, {
             method: 'POST',
@@ -238,7 +238,7 @@ export async function procesarCargaAsignaturas(formData) {
         
         return resultado;
     } catch (error) {
-        console.error('Error en procesarCargaAsignaturas:', error);
+        // Error en procesarCargaAsignaturas
         throw error;
     }
 }
@@ -248,7 +248,7 @@ export async function procesarCargaAsignaturas(formData) {
  * @param {FormData} formData - Datos del formulario con el archivo
  * @returns {Promise<Object>} Resultado del procesamiento
  */
-export async function procesarCargaAsignaciones(formData) {
+async function procesarCargaAsignaciones(formData) {
     try {
         const response = await fetch(`${window.CONFIG.API.BASE_URL}${window.CONFIG.API.ENDPOINTS.INICIALIZACION}/asignaciones`, {
             method: 'POST',
@@ -266,7 +266,7 @@ export async function procesarCargaAsignaciones(formData) {
         
         return resultado;
     } catch (error) {
-        console.error('Error en procesarCargaAsignaciones:', error);
+        // Error en procesarCargaAsignaciones
         throw error;
     }
 }
@@ -277,7 +277,7 @@ export async function procesarCargaAsignaciones(formData) {
  * @param {string} descripcion - Descripción de la inicialización
  * @returns {Promise<Object>} Resultado de la inicialización
  */
-export async function inicializarSistema(files, descripcion = '') {
+async function inicializarSistema(files, descripcion = '') {
     // Verificar que las configuraciones globales estén disponibles
     if (!window.CONFIG || !window.CONFIG.API) {
         throw new Error('Configuraciones globales no disponibles');
@@ -392,7 +392,7 @@ export async function inicializarSistema(files, descripcion = '') {
         };
         
     } catch (error) {
-        console.error('Error en inicializarSistema:', error);
+        // Error en inicializarSistema
         
         // Actualizar estado de error
         estadoInicializacion.enProgreso = false;
@@ -436,14 +436,14 @@ function actualizarInterfazProgreso(porcentaje, mensaje, esError = false) {
     }
     }
     
-    console.log(`[Progreso ${porcentaje}%] ${mensaje}`);
+    // [Progreso] mensaje
 }
 
 /**
  * Obtiene el estado actual de la inicialización
  * @returns {Object} Estado de la inicialización
  */
-export function obtenerEstadoInicializacion() {
+function obtenerEstadoInicializacion() {
     return { ...estadoInicializacion };
 }
 
@@ -452,7 +452,7 @@ export function obtenerEstadoInicializacion() {
  * @param {string} tipo - Tipo de plantilla (usuarios, carreras, asignaturas, etc.)
  * @returns {Promise<void>}
  */
-export async function descargarPlantilla(tipo) {
+async function descargarPlantilla(tipo) {
     try {
         const url = `${window.CONFIG.API.BASE_URL}${window.CONFIG.API.ENDPOINTS.INICIALIZACION}/plantilla/${tipo}`;
         
@@ -506,11 +506,24 @@ export async function descargarPlantilla(tipo) {
         APP.mostrarNotificacion(`Plantilla ${tipo} descargada exitosamente`, 'exito');
         
     } catch (error) {
-        console.error('Error al descargar plantilla:', error);
+        // Error al descargar plantilla
         APP.mostrarNotificacion(`Error al descargar plantilla: ${error.message}`, 'error');
         throw error;
     }
 }
 
-// Exportar tipos y constantes
-export { TIPOS_ARCHIVO, estadoInicializacion };
+// Clase ApiService para exponer las funciones
+class ApiService {
+    static cargarCiclos = cargarCiclos;
+    static procesarCargaUsuarios = procesarCargaUsuarios;
+    static procesarCargaAsignaturas = procesarCargaAsignaturas;
+    static procesarCargaAsignaciones = procesarCargaAsignaciones;
+    static inicializarSistema = inicializarSistema;
+    static obtenerEstadoInicializacion = obtenerEstadoInicializacion;
+    static descargarPlantilla = descargarPlantilla;
+    static TIPOS_ARCHIVO = TIPOS_ARCHIVO;
+    static estadoInicializacion = estadoInicializacion;
+}
+
+// Hacer disponible globalmente
+window.ApiService = ApiService;

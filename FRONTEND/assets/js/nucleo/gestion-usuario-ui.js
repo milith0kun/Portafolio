@@ -314,7 +314,7 @@ class GestionUsuarioUI {
             const usuarioData = localStorage.getItem('portafolio_docente_user') || 
                                localStorage.getItem('usuario') ||
                                sessionStorage.getItem('portafolio_docente_user');
-            if (usuarioData) {
+            if (usuarioData && usuarioData !== 'undefined' && usuarioData !== 'null') {
                 return JSON.parse(usuarioData);
             }
         } catch (error) {
@@ -337,7 +337,7 @@ class GestionUsuarioUI {
         // Intentar desde localStorage directamente
         try {
             const cicloData = localStorage.getItem('ciclo_academico_activo');
-            if (cicloData) {
+            if (cicloData && cicloData !== 'undefined' && cicloData !== 'null') {
                 return JSON.parse(cicloData);
             }
         } catch (error) {
@@ -431,7 +431,12 @@ class GestionUsuarioUI {
                 return data.ciclos || [];
             }
         } catch (error) {
+            // Solo mostrar error si no es un problema de conexión
+            if (!error.message?.includes('Failed to fetch')) {
             console.error('Error al obtener ciclos:', error);
+            } else {
+                console.log('📡 Servidor no disponible para obtener ciclos');
+            }
         }
         return [];
     }

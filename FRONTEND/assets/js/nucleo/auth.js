@@ -991,6 +991,19 @@ window.apiRequest = async (endpoint, method = 'GET', data = null, auth = true) =
         
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
+            
+            // Manejar errores 401 específicamente
+            if (response.status === 401) {
+                console.warn('🔐 Sesión expirada o no autorizada');
+                if (auth && window.AUTH) {
+                    window.AUTH.cerrarSesion();
+                }
+                const error = new Error('La sesión ha expirado. Por favor, inicie sesión nuevamente.');
+                error.status = 401;
+                error.data = errorData;
+                throw error;
+            }
+            
             const error = new Error(errorData.mensaje || 'Error en la petición');
             error.status = response.status;
             error.data = errorData;
@@ -1003,7 +1016,19 @@ window.apiRequest = async (endpoint, method = 'GET', data = null, auth = true) =
 
         return await response.json();
     } catch (error) {
-        console.error('Error en la petición:', error);
+        // Manejar errores de autenticación sin spam de logs
+        if (error.status === 401) {
+            // Solo log una vez por minuto para errores 401
+            const now = Date.now();
+            if (!window._lastAuthErrorLog || (now - window._lastAuthErrorLog) > 60000) {
+                console.warn('🔐 Error de autenticación:', error.message);
+                window._lastAuthErrorLog = now;
+            }
+        } else if (!error.message?.includes('Failed to fetch') && !error.message?.includes('NetworkError')) {
+            console.error('Error en la petición:', error);
+        } else {
+            console.log('📡 Error de conexión al servidor');
+        }
         throw error;
     }
 };

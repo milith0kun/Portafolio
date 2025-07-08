@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="../../../assets/css/paginas/docente/head.css">
   <link rel="stylesheet" href="../../../assets/css/paginas/docente/body.css">
   <link rel="stylesheet" href="../../../assets/css/paginas/docente/footer.css">
+  <link rel="stylesheet" href="../../../assets/css/paginas/docente/explorador-portafolios.css">
 </head>
 
 <body>
@@ -120,135 +121,11 @@
   </main>
 
   <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="../../../assets/js/nucleo/configuracion.js"></script>
   <script src="../../../assets/js/nucleo/auth.js"></script>
   <script src="../../../assets/js/nucleo/navegacion.js"></script>
-  <script>
-    // Inicialización básica
-    document.addEventListener('DOMContentLoaded', function() {
-      console.log('📁 Página de Mis Portafolios cargada');
-      
-      // Simular carga de datos
-      setTimeout(() => {
-        const contenedor = document.getElementById('contenedorPortafolios');
-        contenedor.innerHTML = `
-          <div class="col-md-6 col-lg-4 mb-4">
-            <div class="card subject-card">
-              <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">
-                  <i class="fas fa-code"></i> Algoritmos y Estructuras de Datos
-                </h5>
-                <small>Grupo: A | 2024-I</small>
-              </div>
-              <div class="card-body">
-                <div class="progress mb-3">
-                  <div class="progress-bar bg-success" style="width: 75%">75%</div>
-                </div>
-                <div class="stats-small">
-                  <div class="stat">
-                    <span class="label">Documentos:</span>
-                    <span class="value">12/16</span>
-                  </div>
-                  <div class="stat">
-                    <span class="label">Aprobados:</span>
-                    <span class="value text-success">9</span>
-                  </div>
-                  <div class="stat">
-                    <span class="label">Pendientes:</span>
-                    <span class="value text-warning">3</span>
-                  </div>
-                </div>
-              </div>
-              <div class="card-footer">
-                <button class="btn btn-primary btn-sm">
-                  <i class="fas fa-folder-open"></i> Ver Portafolio
-                </button>
-                <button class="btn btn-success btn-sm">
-                  <i class="fas fa-upload"></i> Subir Documento
-                </button>
-              </div>
-            </div>
-          </div>
-          
-          <div class="col-md-6 col-lg-4 mb-4">
-            <div class="card subject-card">
-              <div class="card-header bg-info text-white">
-                <h5 class="mb-0">
-                  <i class="fas fa-database"></i> Base de Datos I
-                </h5>
-                <small>Grupo: B | 2024-I</small>
-              </div>
-              <div class="card-body">
-                <div class="progress mb-3">
-                  <div class="progress-bar bg-warning" style="width: 45%">45%</div>
-                </div>
-                <div class="stats-small">
-                  <div class="stat">
-                    <span class="label">Documentos:</span>
-                    <span class="value">7/16</span>
-                  </div>
-                  <div class="stat">
-                    <span class="label">Aprobados:</span>
-                    <span class="value text-success">5</span>
-                  </div>
-                  <div class="stat">
-                    <span class="label">Pendientes:</span>
-                    <span class="value text-warning">2</span>
-                  </div>
-                </div>
-              </div>
-              <div class="card-footer">
-                <button class="btn btn-primary btn-sm">
-                  <i class="fas fa-folder-open"></i> Ver Portafolio
-                </button>
-                <button class="btn btn-success btn-sm">
-                  <i class="fas fa-upload"></i> Subir Documento
-                </button>
-              </div>
-            </div>
-          </div>
-          
-          <div class="col-md-6 col-lg-4 mb-4">
-            <div class="card subject-card">
-              <div class="card-header bg-success text-white">
-                <h5 class="mb-0">
-                  <i class="fas fa-network-wired"></i> Redes de Computadoras
-                </h5>
-                <small>Grupo: A | 2024-I</small>
-              </div>
-              <div class="card-body">
-                <div class="progress mb-3">
-                  <div class="progress-bar bg-success" style="width: 90%">90%</div>
-                </div>
-                <div class="stats-small">
-                  <div class="stat">
-                    <span class="label">Documentos:</span>
-                    <span class="value">14/16</span>
-                  </div>
-                  <div class="stat">
-                    <span class="label">Aprobados:</span>
-                    <span class="value text-success">12</span>
-                  </div>
-                  <div class="stat">
-                    <span class="label">Pendientes:</span>
-                    <span class="value text-warning">2</span>
-                  </div>
-                </div>
-              </div>
-              <div class="card-footer">
-                <button class="btn btn-primary btn-sm">
-                  <i class="fas fa-folder-open"></i> Ver Portafolio
-                </button>
-                <button class="btn btn-success btn-sm">
-                  <i class="fas fa-upload"></i> Subir Documento
-                </button>
-              </div>
-            </div>
-          </div>
-        `;
-      }, 1000);
-    });
-  </script>
+  <script src="../../../assets/js/paginas/dashboard/docente/portafolios.js"></script>
   
   <style>
     .subject-card {

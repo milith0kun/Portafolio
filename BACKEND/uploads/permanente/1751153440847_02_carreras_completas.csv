@@ -1,0 +1,40 @@
+id,codigo,nombre,facultad,duracion_semestres,grado_academico,titulo_profesional,resolucion_rectoral,estado
+1,ING-INF,Ingeniería Informática,Facultad de Ingeniería Eléctrica y Electrónica,10,Bachiller en Ciencias de la Computación,Ingeniero Informático,RD-0123-2020,ACTIVO
+2,ING-SIS,Ingeniería de Sistemas,Facultad de Ingeniería Eléctrica y Electrónica,10,Bachiller en Ciencias de la Computación,Ingeniero de Sistemas,RD-0124-2020,ACTIVO
+3,ING-CIV,Ingeniería Civil,Facultad de Ingeniería Civil,10,Bachiller en Ingeniería Civil,Ingeniero Civil,RD-0125-2020,ACTIVO
+4,ING-ELEC,Ingeniería Eléctrica,Facultad de Ingeniería Eléctrica y Electrónica,10,Bachiller en Ciencias de la Ingeniería Eléctrica,Ingeniero Electricista,RD-0126-2020,ACTIVO
+5,ING-MEC,Ingeniería Mecánica,Facultad de Ingeniería Mecánica,10,Bachiller en Ciencias de la Ingeniería Mecánica,Ingeniero Mecánico,RD-0127-2020,ACTIVO
+6,ING-QUIM,Ingeniería Química,Facultad de Ingeniería Química,10,Bachiller en Ciencias de la Ingeniería Química,Ingeniero Químico,RD-0128-2020,ACTIVO
+7,ING-AMBI,Ingeniería Ambiental,Facultad de Ciencias,10,Bachiller en Ciencias Ambientales,Ingeniero Ambiental,RD-0129-2020,ACTIVO
+8,ING-MIN,Ingeniería de Minas,Facultad de Ingeniería Geológica y Metalúrgica,10,Bachiller en Ciencias de la Ingeniería de Minas,Ingeniero de Minas,RD-0130-2020,ACTIVO
+9,ING-GEO,Ingeniería Geológica,Facultad de Ingeniería Geológica y Metalúrgica,10,Bachiller en Ciencias de la Ingeniería Geológica,Ingeniero Geólogo,RD-0131-2020,ACTIVO
+10,ING-IND,Ingeniería Industrial,Facultad de Ingeniería Mecánica,10,Bachiller en Ciencias de la Ingeniería Industrial,Ingeniero Industrial,RD-0132-2020,ACTIVO
+11,ING-AGRO,Ingeniería Agrícola,Facultad de Ciencias Agrarias,10,Bachiller en Ciencias Agrarias,Ingeniero Agrícola,RD-0133-2020,ACTIVO
+12,ING-ALIM,Ingeniería de Alimentos,Facultad de Industrias Alimentarias,10,Bachiller en Ciencias de los Alimentos,Ingeniero de Alimentos,RD-0134-2020,ACTIVO
+13,ARQ,Arquitectura,Facultad de Arquitectura,10,Bachiller en Arquitectura,Arquitecto,RD-0135-2020,ACTIVO
+14,MED-MED,Medicina Humana,Facultad de Medicina Humana,12,Bachiller en Medicina Humana,Médico Cirujano,RD-0136-2020,ACTIVO
+15,ENF-ENF,Enfermería,Facultad de Enfermería,10,Bachiller en Enfermería,Enfermero(a) Titulado(a),RD-0137-2020,ACTIVO
+16,ODON-OON,Odontología,Facultad de Odontología,10,Bachiller en Odontología,Cirujano Dentista,RD-0138-2020,ACTIVO
+17,BIO-BIO,Biología,Facultad de Ciencias Biológicas,10,Bachiller en Ciencias Biológicas,Biológico(a),RD-0139-2020,ACTIVO
+18,FIS-FIS,Física,Facultad de Ciencias Físicas,10,Bachiller en Ciencias Físicas,Físico(a),RD-0140-2020,ACTIVO
+19,MAT-MAT,Matemática,Facultad de Ciencias Físicas y Matemáticas,10,Bachiller en Ciencias Matemáticas,Matemático(a),RD-0141-2020,ACTIVO
+20,QUI-QUI,Química,Facultad de Ciencias Químicas,10,Bachiller en Ciencias Químicas,Químico(a),RD-0142-2020,ACTIVO
+21,FARM-FARM,Farmacia y Bioquímica,Facultad de Farmacia y Bioquímica,10,Bachiller en Farmacia y Bioquímica,Químico Farmacéutico,RD-0143-2020,ACTIVO
+22,PSI-PSI,Psicología,Facultad de Psicología,10,Bachiller en Psicología,Psicólogo(a),RD-0144-2020,ACTIVO
+23,ANT-ANT,Antropología,Facultad de Ciencias Sociales,10,Bachiller en Antropología,Antropólogo(a),RD-0145-2020,ACTIVO
+24,SOC-SOC,Sociología,Facultad de Ciencias Sociales,10,Bachiller en Sociología,Sociólogo(a),RD-0146-2020,ACTIVO
+25,COM-COM,Comunicación Social,Facultad de Ciencias de la Comunicación,10,Bachiller en Comunicación Social,Licenciado(a) en Comunicación Social,RD-0147-2020,ACTIVO
+26,DER-DER,Derecho,Facultad de Derecho y Ciencias Políticas,10,Bachiller en Derecho,Abogado(a),RD-0148-2020,ACTIVO
+27,ECO-ECO,Economía,Facultad de Economía,10,Bachiller en Economía,Economista,RD-0149-2020,ACTIVO
+28,ADM-ADM,Administración,Facultad de Ciencias Administrativas y Contables,10,Bachiller en Administración,Licenciado(a) en Administración,RD-0150-2020,ACTIVO
+29,CON-CON,Contabilidad,Facultad de Ciencias Administrativas y Contables,10,Bachiller en Contabilidad,Contador Público Colegiado,RD-0151-2020,ACTIVO
+30,TUR-TUR,Turismo,Facultad de Ciencias Administrativas y Contables,10,Bachiller en Turismo,Licenciado(a) en Turismo,RD-0152-2020,ACTIVO
+31,EDU-EDU,Educación,Facultad de Educación,10,Bachiller en Educación,Licenciado(a) en Educación,RD-0153-2020,ACTIVO
+32,EDU-INI,Educación Inicial,Facultad de Educación,10,Bachiller en Educación Inicial,Licenciado(a) en Educación Inicial,RD-0154-2020,ACTIVO
+33,EDU-PRI,Educación Primaria,Facultad de Educación,10,Bachiller en Educación Primaria,Licenciado(a) en Educación Primaria,RD-0155-2020,ACTIVO
+34,EDU-SEC,Educación Secundaria,Facultad de Educación,10,Bachiller en Educación Secundaria,Licenciado(a) en Educación Secundaria,RD-0156-2020,ACTIVO
+35,EDU-ESP,Educación Especial,Facultad de Educación,10,Bachiller en Educación Especial,Licenciado(a) en Educación Especial,RD-0157-2020,ACTIVO
+36,EDU-FIS,Educación Física,Facultad de Educación Física,10,Bachiller en Educación Física,Licenciado(a) en Educación Física,RD-0158-2020,ACTIVO
+37,ART-ART,Artes,Facultad de Artes,10,Bachiller en Artes,Licenciado(a) en Artes,RD-0159-2020,ACTIVO
+38,MUS-MUS,Música,Facultad de Artes,10,Bachiller en Música,Licenciado(a) en Música,RD-0160-2020,ACTIVO
+39,VET-VET,Medicina Veterinaria,Facultad de Medicina Veterinaria y Zootecnia,10,Bachiller en Medicina Veterinaria,Médico Veterinario,RD-0161-2020,ACTIVO

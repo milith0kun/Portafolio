@@ -12,7 +12,11 @@ exports.obtenerAsignaturas = async (req, res) => {
         const { ciclo_id } = req.params;
         
         // Verificar que el ciclo exista
-        const ciclo = await CicloAcademico.findByPk(ciclo_id);
+        const ciclo = await CicloAcademico.findByPk(ciclo_id, {
+            attributes: {
+                exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+            }
+        });
         
         if (!ciclo) {
             return res.status(404).json({
@@ -37,7 +41,7 @@ exports.obtenerAsignaturas = async (req, res) => {
             data: asignaturas
         });
     } catch (error) {
-        console.error('Error al obtener asignaturas:', error);
+
         return res.status(500).json({
             success: false,
             message: 'Error al obtener asignaturas',
@@ -69,7 +73,7 @@ exports.obtenerAsignaturaPorId = async (req, res) => {
             data: asignatura
         });
     } catch (error) {
-        console.error('Error al obtener asignatura:', error);
+
         return res.status(500).json({
             success: false,
             message: 'Error al obtener asignatura',
@@ -98,7 +102,11 @@ exports.crearAsignatura = async (req, res) => {
         } = req.body;
         
         // Verificar que el ciclo exista
-        const ciclo = await CicloAcademico.findByPk(ciclo_id);
+        const ciclo = await CicloAcademico.findByPk(ciclo_id, {
+            attributes: {
+                exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+            }
+        });
         
         if (!ciclo) {
             return res.status(404).json({
@@ -141,7 +149,7 @@ exports.crearAsignatura = async (req, res) => {
             data: nuevaAsignatura
         });
     } catch (error) {
-        console.error('Error al crear asignatura:', error);
+
         return res.status(500).json({
             success: false,
             message: 'Error al crear asignatura',
@@ -217,7 +225,7 @@ exports.actualizarAsignatura = async (req, res) => {
             data: asignatura
         });
     } catch (error) {
-        console.error('Error al actualizar asignatura:', error);
+
         return res.status(500).json({
             success: false,
             message: 'Error al actualizar asignatura',
@@ -255,7 +263,7 @@ exports.eliminarAsignatura = async (req, res) => {
             message: 'Asignatura eliminada exitosamente'
         });
     } catch (error) {
-        console.error('Error al eliminar asignatura:', error);
+
         return res.status(500).json({
             success: false,
             message: 'Error al eliminar asignatura',
@@ -295,7 +303,11 @@ exports.asignarDocenteAsignatura = async (req, res) => {
         }
         
         // Verificar que el ciclo exista
-        const ciclo = await CicloAcademico.findByPk(ciclo_id);
+        const ciclo = await CicloAcademico.findByPk(ciclo_id, {
+            attributes: {
+                exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+            }
+        });
         
         if (!ciclo) {
             return res.status(404).json({
@@ -334,7 +346,7 @@ exports.asignarDocenteAsignatura = async (req, res) => {
             message: 'Asignatura asignada al docente exitosamente'
         });
     } catch (error) {
-        console.error('Error al asignar asignatura a docente:', error);
+
         return res.status(500).json({
             success: false,
             message: 'Error al asignar asignatura a docente',
@@ -363,7 +375,11 @@ exports.obtenerAsignaturasDocente = async (req, res) => {
         }
         
         // Verificar que el ciclo exista
-        const ciclo = await CicloAcademico.findByPk(ciclo_id);
+        const ciclo = await CicloAcademico.findByPk(ciclo_id, {
+            attributes: {
+                exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+            }
+        });
         
         if (!ciclo) {
             return res.status(404).json({
@@ -389,7 +405,7 @@ exports.obtenerAsignaturasDocente = async (req, res) => {
             data: asignaturas
         });
     } catch (error) {
-        console.error('Error al obtener asignaturas del docente:', error);
+
         return res.status(500).json({
             success: false,
             message: 'Error al obtener asignaturas del docente',

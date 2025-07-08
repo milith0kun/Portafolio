@@ -21544,3 +21544,402 @@
   "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
   "detalles": {}
 }
+{
+  "timestamp": "2025-06-28T23:30:41.179Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.183Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.188Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.191Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.194Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.199Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.203Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.206Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.209Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.213Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.217Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.221Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.225Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.229Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.233Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.237Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.240Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.244Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.248Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.251Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.255Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.258Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.262Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.266Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.269Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.273Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.277Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.280Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.284Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.287Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.291Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.294Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.298Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.302Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.306Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.310Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.313Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.317Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.321Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.325Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.328Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.332Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.336Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.339Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.343Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.346Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.351Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.355Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.358Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.362Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.366Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.369Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.373Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.376Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.381Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.385Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}
+{
+  "timestamp": "2025-06-28T23:30:41.389Z",
+  "contexto": "procesarCargaAcademica",
+  "mensaje": "Unknown column 'actualizado_en' in 'field list'",
+  "stack": "Error\n    at Query.run (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\mysql\\query.js:52:25)\n    at D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MySQLQueryInterface.select (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:407:12)\n    at async DocenteAsignatura.findAll (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1140:21)\n    at async DocenteAsignatura.findOne (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1240:12)\n    at async DocenteAsignatura.findOrCreate (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\node_modules\\sequelize\\lib\\model.js:1411:21)\n    at async Object.procesar (D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\controladores\\inicializacion\\cargaAcademicaController.js:249:54)\n    at async D:\\Programacion Fuera de la U\\Portafolio\\BACKEND\\rutas\\inicializacion.js:315:27",
+  "detalles": {}
+}

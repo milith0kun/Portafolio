@@ -189,6 +189,9 @@
             <button id="btnInicializarPortafolios" class="btn btn-outline-success btn-sm">
               <i class="fas fa-folder-plus"></i> Inicializar Portafolios
             </button>
+            <button id="btnGenerarPortafolios" class="btn btn-outline-primary btn-sm">
+              <i class="fas fa-magic"></i> Generar Portafolios
+            </button>
                                     <a href="ciclos.html" class="btn btn-secondary btn-sm">
               <i class="fas fa-cog"></i> Gestionar Ciclos
             </a>
@@ -419,6 +422,69 @@
       </div>
     </section>
 
+    <!-- Sección de Portafolios -->
+    <section class="portafolios-section">
+      <h2>📁 Gestión de Portafolios</h2>
+      <div class="portafolios-container">
+        <div class="portafolios-header">
+          <div class="portafolios-stats">
+            <div class="stat-card">
+              <i class="fas fa-folder-open"></i>
+              <div class="stat-info">
+                <span class="stat-number" id="totalPortafolios">0</span>
+                <span class="stat-label">Total</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <i class="fas fa-check-circle text-success"></i>
+              <div class="stat-info">
+                <span class="stat-number" id="activePortafolios">0</span>
+                <span class="stat-label">Activos</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <i class="fas fa-clock text-warning"></i>
+              <div class="stat-info">
+                <span class="stat-number" id="completedPortafolios">0</span>
+                <span class="stat-label">Completados</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <i class="fas fa-chart-line text-info"></i>
+              <div class="stat-info">
+                <span class="stat-number" id="averageProgress">0%</span>
+                <span class="stat-label">Progreso</span>
+              </div>
+            </div>
+          </div>
+          <div class="portafolios-actions">
+            <button id="btnActualizarPortafolios" class="btn btn-outline-primary">
+              <i class="fas fa-sync-alt"></i> Actualizar
+            </button>
+            <button id="btnGenerarTodosPortafolios" class="btn btn-success">
+              <i class="fas fa-plus"></i> Generar Todos
+            </button>
+          </div>
+        </div>
+        
+        <div class="portafolios-list-container">
+          <div class="portafolios-filters">
+            <button class="filter-btn active" data-filter="all">Todos</button>
+            <button class="filter-btn" data-filter="aprobado">Aprobados</button>
+            <button class="filter-btn" data-filter="pendiente">Pendientes</button>
+            <button class="filter-btn" data-filter="observado">Observados</button>
+          </div>
+          
+          <div id="listaPortafolios" class="portafolios-grid">
+            <!-- Los portafolios se cargarán dinámicamente aquí -->
+            <div class="loading-portafolios">
+              <i class="fas fa-spinner fa-spin"></i>
+              <p>Cargando portafolios...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
     
     <!-- Sección de Inicialización del Sistema -->
@@ -486,12 +552,24 @@
     </div>
   </div>
 
+  <!-- Indicador de generación de portafolios -->
+  <div id="indicadorGeneracion" class="generation-overlay" style="display: none;">
+    <div class="generation-content">
+      <div class="spinner-border text-primary" role="status"></div>
+      <h4>Generando Portafolios</h4>
+      <p>Por favor espere mientras se procesan los portafolios...</p>
+    </div>
+  </div>
+
   <!-- Scripts Core -->
   <script src="../../../assets/js/nucleo/configuracion.js"></script>
+  <script src="../../../assets/js/nucleo/coordinador-eventos-ciclos.js"></script>
   <script src="../../../assets/js/nucleo/auth.js"></script>
   <script src="../../../assets/js/nucleo/gestion-usuario-ui.js"></script>
   <script src="../../../assets/js/nucleo/navegacion.js"></script>
   <script src="../../../assets/js/nucleo/gestion-sesiones.js"></script>
+  <script src="../../../assets/js/nucleo/sincronizacion-ciclos.js"></script>
+  <script src="../../../assets/js/nucleo/generacion-portafolios.js"></script>
   
   <!-- Admin Auth System -->
   <script src="../../../assets/js/paginas/dashboard/admin/admin-auth.js"></script>

@@ -45,8 +45,6 @@ const eventosState = {
 // ================================================
 
 async function initialize() {
-    console.log('🎯 Inicializando módulo de eventos del tablero...');
-    
     try {
         configurarEventosGlobales();
         configurarEventosNavegacion();
@@ -59,9 +57,7 @@ async function initialize() {
         // Emitir evento de inicialización
         emitirEvento(eventosConfig.eventosCustom.tableroIniciado);
         
-        console.log('✅ Módulo de eventos inicializado');
     } catch (error) {
-        console.error('❌ Error en inicialización de eventos:', error);
         throw error;
     }
 }
@@ -90,7 +86,7 @@ function configurarEventosGlobales() {
     
     // Manejar errores de JavaScript no capturados
     window.addEventListener('error', (event) => {
-        console.error('❌ Error no capturado:', event.error);
+        // Error no capturado
         emitirEvento(eventosConfig.eventosCustom.errorOcurrido, {
             mensaje: event.message,
             archivo: event.filename,
@@ -100,14 +96,14 @@ function configurarEventosGlobales() {
     
     // Manejar errores de promesas no capturadas
     window.addEventListener('unhandledrejection', (event) => {
-        console.error('❌ Promesa rechazada no capturada:', event.reason);
+        // Promesa rechazada no capturada
         emitirEvento(eventosConfig.eventosCustom.errorOcurrido, {
             tipo: 'promise',
             razon: event.reason
         });
     });
     
-    console.log('✅ Eventos globales configurados');
+
 }
 
 // ================================================
@@ -133,14 +129,14 @@ function configurarEventosNavegacion() {
         }
     });
     
-    console.log('✅ Eventos de navegación configurados');
+
 }
 
 function manejarNavegacion(boton) {
     const pagina = boton.dataset.page;
     const titulo = boton.textContent.trim();
     
-    console.log('🔄 Navegando a:', pagina);
+
     
     // Actualizar estado
     eventosState.navegacionActual = pagina;
@@ -162,7 +158,7 @@ function manejarNavegacion(boton) {
 
 function manejarNavegacionBreadcrumb(elemento) {
     const href = elemento.getAttribute('href');
-    console.log('🍞 Navegación breadcrumb:', href);
+
     
     // Implementar lógica de navegación breadcrumb
     if (href && href !== '#') {
@@ -187,7 +183,7 @@ function actualizarContenidoPagina(pagina) {
     
     // Simular carga de contenido
     setTimeout(() => {
-        console.log(`📄 Contenido de ${pagina} cargado`);
+
         
         if (window.UITablero?.mostrarIndicadorCarga) {
             window.UITablero.mostrarIndicadorCarga(false);
@@ -226,18 +222,18 @@ function configurarEventosFormularios() {
         }
     });
     
-    console.log('✅ Eventos de formularios configurados');
+
 }
 
 function manejarSubmitFormulario(form) {
     const tipoForm = form.dataset.form;
     const datos = new FormData(form);
     
-    console.log('📝 Submit de formulario:', tipoForm);
+
     
     // Validar formulario
     if (!validarFormulario(form)) {
-        console.warn('⚠️ Formulario no válido');
+
         return;
     }
     
@@ -331,21 +327,21 @@ function marcarCampoValido(campo) {
 }
 
 function procesarFormulario(tipo, datos) {
-    console.log(`🔄 Procesando formulario tipo: ${tipo}`);
+    // Procesando formulario
     
     // Aquí se implementaría la lógica específica para cada tipo de formulario
     switch (tipo) {
         case 'crear-usuario':
-            console.log('👤 Creando usuario...');
+            // Creando usuario
             break;
         case 'editar-perfil':
-            console.log('✏️ Editando perfil...');
+            // Editando perfil
             break;
         case 'cambiar-password':
-            console.log('🔒 Cambiando contraseña...');
+            // Cambiando contraseña
             break;
         default:
-            console.log('📄 Procesando formulario genérico...');
+            // Procesando formulario genérico
     }
 }
 
@@ -371,7 +367,7 @@ function configurarEventosTablas() {
         }
     });
     
-    console.log('✅ Eventos de tablas configurados');
+
 }
 
 function manejarAccionTabla(boton) {
@@ -379,7 +375,7 @@ function manejarAccionTabla(boton) {
     const fila = boton.closest('tr');
     const tabla = boton.closest('table');
     
-    console.log('📊 Acción de tabla:', accion);
+
     
     switch (accion) {
         case 'ver':
@@ -398,7 +394,7 @@ function manejarAccionTabla(boton) {
             desactivarRegistro(fila);
             break;
         default:
-            console.log('Acción no reconocida:', accion);
+
     }
 }
 
@@ -426,23 +422,23 @@ function configurarEventosModales() {
         if (modalTrigger) {
             const modalId = modalTrigger.dataset.bsTarget;
             eventosState.modalActivo = modalId;
-            console.log('📱 Abriendo modal:', modalId);
+
         }
     });
     
     // Eventos de Bootstrap modals
     document.addEventListener('shown.bs.modal', (event) => {
-        console.log('📱 Modal mostrado:', event.target.id);
+
         configurarModalActivo(event.target);
     });
     
     document.addEventListener('hidden.bs.modal', (event) => {
-        console.log('📱 Modal cerrado:', event.target.id);
+
         eventosState.modalActivo = null;
         limpiarModalActivo(event.target);
     });
     
-    console.log('✅ Eventos de modales configurados');
+
 }
 
 function configurarModalActivo(modal) {
@@ -495,7 +491,7 @@ function configurarEventosTeclado() {
         }
     });
     
-    console.log('✅ Eventos de teclado configurados');
+
 }
 
 // ================================================
@@ -505,18 +501,78 @@ function configurarEventosTeclado() {
 function configurarEventosCustom() {
     // Escuchar eventos custom del sistema
     document.addEventListener(eventosConfig.eventosCustom.datosActualizados, (event) => {
-        console.log('📊 Datos actualizados, refrescando UI...');
+
         if (window.UITablero?.renderizarInterfazCompleta) {
             window.UITablero.renderizarInterfazCompleta();
         }
     });
     
     document.addEventListener(eventosConfig.eventosCustom.errorOcurrido, (event) => {
-        console.error('❌ Error del sistema:', event.detail);
+        // Error del sistema
         mostrarErrorGlobal(event.detail);
     });
     
-    console.log('✅ Eventos custom configurados');
+    // Configurar eventos de botones de portafolios
+    const btnGenerarPortafolios = document.getElementById('btnGenerarPortafolios');
+    if (btnGenerarPortafolios) {
+        btnGenerarPortafolios.addEventListener('click', manejarGenerarPortafolios);
+
+    }
+
+    const btnGenerarTodosPortafolios = document.getElementById('btnGenerarTodosPortafolios');
+    if (btnGenerarTodosPortafolios) {
+        btnGenerarTodosPortafolios.addEventListener('click', manejarGenerarTodosPortafolios);
+
+    }
+
+    const btnActualizarPortafolios = document.getElementById('btnActualizarPortafolios');
+    if (btnActualizarPortafolios) {
+        btnActualizarPortafolios.addEventListener('click', manejarActualizarPortafolios);
+
+    }
+
+    const btnInicializarPortafolios = document.getElementById('btnInicializarPortafolios');
+    if (btnInicializarPortafolios) {
+        btnInicializarPortafolios.addEventListener('click', manejarInicializarPortafolios);
+
+    }
+
+    const btnNuevoCiclo = document.getElementById('btnNuevoCiclo');
+    if (btnNuevoCiclo) {
+        btnNuevoCiclo.addEventListener('click', manejarNuevoCiclo);
+
+    }
+
+    // Configurar filtros de portafolios
+    document.addEventListener('click', (event) => {
+        if (event.target.classList.contains('filter-btn')) {
+            const filtro = event.target.dataset.filter;
+            manejarFiltroPortafolios(filtro, event.target);
+        }
+    });
+    
+
+}
+
+/**
+ * Maneja el filtrado de portafolios
+ */
+function manejarFiltroPortafolios(filtro, boton) {
+    // Actualizar botones activos
+    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+    boton.classList.add('active');
+    
+    // Filtrar portafolios
+    const portafolios = document.querySelectorAll('.portafolio-card');
+    portafolios.forEach(card => {
+        if (filtro === 'all') {
+            card.style.display = 'block';
+        } else {
+            const badge = card.querySelector('.badge');
+            const estado = badge ? badge.textContent.toLowerCase() : '';
+            card.style.display = estado.includes(filtro) ? 'block' : 'none';
+        }
+    });
 }
 
 function emitirEvento(tipoEvento, datos = null) {
@@ -573,7 +629,7 @@ function cerrarModalActivo() {
 }
 
 function mostrarErrorGlobal(error) {
-    console.error('🚨 Error global:', error);
+    // Error global
     // Implementar notificación de error global
 }
 
@@ -581,8 +637,6 @@ function mostrarErrorGlobal(error) {
  * Maneja la inicialización de portafolios desde el panel de administrador
  */
 async function manejarInicializacionPortafolios(boton) {
-    console.log('🎯 Iniciando generación de portafolios...');
-    
     try {
         // Mostrar indicador de carga
         boton.disabled = true;
@@ -609,8 +663,7 @@ async function manejarInicializacionPortafolios(boton) {
             throw new Error(data.message || 'Error al generar portafolios');
         }
         
-        // Mostrar resultado exitoso
-        console.log('✅ Portafolios generados exitosamente:', data);
+
         
         // Notificar al usuario
         if (window.UITablero?.mostrarNotificacion) {
@@ -630,7 +683,7 @@ async function manejarInicializacionPortafolios(boton) {
         });
         
     } catch (error) {
-        console.error('❌ Error al generar portafolios:', error);
+        // Error al generar portafolios
         
         // Notificar error al usuario
         if (window.UITablero?.mostrarNotificacion) {
@@ -656,13 +709,102 @@ async function manejarInicializacionPortafolios(boton) {
     }
 }
 
+/**
+ * Maneja la generación de portafolios desde el botón de generar
+ */
+async function manejarGenerarPortafolios() {
+    const cicloActual = window.SincronizacionCiclos?.obtenerCicloActual()?.id;
+    if (!cicloActual) {
+        alert('❌ Error: No hay ciclo académico seleccionado');
+        return;
+    }
+    
+    // Usar el sistema de generación de portafolios
+    if (window.GeneracionPortafolios) {
+        document.dispatchEvent(new CustomEvent('generar-portafolios', {
+            detail: { cicloId: cicloActual }
+        }));
+    }
+}
+
+/**
+ * Maneja la generación de todos los portafolios
+ */
+async function manejarGenerarTodosPortafolios() {
+    const confirmacion = confirm('¿Está seguro de que desea generar TODOS los portafolios? Esta acción puede tomar varios minutos.');
+    if (!confirmacion) return;
+    
+    const cicloActual = window.SincronizacionCiclos?.obtenerCicloActual()?.id;
+    if (!cicloActual) {
+        alert('❌ Error: No hay ciclo académico seleccionado');
+        return;
+    }
+    
+    // Usar el sistema de generación de portafolios
+    if (window.GeneracionPortafolios) {
+        document.dispatchEvent(new CustomEvent('generar-portafolios', {
+            detail: { cicloId: cicloActual, docenteId: null }
+        }));
+    }
+}
+
+/**
+ * Maneja la actualización de portafolios
+ */
+async function manejarActualizarPortafolios() {
+    if (window.GeneracionPortafolios?.cargarPortafoliosExistentes) {
+        await window.GeneracionPortafolios.cargarPortafoliosExistentes();
+    }
+}
+
+/**
+ * Maneja la inicialización de portafolios (botón separado)
+ */
+async function manejarInicializarPortafolios() {
+    const confirmacion = confirm('¿Está seguro de que desea inicializar el sistema de portafolios? Esto creará las estructuras necesarias para el ciclo actual.');
+    if (!confirmacion) return;
+    
+    const cicloActual = window.SincronizacionCiclos?.obtenerCicloActual()?.id;
+    if (!cicloActual) {
+        alert('❌ Error: No hay ciclo académico seleccionado');
+        return;
+    }
+    
+    try {
+        const response = await window.apiRequest('/api/portafolios/inicializar', 'POST', {
+            cicloId: cicloActual
+        });
+        
+        if (response.success) {
+            alert('✅ Sistema de portafolios inicializado correctamente');
+            // Recargar portafolios después de inicializar
+            if (window.GeneracionPortafolios?.cargarPortafoliosExistentes) {
+                await window.GeneracionPortafolios.cargarPortafoliosExistentes();
+            }
+        } else {
+            throw new Error(response.message || 'Error inicializando portafolios');
+        }
+    } catch (error) {
+        // Error inicializando portafolios
+        alert(`❌ Error: ${error.message}`);
+    }
+}
+
+/**
+ * Maneja el cambio de ciclo académico
+ */
+function manejarNuevoCiclo() {
+    // Redireccionar a la página de gestión de ciclos
+    window.location.href = 'ciclos.html';
+}
+
 // Funciones placeholder para acciones de tabla
-function verRegistro(fila) { console.log('👁️ Ver registro:', fila); }
-function editarRegistro(fila) { console.log('✏️ Editar registro:', fila); }
-function eliminarRegistro(fila) { console.log('🗑️ Eliminar registro:', fila); }
-function activarRegistro(fila) { console.log('✅ Activar registro:', fila); }
-function desactivarRegistro(fila) { console.log('❌ Desactivar registro:', fila); }
-function actualizarContadorSeleccionados() { console.log('🔢 Actualizando contador'); }
+function verRegistro(fila) { }
+function editarRegistro(fila) { }
+function eliminarRegistro(fila) { }
+function activarRegistro(fila) { }
+function desactivarRegistro(fila) { }
+function actualizarContadorSeleccionados() { }
 function limpiarFormulario(boton) { 
     const form = boton.closest('form');
     if (form) form.reset();
@@ -685,5 +827,3 @@ window.EventosTablero = {
     // Configuración
     obtenerConfigEventos: () => eventosConfig
 };
-
-console.log('✅ Módulo Eventos del Tablero cargado'); 

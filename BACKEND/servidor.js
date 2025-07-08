@@ -22,6 +22,9 @@ const reportesRoutes = require('./rutas/reportes');
 const dashboardRoutes = require('./rutas/dashboard');
 const actividadesRoutes = require('./rutas/actividades');
 const portafoliosRoutes = require('./rutas/portafolios');
+const documentosRoutes = require('./rutas/documentos');
+const verificacionesRoutes = require('./rutas/verificaciones');
+const archivosRoutes = require('./rutas/archivos');
 
 console.log('🚀 Iniciando servidor del Portafolio Docente UNSAAC...');
 
@@ -76,6 +79,9 @@ app.use('/api/reportes', reportesRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/actividades', actividadesRoutes);
 app.use('/api/portafolios', portafoliosRoutes);
+app.use('/api/documentos', documentosRoutes);
+app.use('/api/verificaciones', verificacionesRoutes);
+app.use('/api/archivos', archivosRoutes);
 
 // Manejo de rutas no encontradas (404)
 app.use((req, res) => {

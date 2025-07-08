@@ -61,9 +61,52 @@ const CicloAcademico = sequelize.define('CicloAcademico', {
       key: 'id'
     }
   },
+  // Columnas temporalmente comentadas hasta resolver migración
+  // fecha_inicializacion: {
+  //   type: DataTypes.DATE,
+  //   allowNull: true,
+  //   comment: 'Fecha cuando el ciclo pasa a estado inicializacion'
+  // },
+  // fecha_activacion: {
+  //   type: DataTypes.DATE,
+  //   allowNull: true,
+  //   comment: 'Fecha cuando el ciclo pasa a estado activo'
+  // },
+  // fecha_inicio_verificacion: {
+  //   type: DataTypes.DATE,
+  //   allowNull: true,
+  //   comment: 'Fecha cuando el ciclo pasa a estado verificacion'
+  // },
   configuracion: {
     type: DataTypes.JSON,
     allowNull: true
+  },
+  configuracion_estados: {
+    type: DataTypes.JSON,
+    allowNull: true,
+    defaultValue: {
+      "inicializacion": {
+        "descripcion": "Configuración inicial del ciclo académico",
+        "modulos_requeridos": ["carga_datos"],
+        "validaciones": ["estructura_portafolio", "configuracion_basica"]
+      },
+      "activo": {
+        "descripcion": "Ciclo en funcionamiento normal",
+        "modulos_requeridos": ["carga_datos", "gestion_documentos"],
+        "validaciones": ["datos_completos", "estructura_validada"]
+      },
+      "verificacion": {
+        "descripcion": "Proceso de verificación y validación",
+        "modulos_requeridos": ["verificacion"],
+        "validaciones": ["portafolios_completos", "documentos_validados"]
+      },
+      "finalizacion": {
+        "descripcion": "Ciclo finalizado y cerrado",
+        "modulos_requeridos": ["reportes"],
+        "validaciones": ["verificacion_completa", "reportes_generados"]
+      }
+    },
+    comment: 'Configuración específica para cada estado del ciclo'
   },
   creado_en: {
     type: DataTypes.DATE,
@@ -116,38 +159,51 @@ CicloAcademico.prototype.puedeSerFinalizado = function() {
  */
 CicloAcademico.obtenerCicloActivo = async function() {
   return await this.findOne({
-    where: { estado: 'activo' }
+    where: { estado: 'activo' },
+    attributes: {
+      exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+    }
   });
 };
 
 CicloAcademico.obtenerCicloEnVerificacion = async function() {
   return await this.findOne({
-    where: { estado: 'verificacion' }
+    where: { estado: 'verificacion' },
+    attributes: {
+      exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+    }
   });
 };
 
 CicloAcademico.obtenerCiclosEnPreparacion = async function() {
   return await this.findAll({
     where: { estado: 'preparacion' },
-    order: [['fecha_inicio', 'ASC']]
+    order: [['fecha_inicio', 'ASC']],
+    attributes: {
+      exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+    }
   });
 };
 
 CicloAcademico.obtenerCiclosFinalizados = async function() {
   return await this.findAll({
     where: { estado: 'finalizacion' },
-    order: [['fecha_fin', 'DESC']]
+    order: [['fecha_fin', 'DESC']],
+    attributes: {
+      exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+    }
   });
 };
 
 /**
- * Transiciones de estado
+ * Transiciones de estado con manejo automático de fechas
  */
 CicloAcademico.prototype.iniciarInicializacion = async function() {
   if (this.estado !== 'preparacion') {
     throw new Error('Solo se puede inicializar un ciclo en preparación');
   }
   this.estado = 'inicializacion';
+  // this.fecha_inicializacion = new Date(); // Comentado temporalmente
   return await this.save();
 };
 
@@ -155,7 +211,15 @@ CicloAcademico.prototype.activar = async function() {
   if (this.estado !== 'inicializacion') {
     throw new Error('Solo se puede activar un ciclo después de la inicialización');
   }
+  
+  // Verificar que no haya otro ciclo activo
+  const cicloActivo = await CicloAcademico.obtenerCicloActivo();
+  if (cicloActivo && cicloActivo.id !== this.id) {
+    throw new Error('Solo puede haber un ciclo activo a la vez');
+  }
+  
   this.estado = 'activo';
+  // this.fecha_activacion = new Date(); // Comentado temporalmente
   return await this.save();
 };
 
@@ -171,6 +235,7 @@ CicloAcademico.prototype.iniciarVerificacion = async function() {
   }
   
   this.estado = 'verificacion';
+  // this.fecha_inicio_verificacion = new Date(); // Comentado temporalmente
   return await this.save();
 };
 
@@ -180,6 +245,60 @@ CicloAcademico.prototype.finalizar = async function() {
   }
   this.estado = 'finalizacion';
   this.fecha_cierre_real = new Date();
+  return await this.save();
+};
+
+/**
+ * Cambiar estado del ciclo con validaciones y fechas automáticas
+ */
+CicloAcademico.prototype.cambiarEstado = async function(nuevoEstado, usuarioId = null) {
+  const estadoActual = this.estado;
+  
+  // Validar transiciones permitidas
+  const transicionesValidas = {
+    'preparacion': ['inicializacion'],
+    'inicializacion': ['activo', 'preparacion'],
+    'activo': ['verificacion', 'preparacion'],
+    'verificacion': ['finalizacion', 'activo'],
+    'finalizacion': ['archivado'],
+    'archivado': ['preparacion']
+  };
+  
+  if (!transicionesValidas[estadoActual]?.includes(nuevoEstado)) {
+    throw new Error(`Transición no válida de '${estadoActual}' a '${nuevoEstado}'`);
+  }
+  
+  // Validaciones específicas por estado
+  switch (nuevoEstado) {
+    case 'activo':
+      const cicloActivo = await CicloAcademico.obtenerCicloActivo();
+      if (cicloActivo && cicloActivo.id !== this.id) {
+        throw new Error('Solo puede haber un ciclo activo a la vez');
+      }
+      // this.fecha_activacion = new Date(); // Comentado temporalmente
+      break;
+      
+    case 'inicializacion':
+      // this.fecha_inicializacion = new Date(); // Comentado temporalmente
+      break;
+      
+    case 'verificacion':
+      const cicloEnVerificacion = await CicloAcademico.obtenerCicloEnVerificacion();
+      if (cicloEnVerificacion && cicloEnVerificacion.id !== this.id) {
+        throw new Error('Solo puede haber un ciclo en verificación a la vez');
+      }
+      // this.fecha_inicio_verificacion = new Date(); // Comentado temporalmente
+      break;
+      
+    case 'finalizacion':
+      this.fecha_cierre_real = new Date();
+      if (usuarioId) {
+        this.cerrado_por = usuarioId;
+      }
+      break;
+  }
+  
+  this.estado = nuevoEstado;
   return await this.save();
 };
 

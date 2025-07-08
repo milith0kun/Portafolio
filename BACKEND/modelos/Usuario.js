@@ -85,7 +85,18 @@ const Usuario = sequelize.define('Usuario', {
 
 // Método para comparar contraseñas
 Usuario.prototype.validarPassword = async function(password) {
-  return await bcrypt.compare(password, this.contrasena);
+  try {
+    // Convertir hash de PHP ($2y$) a formato bcrypt ($2b$) si es necesario
+    let hashToCompare = this.contrasena;
+    if (hashToCompare.startsWith('$2y$')) {
+      hashToCompare = hashToCompare.replace('$2y$', '$2b$');
+    }
+    
+    return await bcrypt.compare(password, hashToCompare);
+  } catch (error) {
+    console.error('Error al validar contraseña:', error);
+    return false;
+  }
 };
 
 // Las relaciones se definirán en el archivo asociaciones.js

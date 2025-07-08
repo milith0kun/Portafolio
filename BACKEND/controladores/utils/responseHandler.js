@@ -76,6 +76,30 @@ class ResponseHandler {
     }
 
     /**
+     * Respuesta de acceso prohibido
+     * @param {Object} res - Objeto de respuesta Express
+     * @param {string} [message='Acceso prohibido'] - Mensaje de error
+     */
+    static forbidden(res, message = 'Acceso prohibido') {
+        res.status(403).json({
+            success: false,
+            message
+        });
+    }
+
+    /**
+     * Respuesta de solicitud incorrecta
+     * @param {Object} res - Objeto de respuesta Express
+     * @param {string} [message='Solicitud incorrecta'] - Mensaje de error
+     */
+    static badRequest(res, message = 'Solicitud incorrecta') {
+        res.status(400).json({
+            success: false,
+            message
+        });
+    }
+
+    /**
      * Respuesta de error de servidor
      * @param {Object} res - Objeto de respuesta Express
      * @param {Error} error - Objeto de error

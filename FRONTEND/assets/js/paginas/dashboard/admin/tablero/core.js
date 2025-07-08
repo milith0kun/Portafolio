@@ -7,13 +7,9 @@
 // INICIALIZACIÓN PRINCIPAL
 // ================================================
 
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('🔧 Dashboard de Administrador inicializado');
-    inicializarDashboard();
-});
-
 /**
- * Función principal de inicialización
+ * Función principal de inicialización del módulo Core
+ * Llamada desde el coordinador principal (index.js)
  */
 async function inicializarDashboard() {
     try {
@@ -25,17 +21,7 @@ async function inicializarDashboard() {
         // 2. Configurar componentes básicos
         configurarComponentesBasicos();
         
-        // 3. Inicializar otros módulos
-        await Promise.all([
-            initializeEventos(),
-            initializeData(),
-            initializeUI()
-        ]);
-        
-        console.log('✅ Dashboard inicializado completamente');
-        
     } catch (error) {
-        console.error('❌ Error en inicialización del dashboard:', error);
         mostrarErrorGeneral('Error al cargar el dashboard');
     }
 }
@@ -50,7 +36,6 @@ async function inicializarDashboard() {
 function verificarAutenticacionRapida() {
     // Verificar disponibilidad del sistema AUTH
     if (!window.AUTH?.verificarAutenticacion?.()) {
-        console.warn('⚠️ Autenticación fallida, redirigiendo...');
         window.location.href = '../../autenticacion/login.html';
         return false;
     }
@@ -58,13 +43,11 @@ function verificarAutenticacionRapida() {
     // Verificar rol de administrador
     const rolActual = AUTH.obtenerRolActivo();
     if (!['administrador', 'admin'].includes(rolActual?.toLowerCase())) {
-        console.warn('⚠️ Sin permisos de administrador');
         alert('No tienes permisos para acceder a esta sección');
         window.location.href = '../../autenticacion/selector-roles.html';
         return false;
     }
     
-    console.log('✅ Autenticación verificada - Rol:', rolActual);
     return true;
 }
 
@@ -84,8 +67,6 @@ function configurarComponentesBasicos() {
     
     // Configurar información del usuario en header
     actualizarInfoUsuario();
-    
-    console.log('✅ Componentes básicos configurados');
 }
 
 function initializeTooltips() {
@@ -116,41 +97,8 @@ function actualizarInfoUsuario() {
 }
 
 // ================================================
-// FUNCIONES DE INICIALIZACIÓN DE MÓDULOS
+// FUNCIONES DE UTILIDAD DEL MÓDULO CORE
 // ================================================
-
-/**
- * Inicializar módulo de eventos
- */
-async function initializeEventos() {
-    if (window.EventosTablero) {
-        await EventosTablero.initialize();
-    } else {
-        console.warn('⚠️ Módulo EventosTablero no disponible');
-    }
-}
-
-/**
- * Inicializar módulo de datos
- */
-async function initializeData() {
-    if (window.DataTablero) {
-        await DataTablero.initialize();
-    } else {
-        console.warn('⚠️ Módulo DataTablero no disponible');
-    }
-}
-
-/**
- * Inicializar módulo de interfaz
- */
-async function initializeUI() {
-    if (window.UITablero) {
-        await UITablero.initialize();
-    } else {
-        console.warn('⚠️ Módulo UITablero no disponible');
-    }
-}
 
 // ================================================
 // FUNCIONES DE UTILIDAD GLOBAL
@@ -160,7 +108,6 @@ async function initializeUI() {
  * Mostrar error general del dashboard
  */
 function mostrarErrorGeneral(mensaje) {
-    console.error('❌ Error general:', mensaje);
     if (window.mostrarNotificacion) {
         window.mostrarNotificacion(mensaje, 'error');
     } else {
@@ -198,5 +145,3 @@ window.TableroCore = {
     mostrarErrorGeneral,
     obtenerConfigDashboard
 };
-
-console.log('✅ Módulo Core del Tablero cargado'); 

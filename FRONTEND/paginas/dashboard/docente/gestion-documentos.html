@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Documentos - Portafolio Docente</title>
+    
+    <!-- CSS Framework -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- CSS Específico -->
+    <link rel="stylesheet" href="../../../assets/css/paginas/docente/head.css">
+    <link rel="stylesheet" href="../../../assets/css/paginas/docente/body.css">
+    <link rel="stylesheet" href="../../../assets/css/paginas/docente/footer.css">
+    <link rel="stylesheet" href="../../../assets/css/paginas/docente/gestion-documentos.css">
+</head>
+<body>
+    <!-- HEADER -->
+    <header class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="../tablero.html">
+                <img src="../../../assets/imagenes/logo-unsaac2.png" alt="Logo UNSAAC" height="40">
+                <span class="ms-2">Sistema de Portafolios UNSAAC</span>
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="../tablero.html">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="gestion-documentos.html">
+                            <i class="fas fa-folder-open"></i> Mis Documentos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="portafolios.html">
+                            <i class="fas fa-briefcase"></i> Portafolios
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user"></i> <span id="usuario-nombre">Docente</span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" onclick="cerrarSesion()">
+                                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                            </a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="container-fluid py-4">
+        <div class="gestion-documentos-container">
+            
+            <!-- HEADER DE GESTIÓN -->
+            <div class="gestion-header">
+                <div>
+                    <h2><i class="fas fa-folder-open"></i> Gestión de Documentos</h2>
+                    <p class="mb-0">Administre los documentos de su portafolio académico</p>
+                </div>
+                
+                <div class="selector-portafolio-wrapper">
+                    <label for="selector-portafolio">Seleccionar Portafolio:</label>
+                    <select id="selector-portafolio" class="form-select">
+                        <option value="">Cargando portafolios...</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- PROGRESO GENERAL -->
+            <div class="progreso-general">
+                <div class="progreso-info">
+                    <span class="progreso-texto">Progreso General del Portafolio</span>
+                    <span class="progreso-porcentaje" id="progreso-porcentaje">0%</span>
+                </div>
+                <div class="progreso-barra">
+                    <div class="progreso-fill" id="progreso-fill" style="width: 0%"></div>
+                </div>
+                <small class="text-muted mt-2 d-block">
+                    <span id="documentos-completados">0</span> de <span id="documentos-totales">0</span> documentos subidos
+                </small>
+            </div>
+
+            <!-- PESTAÑAS DE SECCIONES -->
+            <div class="pestanas-seccion" id="pestanas-seccion">
+                <!-- Las pestañas se generarán dinámicamente -->
+            </div>
+
+            <!-- INFORMACIÓN DE SECCIÓN -->
+            <div class="info-seccion" id="info-seccion">
+                <!-- La información se generará dinámicamente -->
+            </div>
+
+            <!-- ÁREA DE SUBIDA -->
+            <div class="area-subida" id="area-subida" style="display: none;">
+                <div class="drop-zone" id="drop-zone">
+                    <div class="drop-zone-content">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Arrastra archivos aquí o <button type="button" class="btn-upload" onclick="document.getElementById('file-input').click()">selecciona archivos</button></p>
+                        <div class="file-types-info">
+                            <small>Formatos permitidos: PDF, DOC, DOCX, XLS, XLSX (Máximo 10MB por archivo)</small>
+                        </div>
+                    </div>
+                    <input type="file" id="file-input" multiple accept=".pdf,.doc,.docx,.xls,.xlsx" style="display: none;">
+                </div>
+                
+                <!-- BARRA DE PROGRESO DE SUBIDA -->
+                <div class="upload-progress" id="upload-progress" style="display: none;">
+                    <div class="progress mb-2">
+                        <div class="progress-bar" id="upload-progress-bar" role="progressbar" style="width: 0%"></div>
+                    </div>
+                    <small id="upload-status">Subiendo archivo...</small>
+                </div>
+            </div>
+
+            <!-- LISTA DE DOCUMENTOS -->
+            <div class="lista-documentos" id="lista-documentos">
+                <div class="no-documentos" id="no-documentos">
+                    <i class="fas fa-folder-open"></i>
+                    <p>Seleccione un portafolio para comenzar</p>
+                    <small>Use el selector superior para elegir el portafolio que desea gestionar</small>
+                </div>
+                
+                <div class="documentos-grid" id="documentos-grid" style="display: none;">
+                    <!-- Los documentos se generarán dinámicamente -->
+                </div>
+            </div>
+
+            <!-- ACCIONES GENERALES -->
+            <div class="acciones-generales" id="acciones-generales" style="display: none;">
+                <button type="button" class="btn btn-success" onclick="descargarPortafolioCompleto()">
+                    <i class="fas fa-download"></i> Descargar Portafolio Completo
+                </button>
+                <button type="button" class="btn btn-info" onclick="generarReporteProgreso()">
+                    <i class="fas fa-chart-bar"></i> Generar Reporte de Progreso
+                </button>
+                <button type="button" class="btn btn-warning" onclick="enviarAVerificacion()">
+                    <i class="fas fa-paper-plane"></i> Enviar a Verificación
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Sistema de Portafolios Docentes</h5>
+                    <p class="mb-0">Universidad Nacional de San Antonio Abad del Cusco</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0">© 2025 UNSAAC - Todos los derechos reservados</p>
+                    <small>Versión 3.0 - Gestión de Documentos</small>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- MODALES -->
+    
+    <!-- Modal de Confirmación -->
+    <div class="modal fade" id="modalConfirmacion" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmar Acción</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="mensaje-confirmacion">¿Está seguro de realizar esta acción?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="btn-confirmar">Confirmar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Detalles de Documento -->
+    <div class="modal fade" id="modalDetallesDocumento" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detalles del Documento</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="detalles-documento-body">
+                    <!-- Contenido dinámico -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Scripts del Sistema -->
+    <script src="../../../assets/js/nucleo/configuracion.js"></script>
+    <script src="../../../assets/js/nucleo/auth.js"></script>
+    <script src="../../../assets/js/nucleo/gestion-sesiones.js"></script>
+    
+    <!-- Inicializar Sistema de Autenticación -->
+    <script>
+        // Crear instancia global del sistema de autenticación
+        const sistemaAuth = new SistemaAutenticacionUnificado();
+    </script>
+    
+    <!-- Script Específico -->
+    <script src="../../../assets/js/paginas/dashboard/docente/gestion-documentos.js"></script>
+    
+    <script>
+        // Inicialización cuando se carga la página
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Iniciando módulo de gestión de documentos...');
+            
+            // Inicializar sistema de autenticación
+            sistemaAuth.inicializarDesdeSesion();
+            
+            // Verificar autenticación
+            if (!sistemaAuth.verificarAutenticacion()) {
+                console.log('❌ Usuario no autenticado, redirigiendo...');
+                window.location.href = '../../autenticacion/login.html';
+                return;
+            }
+            
+            // Verificar rol de docente
+            const usuario = sistemaAuth.obtenerUsuario();
+            if (!usuario || !sistemaAuth.tieneRol('docente')) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Acceso Denegado',
+                    text: 'Solo los docentes pueden acceder a esta sección',
+                    confirmButtonText: 'Entendido'
+                }).then(() => {
+                    window.location.href = '../../autenticacion/login.html';
+                });
+                return;
+            }
+            
+            // Mostrar nombre del usuario
+            document.getElementById('usuario-nombre').textContent = usuario.nombres || usuario.nombre || 'Docente';
+            
+            // Inicializar el módulo de gestión de documentos
+            if (typeof GestionDocumentos !== 'undefined') {
+                window.gestionDocumentos = new GestionDocumentos();
+            } else {
+                console.error('❌ Error: Módulo GestionDocumentos no encontrado');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error del Sistema',
+                    text: 'No se pudo cargar el módulo de gestión de documentos',
+                    confirmButtonText: 'Recargar Página'
+                }).then(() => {
+                    window.location.reload();
+                });
+            }
+        });
+        
+        // Función para cerrar sesión
+        function cerrarSesion() {
+            Swal.fire({
+                title: '¿Cerrar sesión?',
+                text: 'Se cerrará su sesión actual',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, cerrar sesión',
+                cancelButtonText: 'Cancelar'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    await sistemaAuth.cerrarSesion();
+                    window.location.href = '../../autenticacion/login.html';
+                }
+            });
+        }
+        
+        // Funciones globales para acciones generales
+        function descargarPortafolioCompleto() {
+            if (window.gestionDocumentos) {
+                window.gestionDocumentos.descargarPortafolioCompleto();
+            }
+        }
+        
+        function generarReporteProgreso() {
+            if (window.gestionDocumentos) {
+                window.gestionDocumentos.generarReporteProgreso();
+            }
+        }
+        
+        function enviarAVerificacion() {
+            if (window.gestionDocumentos) {
+                window.gestionDocumentos.enviarAVerificacion();
+            }
+        }
+    </script>
+</body>
+</html> 

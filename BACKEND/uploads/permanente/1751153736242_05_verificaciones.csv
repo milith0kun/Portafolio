@@ -1,0 +1,43 @@
+id,docente_id,verificador_id,fecha_asignacion,fecha_verificacion,estado,observaciones,creado_por,actualizado_por
+1,1,16,2024-01-15,,PENDIENTE,Asignado para verificación de portafolio,admin@unsaac.edu.pe,
+2,2,17,2024-01-15,,PENDIENTE,Asignado para verificación de portafolio,admin@unsaac.edu.pe,
+3,3,18,2024-01-15,,PENDIENTE,Asignado para verificación de portafolio,admin@unsaac.edu.pe,
+4,4,19,2024-01-15,,PENDIENTE,Asignado para verificación de portafolio,admin@unsaac.edu.pe,
+5,5,20,2024-01-15,,PENDIENTE,Asignado para verificación de portafolio,admin@unsaac.edu.pe,
+6,6,21,2024-01-15,,PENDIENTE,Asignado para verificación de portafolio,admin@unsaac.edu.pe,
+7,7,22,2024-01-15,,PENDIENTE,Asignado para verificación de portafolio,admin@unsaac.edu.pe,
+8,8,23,2024-01-15,,PENDIENTE,Asignado para verificación de portafolio,admin@unsaac.edu.pe,
+9,9,24,2024-01-15,,PENDIENTE,Asignado para verificación de portafolio,admin@unsaac.edu.pe,
+10,10,25,2024-01-15,,PENDIENTE,Asignado para verificación de portafolio,admin@unsaac.edu.pe,
+11,11,26,2024-01-15,,PENDIENTE,Asignado para verificación de portafolio,admin@unsaac.edu.pe,
+12,12,27,2024-01-15,,PENDIENTE,Asignado para verificación de portafolio,admin@unsaac.edu.pe,
+13,13,28,2024-01-15,,PENDIENTE,Asignado para verificación de portafolio,admin@unsaac.edu.pe,
+14,14,29,2024-01-15,,PENDIENTE,Asignado para verificación de portafolio,admin@unsaac.edu.pe,
+15,15,30,2024-01-15,,PENDIENTE,Asignado para verificación de portafolio,admin@unsaac.edu.pe,
+16,1,31,2024-01-15,2024-01-20,COMPLETADO,Portafolio verificado exitosamente,admin@unsaac.edu.pe,verif1@unsaac.edu.pe
+17,2,32,2024-01-15,2024-01-21,COMPLETADO,Se encontraron observaciones menores,admin@unsaac.edu.pe,verif2@unsaac.edu.pe
+18,3,33,2024-01-15,2024-01-22,COMPLETADO,Portafolio verificado sin observaciones,admin@unsaac.edu.pe,verif3@unsaac.edu.pe
+19,4,34,2024-01-15,2024-01-23,COMPLETADO,Se requiere subsanación de documentos,admin@unsaac.edu.pe,verif4@unsaac.edu.pe
+20,5,35,2024-01-15,2024-01-24,COMPLETADO,Portafolio verificado exitosamente,admin@unsaac.edu.pe,verif5@unsaac.edu.pe
+21,6,36,2024-01-15,2024-01-25,COMPLETADO,Se encontraron observaciones menores,admin@unsaac.edu.pe,verif6@unsaac.edu.pe
+22,7,37,2024-01-15,2024-01-26,COMPLETADO,Portafolio verificado sin observaciones,admin@unsaac.edu.pe,verif7@unsaac.edu.pe
+23,8,38,2024-01-15,2024-01-27,COMPLETADO,Se requiere subsanación de documentos,admin@unsaac.edu.pe,verif8@unsaac.edu.pe
+24,9,39,2024-01-15,2024-01-28,COMPLETADO,Portafolio verificado exitosamente,admin@unsaac.edu.pe,verif9@unsaac.edu.pe
+25,10,40,2024-01-15,2024-01-29,COMPLETADO,Se encontraron observaciones menores,admin@unsaac.edu.pe,verif10@unsaac.edu.pe
+26,11,41,2024-01-15,2024-01-30,COMPLETADO,Portafolio verificado sin observaciones,admin@unsaac.edu.pe,verif11@unsaac.edu.pe
+27,12,42,2024-01-15,2024-01-31,COMPLETADO,Se requiere subsanación de documentos,admin@unsaac.edu.pe,verif12@unsaac.edu.pe
+28,13,43,2024-01-15,2024-02-01,COMPLETADO,Portafolio verificado exitosamente,admin@unsaac.edu.pe,verif13@unsaac.edu.pe
+29,14,44,2024-01-15,2024-02-02,COMPLETADO,Se encontraron observaciones menores,admin@unsaac.edu.pe,verif14@unsaac.edu.pe
+30,15,45,2024-01-15,2024-02-03,COMPLETADO,Portafolio verificado sin observaciones,admin@unsaac.edu.pe,verif15@unsaac.edu.pe
+31,1,46,2024-01-16,,EN_PROCESO,En revisión por el verificador,admin@unsaac.edu.pe,
+32,2,47,2024-01-16,,EN_PROCESO,En revisión por el verificador,admin@unsaac.edu.pe,
+33,3,48,2024-01-16,,EN_PROCESO,En revisión por el verificador,admin@unsaac.edu.pe,
+34,4,49,2024-01-16,,EN_PROCESO,En revisión por el verificador,admin@unsaac.edu.pe,
+35,5,50,2024-01-16,,EN_PROCESO,En revisión por el verificador,admin@unsaac.edu.pe,
+36,6,16,2024-01-16,,EN_PROCESO,En revisión por el verificador,admin@unsaac.edu.pe,
+37,7,17,2024-01-16,,EN_PROCESO,En revisión por el verificador,admin@unsaac.edu.pe,
+38,8,18,2024-01-16,,EN_PROCESO,En revisión por el verificador,admin@unsaac.edu.pe,
+39,9,19,2024-01-16,,EN_PROCESO,En revisión por el verificador,admin@unsaac.edu.pe,
+40,10,20,2024-01-16,,EN_PROCESO,En revisión por el verificador,admin@unsaac.edu.pe,
+41,11,21,2024-01-16,,EN_PROCESO,En revisión por el verificador,admin@unsaac.edu.pe,
+42,12,22,2024-01-16,,EN_PROCESO,En revisión por el verificador,admin@unsaac.edu.pe

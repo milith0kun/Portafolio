@@ -532,6 +532,46 @@ const GESTION_SESIONES = {
         const limiteInactividad = 30 * 60 * 1000; // 30 minutos
 
         return tiempoInactivo > limiteInactividad;
+    },
+
+    /**
+     * Obtiene los datos del usuario actual
+     * @returns {Object|null} Datos del usuario o null si no está autenticado
+     */
+    obtenerDatosUsuario() {
+        try {
+            // Intentar obtener datos del usuario de múltiples fuentes
+            let usuarioData = null;
+            
+            // Primero intentar desde AUTH
+            if (window.AUTH && typeof window.AUTH.obtenerDatosUsuario === 'function') {
+                usuarioData = window.AUTH.obtenerDatosUsuario();
+            }
+            
+            // Si no hay datos, intentar desde AUTH.obtenerUsuario
+            if (!usuarioData && window.AUTH && typeof window.AUTH.obtenerUsuario === 'function') {
+                usuarioData = window.AUTH.obtenerUsuario();
+            }
+            
+            // Si aún no hay datos, intentar desde localStorage directamente
+            if (!usuarioData) {
+                const usuarioToken = localStorage.getItem('portafolio_docente_user') || 
+                                   localStorage.getItem('usuario') ||
+                                   sessionStorage.getItem('portafolio_docente_user');
+                if (usuarioToken && usuarioToken !== 'undefined' && usuarioToken !== 'null') {
+                    try {
+                        usuarioData = JSON.parse(usuarioToken);
+                    } catch (e) {
+                        console.warn('Error parsing user data from storage:', e);
+                    }
+                }
+            }
+            
+            return usuarioData;
+        } catch (error) {
+            console.error('❌ Error obteniendo datos del usuario:', error);
+            return null;
+        }
     }
 };
 
@@ -614,7 +654,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
 console.log('✅ Sistema de gestión de sesiones cargado y funciones globales registradas');
 
+// Exponer GESTION_SESIONES globalmente
+window.gestionSesiones = GESTION_SESIONES;
+
 // Actualizar actividad en eventos de usuario
 document.addEventListener('click', () => GESTION_SESIONES.actualizarActividad());
 document.addEventListener('keypress', () => GESTION_SESIONES.actualizarActividad());
-document.addEventListener('scroll', () => GESTION_SESIONES.actualizarActividad()); 
+document.addEventListener('scroll', () => GESTION_SESIONES.actualizarActividad());

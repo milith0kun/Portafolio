@@ -144,7 +144,7 @@ class TableroDocente {
      */
     async cargarEstadisticasGenerales() {
         try {
-            const response = await fetch(`${CONFIG.API.BASE_URL}/dashboard/docente/stats`, {
+            const response = await fetch(`${CONFIG.API.BASE_URL}/dashboard/docente/estadisticas`, {
                 method: 'GET',
                 headers: AUTH.construirHeaders()
             });
@@ -153,11 +153,12 @@ class TableroDocente {
                 const stats = await response.json();
                 this.actualizarEstadisticas(stats);
             } else {
-                this.mostrarEstadisticasEjemplo();
+                this.log('Error al cargar estadísticas del servidor');
+                this.actualizarEstadisticas({ documentosSubidos: 0, totalDocumentos: 0, documentosAprobados: 0, documentosPendientes: 0, documentosObservados: 0, porcentajeCompletitud: 0 });
             }
         } catch (error) {
             this.log('Error al cargar estadísticas:', error);
-            this.mostrarEstadisticasEjemplo();
+            this.actualizarEstadisticas({ documentosSubidos: 0, totalDocumentos: 0, documentosAprobados: 0, documentosPendientes: 0, documentosObservados: 0, porcentajeCompletitud: 0 });
         }
     }
 
@@ -190,20 +191,7 @@ class TableroDocente {
         }
     }
 
-    /**
-     * Mostrar estadísticas de ejemplo
-     */
-    mostrarEstadisticasEjemplo() {
-        const stats = {
-            documentosSubidos: 12,
-            totalDocumentos: 18,
-            documentosAprobados: 8,
-            documentosPendientes: 4,
-            documentosObservados: 2,
-            porcentajeCompletitud: 65
-        };
-        this.actualizarEstadisticas(stats);
-    }
+
 
     /**
      * Cargar portafolios del docente
@@ -671,4 +659,4 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (window.docenteDebug) {
         window.TableroDocente = tablero;
     }
-}); 
+});

@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Documentos Pendientes - Panel Verificador UNSAAC</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Documentos pendientes de verificación - Sistema de Portafolio Docente UNSAAC">
+  <meta name="keywords" content="verificador, documentos pendientes, revisión, UNSAAC">
+  <meta name="author" content="UNSAAC">
+
+  <link rel="stylesheet" href="../../../assets/css/paginas/verificador/body.css">
+  <link rel="stylesheet" href="../../../assets/css/paginas/verificador/footer.css">  
+  <link rel="stylesheet" href="../../../assets/css/paginas/verificador/head.css">
+  <link rel="stylesheet" href="../../../assets/css/botones-sesion.css">
+  
+</head>
+
+<body>
+
+  <!-- Encabezado -->
+  <header class="main-header">
+    <div class="header-top">
+      <div class="header-top-container">
+        <div class="search-container">
+          <input type="text" class="search-input" placeholder="Buscar documentos pendientes...">
+        </div>
+        <div class="header-actions">
+          <div class="social-icons">
+            <a href="https://www.facebook.com/unsaac.oficial" target="_blank" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://twitter.com/unsaac_oficial" target="_blank" class="social-icon"><i class="fab fa-twitter"></i></a>
+            <a href="https://www.instagram.com/unsaac_oficial" target="_blank" class="social-icon"><i class="fab fa-instagram"></i></a>
+            <a href="https://www.youtube.com/channel/UCunsaac" target="_blank" class="social-icon"><i class="fab fa-youtube"></i></a>
+          </div>
+          <div class="user-menu">
+            <div class="user-icon"><i class="fas fa-user-check"></i></div>
+            <div class="user-info">
+              <span class="user-name" id="nombreUsuario">Cargando...</span>
+              <span class="user-role" id="rolUsuario">Verificador</span>
+            </div>
+            <div class="user-actions">
+              <button type="button" class="btn-cambiar-rol" id="btnCambiarRol" style="display: none;" title="Cambiar rol">
+                <i class="fas fa-exchange-alt"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="header-middle">
+      <div class="header-middle-container">
+        <div class="logo-container">
+          <div class="logo-img"></div>
+          <div class="logo-text-container">
+            <span class="logo-title">Sistema de Portafolio</span>
+            <span class="logo-subtitle">Documentos Pendientes</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="header-bottom">
+      <div class="header-bottom-container">
+        <button class="menu-toggle" aria-label="Abrir menú">
+          <i class="fas fa-bars"></i>
+        </button>
+        <nav class="main-nav">
+          <ul class="nav-list">
+            <li><a href="tablero.html">Inicio</a></li>
+            <li><a href="pendientes.html" class="active">Documentos Pendientes</a></li>
+            <li><a href="revisados.html">Documentos Revisados</a></li>
+            <li><a href="observaciones.html">Observaciones</a></li>
+            <li><a href="estadisticas.html">Estadísticas</a></li>
+            <li><a href="../compartidas/notificaciones.html">Notificaciones</a></li>
+            <li><a href="../compartidas/ayuda.html">Ayuda</a></li>
+            <li><a href="#" onclick="cerrarSesion()">Cerrar sesión</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- Contenido principal -->
+  <main class="main-content">
+    <!-- Filtros y controles -->
+    <section class="filters-section">
+      <div class="filters-container">
+        <div class="filter-group">
+          <label for="filterCiclo">Ciclo Académico:</label>
+          <select id="filterCiclo" class="filter-select">
+            <option value="">Todos los ciclos</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="filterDocente">Docente:</label>
+          <select id="filterDocente" class="filter-select">
+            <option value="">Todos los docentes</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="filterSeccion">Sección:</label>
+          <select id="filterSeccion" class="filter-select">
+            <option value="">Todas las secciones</option>
+            <option value="1.1">1.1 - Información General</option>
+            <option value="1.2">1.2 - Información Académica</option>
+            <option value="2.1">2.1 - Programación Académica</option>
+            <option value="2.2">2.2 - Programación de Evaluación</option>
+            <option value="3.1">3.1 - Materiales de Enseñanza</option>
+            <option value="3.2">3.2 - Recursos de Aprendizaje</option>
+            <option value="4.1">4.1 - Actividades de Evaluación</option>
+            <option value="4.2">4.2 - Resultados de Evaluación</option>
+            <option value="5.1">5.1 - Investigación</option>
+            <option value="5.2">5.2 - Publicaciones</option>
+            <option value="6.1">6.1 - Extensión Universitaria</option>
+            <option value="6.2">6.2 - Vinculación</option>
+            <option value="7.1">7.1 - Gestión Académica</option>
+            <option value="7.2">7.2 - Gestión Administrativa</option>
+            <option value="8.1">8.1 - Desarrollo Profesional</option>
+            <option value="8.2">8.2 - Logros y Reconocimientos</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="filterEstado">Estado:</label>
+          <select id="filterEstado" class="filter-select">
+            <option value="">Todos los estados</option>
+            <option value="pendiente">Pendiente</option>
+            <option value="observado">Observado</option>
+            <option value="rechazado">Rechazado</option>
+          </select>
+        </div>
+        <div class="filter-actions">
+          <button id="btnAplicarFiltros" class="btn btn-primary">
+            <i class="fas fa-filter"></i> Aplicar Filtros
+          </button>
+          <button id="btnLimpiarFiltros" class="btn btn-secondary">
+            <i class="fas fa-times"></i> Limpiar
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Estadísticas rápidas -->
+    <section class="quick-stats-section">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-clock"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value" id="totalPendientes">0</div>
+            <div class="stat-label">Total Pendientes</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value" id="urgentes">0</div>
+            <div class="stat-label">Urgentes</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-calendar-day"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value" id="nuevosHoy">0</div>
+            <div class="stat-label">Nuevos Hoy</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value" id="docentesActivos">0</div>
+            <div class="stat-label">Docentes Activos</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Lista de portafolios pendientes -->
+    <section class="portfolios-section">
+      <div class="section-header">
+        <h2><i class="fas fa-folder-open"></i> Portafolios Pendientes de Revisión</h2>
+        <div class="header-actions">
+          <button id="btnVerificacionMasiva" class="btn btn-success" disabled>
+            <i class="fas fa-check-double"></i> Verificación Masiva
+          </button>
+          <button id="btnActualizar" class="btn btn-info">
+            <i class="fas fa-sync-alt"></i> Actualizar
+          </button>
+        </div>
+      </div>
+
+      <div class="portfolios-container" id="portfoliosContainer">
+        <!-- Se cargará dinámicamente -->
+        <div class="loading-container">
+          <div class="loading-spinner"></div>
+          <p>Cargando portafolios pendientes...</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Modal de verificación de documento -->
+    <div id="modalVerificacion" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3><i class="fas fa-eye"></i> Verificar Documento</h3>
+          <button class="modal-close" id="btnCerrarModal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="document-info">
+            <div class="document-preview">
+              <div class="preview-header">
+                <h4 id="modalDocumentName">Nombre del Documento</h4>
+                <span class="document-meta" id="modalDocumentMeta">Docente • Asignatura • Fecha</span>
+              </div>
+              <div class="preview-content" id="modalDocumentPreview">
+                <!-- Vista previa del documento -->
+              </div>
+            </div>
+            
+            <div class="verification-form">
+              <div class="form-group">
+                <label for="verificacionEstado">Estado de Verificación:</label>
+                <select id="verificacionEstado" class="form-select" required>
+                  <option value="">Seleccionar estado</option>
+                  <option value="aprobado">✅ Aprobar</option>
+                  <option value="observado">⚠️ Observar</option>
+                  <option value="rechazado">❌ Rechazar</option>
+                </select>
+              </div>
+              
+              <div class="form-group" id="observacionGroup" style="display: none;">
+                <label for="verificacionObservacion">Observación/Comentario:</label>
+                <textarea id="verificacionObservacion" class="form-textarea" rows="4" 
+                          placeholder="Describa las observaciones o comentarios sobre el documento..."></textarea>
+              </div>
+              
+              <div class="form-group">
+                <label for="verificacionComentario">Comentario Interno (opcional):</label>
+                <textarea id="verificacionComentario" class="form-textarea" rows="3" 
+                          placeholder="Comentario interno para otros verificadores..."></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btnCancelarVerificacion" class="btn btn-secondary">Cancelar</button>
+          <button id="btnConfirmarVerificacion" class="btn btn-primary">
+            <i class="fas fa-check"></i> Confirmar Verificación
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de verificación masiva -->
+    <div id="modalVerificacionMasiva" class="modal">
+      <div class="modal-content modal-large">
+        <div class="modal-header">
+          <h3><i class="fas fa-check-double"></i> Verificación Masiva</h3>
+          <button class="modal-close" id="btnCerrarModalMasiva">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="bulk-verification-info">
+            <p>Seleccione el estado que desea aplicar a todos los documentos marcados:</p>
+          </div>
+          
+          <div class="bulk-verification-form">
+            <div class="form-group">
+              <label for="bulkEstado">Estado de Verificación:</label>
+              <select id="bulkEstado" class="form-select" required>
+                <option value="">Seleccionar estado</option>
+                <option value="aprobado">✅ Aprobar</option>
+                <option value="observado">⚠️ Observar</option>
+                <option value="rechazado">❌ Rechazar</option>
+              </select>
+            </div>
+            
+            <div class="form-group" id="bulkObservacionGroup" style="display: none;">
+              <label for="bulkObservacion">Observación/Comentario:</label>
+              <textarea id="bulkObservacion" class="form-textarea" rows="4" 
+                        placeholder="Observación que se aplicará a todos los documentos seleccionados..."></textarea>
+            </div>
+            
+            <div class="form-group">
+              <label for="bulkComentario">Comentario Interno (opcional):</label>
+              <textarea id="bulkComentario" class="form-textarea" rows="3" 
+                        placeholder="Comentario interno para otros verificadores..."></textarea>
+            </div>
+          </div>
+          
+          <div class="bulk-selection-summary">
+            <h4>Documentos Seleccionados: <span id="bulkCount">0</span></h4>
+            <div class="bulk-documents-list" id="bulkDocumentsList">
+              <!-- Lista de documentos seleccionados -->
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btnCancelarMasiva" class="btn btn-secondary">Cancelar</button>
+          <button id="btnConfirmarMasiva" class="btn btn-success">
+            <i class="fas fa-check-double"></i> Aplicar a Todos
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Pie de página -->
+  <footer class="main-footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h4>Sistema de Portafolio Docente</h4>
+        <p>Universidad Nacional de San Antonio Abad del Cusco</p>
+      </div>
+      <div class="footer-section">
+        <h4>Contacto</h4>
+        <p>Email: portafolio@unsaac.edu.pe</p>
+        <p>Teléfono: +51 84 227-000</p>
+      </div>
+      <div class="footer-section">
+        <h4>Enlaces</h4>
+        <ul>
+          <li><a href="https://www.unsaac.edu.pe" target="_blank">UNSAAC</a></li>
+          <li><a href="../compartidas/ayuda.html">Ayuda</a></li>
+          <li><a href="#" onclick="cerrarSesion()">Cerrar Sesión</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2024 UNSAAC. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <script src="../../../assets/js/nucleo/configuracion.js"></script>
+  <script src="../../../assets/js/nucleo/auth.js"></script>
+  <script src="../../../assets/js/nucleo/gestion-sesiones.js"></script>
+  <script src="../../../assets/js/nucleo/navegacion.js"></script>
+  <script src="../../../assets/js/paginas/dashboard/verificador/pendientes.js"></script>
+
+</body>
+</html> 

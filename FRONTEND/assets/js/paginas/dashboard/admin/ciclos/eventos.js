@@ -65,16 +65,58 @@ export class CiclosEventos {
             await this.ui.mostrarModalEditarCiclo(cicloId);
         });
 
+        // Botón inicializar
+        $(document).on('click', '.btn-inicializar', (e) => {
+            const cicloId = $(e.currentTarget).data('id');
+            this.confirmarCambiarEstado(cicloId, 'inicializacion', 'Inicializar Ciclo');
+        });
+
         // Botón activar
         $(document).on('click', '.btn-activar', (e) => {
             const cicloId = $(e.currentTarget).data('id');
-            this.confirmarActivarCiclo(cicloId);
+            this.confirmarCambiarEstado(cicloId, 'activo', 'Activar Ciclo');
         });
 
-        // Botón cerrar
+        // Botón iniciar verificación
+        $(document).on('click', '.btn-iniciar-verificacion', (e) => {
+            const cicloId = $(e.currentTarget).data('id');
+            this.confirmarCambiarEstado(cicloId, 'verificacion', 'Iniciar Verificación');
+        });
+
+        // Botón finalizar
+        $(document).on('click', '.btn-finalizar', (e) => {
+            const cicloId = $(e.currentTarget).data('id');
+            this.confirmarCambiarEstado(cicloId, 'finalizacion', 'Finalizar Ciclo');
+        });
+
+        // Botón archivar
+        $(document).on('click', '.btn-archivar', (e) => {
+            const cicloId = $(e.currentTarget).data('id');
+            this.confirmarCambiarEstado(cicloId, 'archivado', 'Archivar Ciclo');
+        });
+
+        // Botón volver a preparación
+        $(document).on('click', '.btn-volver-preparacion', (e) => {
+            const cicloId = $(e.currentTarget).data('id');
+            this.confirmarCambiarEstado(cicloId, 'preparacion', 'Volver a Preparación');
+        });
+
+        // Botón volver a activo
+        $(document).on('click', '.btn-volver-activo', (e) => {
+            const cicloId = $(e.currentTarget).data('id');
+            this.confirmarCambiarEstado(cicloId, 'activo', 'Volver a Estado Activo');
+        });
+
+        // Botón reactivar
+        $(document).on('click', '.btn-reactivar', (e) => {
+            const cicloId = $(e.currentTarget).data('id');
+            this.confirmarCambiarEstado(cicloId, 'preparacion', 'Reactivar Ciclo');
+        });
+
+        // Botón cerrar (legacy)
         $(document).on('click', '.btn-cerrar', (e) => {
             const cicloId = $(e.currentTarget).data('id');
-            this.confirmarCerrarCiclo(cicloId);
+            this.confirmarCambiarEstado(cicloId, 'finalizacion', 'Cerrar Ciclo');
         });
 
         // Botón eliminar
@@ -87,6 +129,12 @@ export class CiclosEventos {
         $(document).on('click', '.btn-estados', async (e) => {
             const cicloId = $(e.currentTarget).data('id');
             await this.ui.mostrarModalEstados(cicloId);
+        });
+
+        // Botón ver detalles
+        $(document).on('click', '.btn-ver-detalles', async (e) => {
+            const cicloId = $(e.currentTarget).data('id');
+            await this.ui.mostrarModalDetallesCiclo(cicloId);
         });
 
         this.log('Eventos de tabla configurados');
@@ -182,7 +230,7 @@ export class CiclosEventos {
             await this.data.cargarCicloActivo(); // Recargar ciclo activo por si cambió
 
         } catch (error) {
-            console.error('Error al guardar ciclo:', error);
+            // Error al guardar ciclo
             if (typeof toastr !== 'undefined') {
                 toastr.error(error.message || 'Error al guardar el ciclo académico');
             }
@@ -212,7 +260,7 @@ export class CiclosEventos {
             $('#modalEstados').modal('hide');
 
         } catch (error) {
-            console.error('Error al guardar estados:', error);
+            // Error al guardar estados
             if (typeof toastr !== 'undefined') {
                 toastr.error(error.message || 'Error al guardar los estados del ciclo');
             }
@@ -222,47 +270,116 @@ export class CiclosEventos {
     }
 
     /**
-     * Confirmar activación de ciclo
+     * Confirmar cambio de estado de ciclo (método unificado)
      */
-    confirmarActivarCiclo(cicloId) {
-        const mensaje = `
-            <p>Al activar este ciclo:</p>
-            <ul class="text-left">
-                <li>Se desactivará cualquier ciclo activo actual</li>
-                <li>Se habilitará el módulo de carga de datos</li>
-                <li>Los usuarios podrán comenzar a cargar información</li>
-            </ul>
-            <p><strong>¿Está seguro de continuar?</strong></p>
-        `;
+    confirmarCambiarEstado(cicloId, nuevoEstado, accion) {
+        const configuraciones = {
+            'inicializacion': {
+                titulo: '¿Inicializar Ciclo Académico?',
+                mensaje: `
+                    <p>Al inicializar este ciclo:</p>
+                    <ul class="text-left">
+                        <li>Se preparará el ciclo para su activación</li>
+                        <li>Se configurarán los módulos del sistema</li>
+                        <li>Se establecerán las fechas de inicialización</li>
+                    </ul>
+                    <p><strong>¿Está seguro de continuar?</strong></p>
+                `,
+                tipo: 'info'
+            },
+            'activo': {
+                titulo: '¿Activar Ciclo Académico?',
+                mensaje: `
+                    <p>Al activar este ciclo:</p>
+                    <ul class="text-left">
+                        <li>Se desactivará cualquier ciclo activo actual</li>
+                        <li>Se habilitará el módulo de carga de datos</li>
+                        <li>Los usuarios podrán comenzar a cargar información</li>
+                    </ul>
+                    <p><strong>¿Está seguro de continuar?</strong></p>
+                `,
+                tipo: 'question'
+            },
+            'verificacion': {
+                titulo: '¿Iniciar Verificación?',
+                mensaje: `
+                    <p>Al iniciar la verificación:</p>
+                    <ul class="text-left">
+                        <li>Se bloqueará la carga de nuevos datos</li>
+                        <li>Se habilitará el proceso de verificación</li>
+                        <li>Los verificadores podrán revisar portafolios</li>
+                    </ul>
+                    <p><strong>¿Está seguro de continuar?</strong></p>
+                `,
+                tipo: 'info'
+            },
+            'finalizacion': {
+                titulo: '¿Finalizar Ciclo Académico?',
+                mensaje: `
+                    <p>Al finalizar este ciclo:</p>
+                    <ul class="text-left">
+                        <li>Se cerrará definitivamente el ciclo</li>
+                        <li>Se bloqueará cualquier modificación</li>
+                        <li>Se registrará la fecha de cierre</li>
+                    </ul>
+                    <p><strong>¿Está seguro de continuar?</strong></p>
+                `,
+                tipo: 'warning'
+            },
+            'archivado': {
+                titulo: '¿Archivar Ciclo Académico?',
+                mensaje: `
+                    <p>Al archivar este ciclo:</p>
+                    <ul class="text-left">
+                        <li>Se moverá a estado archivado</li>
+                        <li>Se mantendrán todos los datos</li>
+                        <li>Solo será visible en el historial</li>
+                    </ul>
+                    <p><strong>¿Está seguro de continuar?</strong></p>
+                `,
+                tipo: 'info'
+            },
+            'preparacion': {
+                titulo: '¿Volver a Preparación?',
+                mensaje: `
+                    <p>Al volver a preparación:</p>
+                    <ul class="text-left">
+                        <li>Se permitirá editar la configuración</li>
+                        <li>Se deshabilitarán los módulos activos</li>
+                        <li>Se podrá modificar el ciclo nuevamente</li>
+                    </ul>
+                    <p><strong>¿Está seguro de continuar?</strong></p>
+                `,
+                tipo: 'warning'
+            }
+        };
+
+        const config = configuraciones[nuevoEstado] || {
+            titulo: `¿${accion}?`,
+            mensaje: `<p>¿Está seguro de que desea ${accion.toLowerCase()}?</p>`,
+            tipo: 'question'
+        };
 
         this.ui.mostrarConfirmacion(
-            '¿Activar Ciclo Académico?',
-            mensaje,
-            () => this.activarCiclo(cicloId),
-            'question'
+            config.titulo,
+            config.mensaje,
+            () => this.cambiarEstadoCiclo(cicloId, nuevoEstado),
+            config.tipo
         );
     }
 
     /**
-     * Confirmar cierre de ciclo
+     * Confirmar activación de ciclo (método legacy)
+     */
+    confirmarActivarCiclo(cicloId) {
+        this.confirmarCambiarEstado(cicloId, 'activo', 'Activar Ciclo');
+    }
+
+    /**
+     * Confirmar cierre de ciclo (método legacy)
      */
     confirmarCerrarCiclo(cicloId) {
-        const mensaje = `
-            <p>Al cerrar este ciclo:</p>
-            <ul class="text-left">
-                <li>Se bloqueará la carga de nuevos datos</li>
-                <li>Se mantendrá la información existente</li>
-                <li>Los usuarios no podrán realizar cambios</li>
-            </ul>
-            <p><strong>¿Está seguro de continuar?</strong></p>
-        `;
-
-        this.ui.mostrarConfirmacion(
-            '¿Cerrar Ciclo Académico?',
-            mensaje,
-            () => this.cerrarCiclo(cicloId),
-            'warning'
-        );
+        this.confirmarCambiarEstado(cicloId, 'finalizacion', 'Finalizar Ciclo');
     }
 
     /**
@@ -288,24 +405,80 @@ export class CiclosEventos {
     }
 
     /**
-     * Activar ciclo
+     * Cambiar estado de ciclo (método unificado)
      */
-    async activarCiclo(cicloId) {
+    async cambiarEstadoCiclo(cicloId, nuevoEstado) {
         try {
-            this.core.mostrarCargando();
-            const response = await this.data.activarCiclo(cicloId);
+            const acciones = {
+                 'inicializacion': {
+                     metodo: 'cambiarEstadoCiclo',
+                     estado: 'inicializacion',
+                     mensaje: 'Inicializando ciclo...',
+                     exito: 'Ciclo inicializado correctamente'
+                 },
+                 'activo': {
+                     metodo: 'inicializarCiclo',
+                     mensaje: 'Activando ciclo...',
+                     exito: 'Ciclo activado correctamente'
+                 },
+                 'verificacion': {
+                     metodo: 'cambiarEstadoCiclo',
+                     estado: 'verificacion',
+                     mensaje: 'Iniciando verificación...',
+                     exito: 'Verificación iniciada correctamente'
+                 },
+                 'finalizacion': {
+                     metodo: 'cambiarEstadoCiclo',
+                     estado: 'finalizacion',
+                     mensaje: 'Finalizando ciclo...',
+                     exito: 'Ciclo finalizado correctamente'
+                 },
+                 'archivado': {
+                     metodo: 'cambiarEstadoCiclo',
+                     estado: 'archivado',
+                     mensaje: 'Archivando ciclo...',
+                     exito: 'Ciclo archivado correctamente'
+                 },
+                 'preparacion': {
+                     metodo: 'cambiarEstadoCiclo',
+                     estado: 'preparacion',
+                     mensaje: 'Volviendo a preparación...',
+                     exito: 'Ciclo vuelto a preparación correctamente'
+                 }
+             };
 
+            const accion = acciones[nuevoEstado];
+            if (!accion) {
+                throw new Error(`Estado no válido: ${nuevoEstado}`);
+            }
+
+            this.core.mostrarCargando();
+             
+             let response;
+             if (accion.estado) {
+                 response = await this.data[accion.metodo](cicloId, accion.estado);
+             } else {
+                 response = await this.data[accion.metodo](cicloId);
+             }
+            
             if (typeof toastr !== 'undefined') {
-                toastr.success(response.message || 'Ciclo académico activado exitosamente');
+                toastr.success(response.message || accion.exito);
             }
 
             await this.ui.actualizarTabla();
             await this.data.cargarCicloActivo();
+            
+            // Emitir evento de cambio de ciclo si es activación
+            if (nuevoEstado === 'activo') {
+                window.dispatchEvent(new CustomEvent('cicloActivoChanged', {
+                    detail: { cicloId: cicloId }
+                }));
+            }
 
         } catch (error) {
-            console.error('Error al activar ciclo:', error);
+            // Error al cambiar estado
             if (typeof toastr !== 'undefined') {
-                toastr.error(error.message || 'Error al activar el ciclo académico');
+                toastr.error(error.message || `Error al cambiar estado del ciclo`);
             }
         } finally {
             this.core.ocultarCargando();
@@ -313,28 +486,17 @@ export class CiclosEventos {
     }
 
     /**
-     * Cerrar ciclo
+     * Activar ciclo (método legacy)
+     */
+    async activarCiclo(cicloId) {
+        return await this.cambiarEstadoCiclo(cicloId, 'activo');
+    }
+
+    /**
+     * Cerrar ciclo (método legacy)
      */
     async cerrarCiclo(cicloId) {
-        try {
-            this.core.mostrarCargando();
-            const response = await this.data.cerrarCiclo(cicloId);
-
-            if (typeof toastr !== 'undefined') {
-                toastr.success(response.message || 'Ciclo académico cerrado exitosamente');
-            }
-
-            await this.ui.actualizarTabla();
-            await this.data.cargarCicloActivo();
-
-        } catch (error) {
-            console.error('Error al cerrar ciclo:', error);
-            if (typeof toastr !== 'undefined') {
-                toastr.error(error.message || 'Error al cerrar el ciclo académico');
-            }
-        } finally {
-            this.core.ocultarCargando();
-        }
+        return await this.cambiarEstadoCiclo(cicloId, 'finalizacion');
     }
 
     /**
@@ -353,7 +515,7 @@ export class CiclosEventos {
             await this.data.cargarCicloActivo();
 
         } catch (error) {
-            console.error('Error al eliminar ciclo:', error);
+            // Error al eliminar ciclo
             if (typeof toastr !== 'undefined') {
                 toastr.error(error.message || 'Error al eliminar el ciclo académico');
             }
@@ -385,7 +547,7 @@ export class CiclosEventos {
      */
     log(...args) {
         if (this.debug) {
-            console.log('[CiclosEventos]', ...args);
+            // [CiclosEventos]
         }
     }
 
@@ -401,4 +563,4 @@ export class CiclosEventos {
         
         this.log('Eventos destruidos');
     }
-} 
+}

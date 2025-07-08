@@ -1,0 +1,51 @@
+id,codigo,descripcion,tipo,estado,creado_por,fecha_creacion,actualizado_por,fecha_actualizacion
+1,RES-001-2023,Reglamento de Gestión Académica,REGULACION,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+2,RES-002-2023,Reglamento de Grados y Títulos,REGULACION,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+3,RES-003-2023,Reglamento de Docencia,REGULACION,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+4,RES-004-2023,Reglamento de Investigación,REGULACION,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+5,RES-005-2023,Reglamento de Proyección Social,REGULACION,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+6,RES-006-2023,Reglamento de Bienestar Universitario,REGULACION,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+7,RES-007-2023,Reglamento de Biblioteca,REGULACION,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+8,RES-008-2023,Reglamento de Laboratorios,REGULACION,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+9,RES-009-2023,Reglamento de Posgrado,REGULACION,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+10,RES-010-2023,Reglamento de Educación a Distancia,REGULACION,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+11,CONV-001-2023,Convenio con Empresa ABC,CONVENIO,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+12,CONV-002-2023,Convenio con Institución XYZ,CONVENIO,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+13,CONV-003-2023,Convenio con Organización 123,CONVENIO,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+14,CONV-004-2023,Convenio con Universidad HERM,CONVENIO,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+15,CONV-005-2023,Convenio con Empresa TECNO,CONVENIO,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+16,ACU-001-2023,Acta de Consejo Universitario 001-2023,ACTA,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+17,ACU-002-2023,Acta de Consejo Universitario 002-2023,ACTA,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+18,ACU-003-2023,Acta de Consejo de Facultad 001-2023,ACTA,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+19,ACU-004-2023,Acta de Consejo de Facultad 002-2023,ACTA,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+20,ACU-005-2023,Acta de Consejo de Departamento 001-2023,ACTA,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+21,OF-001-2023,Oficio de Designación de Comité,OFICIO,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+22,OF-002-2023,Oficio de Notificación a Docentes,OFICIO,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+23,OF-003-2023,Oficio de Solicitud de Información,OFICIO,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+24,OF-004-2023,Oficio de Respuesta a Solicitud,OFICIO,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+25,OF-005-2023,Oficio de Aprobación de Proyecto,OFICIO,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+26,MEM-001-2023,Memorándum de Designación de Comisión,MEMORANDUM,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+27,MEM-002-2023,Memorándum de Notificación de Reunión,MEMORANDUM,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+28,MEM-003-2023,Memorándum de Comunicación Interna,MEMORANDUM,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+29,MEM-004-2023,Memorándum de Asignación de Tareas,MEMORANDUM,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+30,MEM-005-2023,Memorándum de Felicitación,MEMORANDUM,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+31,CIR-001-2023,Circular Informativa 001-2023,CIRCULAR,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+32,CIR-002-2023,Circular Informativa 002-2023,CIRCULAR,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+33,CIR-003-2023,Circular Informativa 003-2023,CIRCULAR,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+34,CIR-004-2023,Circular Informativa 004-2023,CIRCULAR,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+35,CIR-005-2023,Circular Informativa 005-2023,CIRCULAR,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+36,RD-001-2023,Resolución Directoral 001-2023,RESOLUCION,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+37,RD-002-2023,Resolución Directoral 002-2023,RESOLUCION,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+38,RD-003-2023,Resolución Directoral 003-2023,RESOLUCION,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+39,RD-004-2023,Resolución Directoral 004-2023,RESOLUCION,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+40,RD-005-2023,Resolución Directoral 005-2023,RESOLUCION,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+41,RCU-001-2023,Resolución de Consejo Universitario 001-2023,RESOLUCION,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+42,RCU-002-2023,Resolución de Consejo Universitario 002-2023,RESOLUCION,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+43,RCU-003-2023,Resolución de Consejo Universitario 003-2023,RESOLUCION,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+44,RCU-004-2023,Resolución de Consejo Universitario 004-2023,RESOLUCION,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+45,RCU-005-2023,Resolución de Consejo Universitario 005-2023,RESOLUCION,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+46,MAN-001-2023,Manual de Procedimientos Administrativos,MANUAL,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+47,MAN-002-2023,Manual de Usuario del Sistema,MANUAL,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+48,MAN-003-2023,Manual de Normas APA 7ma Edición,MANUAL,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+49,MAN-004-2023,Manual de Procesos de Calidad,MANUAL,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00
+50,MAN-005-2023,Manual de Seguridad Informática,MANUAL,ACTIVO,admin@unsaac.edu.pe,2023-01-15 10:00:00,admin@unsaac.edu.pe,2023-01-15 10:00:00

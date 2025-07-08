@@ -41,8 +41,8 @@ const generarPortafoliosAutomaticos = async (docenteAsignatura, asignatura, cicl
             return { creado: false, error: 'Sin estructura base' };
         }
 
-        // Crear portafolio raíz
-        const nombrePortafolio = `${asignatura.nombre} - Grupo ${docenteAsignatura.grupo}`;
+        // Crear portafolio raíz con estructura UNSAAC
+        const nombrePortafolio = `Portafolio ${asignatura.nombre} - Grupo ${docenteAsignatura.grupo}`;
         const portafolioRaiz = await Portafolio.create({
             nombre: nombrePortafolio,
             docente_id: docenteAsignatura.docente_id,
@@ -58,41 +58,27 @@ const generarPortafoliosAutomaticos = async (docenteAsignatura, asignatura, cicl
             estado: 'activo',
             activo: true,
             progreso_completado: 0.00,
+            metadatos: {
+                tipo_portafolio: 'curso',
+                codigo_asignatura: asignatura.codigo,
+                creditos: asignatura.creditos || 3,
+                semestre_academico: `2025-I` // TODO: Hacer dinámico
+            },
             creado_por: adminId,
             actualizado_por: adminId
         }, { transaction });
 
-        // Crear estructura jerárquica de carpetas
-        const carpetasCreadas = [];
-        const mapaCarpetas = {}; // Para mapear estructura_id -> portafolio_id
-
-        for (const estructura of estructuraBase) {
-            const carpetaPadreId = estructura.carpeta_padre_id 
-                ? mapaCarpetas[estructura.carpeta_padre_id] 
-                : portafolioRaiz.id;
-
-            const carpeta = await Portafolio.create({
-                nombre: estructura.nombre,
-                docente_id: docenteAsignatura.docente_id,
-                asignatura_id: docenteAsignatura.asignatura_id,
-                grupo: docenteAsignatura.grupo,
-                asignacion_id: docenteAsignatura.id,
-                semestre_id: 1,
-                ciclo_id: cicloId,
-                estructura_id: estructura.id,
-                carpeta_padre_id: carpetaPadreId,
-                nivel: estructura.nivel,
-                ruta: `/${docenteAsignatura.docente_id}/${asignatura.codigo}/${estructura.nombre}`,
-                estado: 'activo',
-                activo: true,
-                progreso_completado: 0.00,
-                creado_por: adminId,
-                actualizado_por: adminId
-            }, { transaction });
-
-            carpetasCreadas.push(carpeta);
-            mapaCarpetas[estructura.id] = carpeta.id;
-        }
+        // Usar la función actualizada para crear estructura jerárquica UNSAAC
+        const { crearEstructuraPortafolio } = require('../portafoliosController');
+        
+        const resultadoEstructura = await crearEstructuraPortafolio(
+            portafolioRaiz.id,
+            cicloId,
+            1, // semestre_id
+            transaction
+        );
+        
+        const carpetasCreadas = resultadoEstructura?.carpetas_creadas || 0;
 
         logger.info(`Portafolio generado para ${nombrePortafolio}: ${carpetasCreadas.length + 1} carpetas creadas`);
         
@@ -213,6 +199,9 @@ const procesar = async (archivo, transaction) => {
         // Obtener ciclo activo
         const cicloActivo = await CicloAcademico.findOne({
             where: { estado: 'activo' },
+            attributes: {
+                exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
+            },
             transaction
         });
 
