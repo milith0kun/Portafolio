@@ -1,7 +1,7 @@
 const { Usuario, UsuarioRol, VerificadorDocente, Portafolio, CicloAcademico } = require('../../modelos');
 const { Op } = require('sequelize');
 const XLSX = require('xlsx');
-const logger = require('../../config/logger');
+const { info, error: logError } = require('../../config/logger');
 const { registrarError } = require('./utils');
 
 /**
@@ -12,6 +12,11 @@ const { registrarError } = require('./utils');
  */
 const procesar = async (archivo, transaction) => {
     try {
+        info('Iniciando procesamiento de verificaciones', {
+            archivo: archivo.originalname,
+            tamanio: archivo.size
+        });
+
         const workbook = XLSX.readFile(archivo.path);
         const sheetName = workbook.SheetNames[0];
         const data = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
@@ -35,24 +40,26 @@ const procesar = async (archivo, transaction) => {
 
         const adminId = admin.id;
 
-        // Obtener todos los ciclos académicos para referencia
-        const ciclos = await CicloAcademico.findAll({
+        // Obtener ciclo activo
+        const cicloActivo = await CicloAcademico.findOne({
+            where: { estado: 'activo' },
             attributes: ['id', 'nombre'],
             transaction
         });
 
-        const ciclosPorNombre = {};
-        ciclos.forEach(ciclo => {
-            ciclosPorNombre[ciclo.nombre] = ciclo.id;
-        });
+        if (!cicloActivo) {
+            throw new Error('No hay ciclo académico activo disponible');
+        }
 
-        // Obtener todos los usuarios para validación
+        // Obtener todos los usuarios para validación (optimizado)
         const usuarios = await Usuario.findAll({
             include: [{
                 model: UsuarioRol,
                 as: 'roles',
-                where: { activo: true }
+                where: { activo: true },
+                attributes: ['rol']
             }],
+            attributes: ['id', 'nombres', 'apellidos', 'correo'],
             transaction
         });
 
@@ -60,6 +67,8 @@ const procesar = async (archivo, transaction) => {
         usuarios.forEach(usuario => {
             usuariosPorId[usuario.id] = usuario;
         });
+
+        info(`Procesando ${data.length} verificaciones para ciclo ${cicloActivo.nombre}`);
 
         for (let i = 0; i < data.length; i++) {
             try {
@@ -70,9 +79,7 @@ const procesar = async (archivo, transaction) => {
                     fecha_asignacion,
                     fecha_verificacion,
                     estado = 'PENDIENTE',
-                    observaciones,
-                    creado_por = 'admin@unsaac.edu.pe',
-                    actualizado_por
+                    observaciones
                 } = fila;
 
                 // Validar campos requeridos
@@ -90,44 +97,17 @@ const procesar = async (archivo, transaction) => {
                     throw new Error(`El verificador con ID ${verificador_id} no existe`);
                 }
 
-                // Obtener ciclo activo (usar el primer ciclo disponible si no se especifica)
-                let cicloId = null;
-                const ciclosActivos = await CicloAcademico.findOne({
-                    where: { estado: 'activo' },
-                    transaction,
-                    attributes: {
-                        exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
-                    }
-                });
-                
-                if (ciclosActivos) {
-                    cicloId = ciclosActivos.id;
-                } else {
-                    // Si no hay ciclo activo, usar el primero disponible
-                    const primerCiclo = await CicloAcademico.findOne({ 
-                        transaction,
-                        attributes: {
-                            exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
-                        }
-                    });
-                    if (primerCiclo) {
-                        cicloId = primerCiclo.id;
-                    } else {
-                        throw new Error('No hay ciclos académicos disponibles');
-                    }
-                }
-
                 // Buscar si ya existe la relación verificador-docente
                 const [verificadorDocente, created] = await VerificadorDocente.findOrCreate({
                     where: { 
                         verificador_id,
                         docente_id,
-                        ciclo_id: cicloId
+                        ciclo_id: cicloActivo.id
                     },
                     defaults: {
                         verificador_id,
                         docente_id,
-                        ciclo_id: cicloId,
+                        ciclo_id: cicloActivo.id,
                         activo: true,
                         fecha_asignacion: fecha_asignacion ? new Date(fecha_asignacion) : new Date(),
                         observaciones: observaciones || null,
@@ -145,10 +125,18 @@ const procesar = async (archivo, transaction) => {
                     }, { transaction });
 
                     resultados.actualizadas++;
-                    logger.info(`Relación verificador-docente actualizada: Verificador ${verificador_id}, Docente ${docente_id}`);
+                    info(`Relación verificador-docente actualizada`, {
+                        verificador_id,
+                        docente_id,
+                        ciclo: cicloActivo.nombre
+                    });
                 } else {
                     resultados.creadas++;
-                    logger.info(`Relación verificador-docente creada: Verificador ${verificador_id}, Docente ${docente_id}`);
+                    info(`Relación verificador-docente creada`, {
+                        verificador_id,
+                        docente_id,
+                        ciclo: cicloActivo.nombre
+                    });
                 }
             } catch (error) {
                 const mensajeError = `Error en fila ${i + 1}: ${error.message}`;
@@ -157,14 +145,25 @@ const procesar = async (archivo, transaction) => {
                     mensaje: error.message,
                     data: data[i]
                 });
-                logger.error(mensajeError);
+                logError(mensajeError, { fila: i + 1, data: data[i] });
                 registrarError(error, 'procesarVerificaciones');
             }
         }
 
+        info('Procesamiento de verificaciones completado', {
+            total: resultados.total,
+            creadas: resultados.creadas,
+            actualizadas: resultados.actualizadas,
+            errores: resultados.errores.length,
+            ciclo: cicloActivo.nombre
+        });
+
         return resultados;
     } catch (error) {
-        logger.error(`Error al procesar archivo de verificaciones: ${error.message}`, { error });
+        logError('Error al procesar archivo de verificaciones', {
+            error: error.message,
+            archivo: archivo.originalname
+        });
         throw error;
     }
 };

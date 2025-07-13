@@ -200,7 +200,7 @@ class TableroDocente {
         try {
             this.log('📁 Cargando portafolios del docente...');
             
-            const response = await fetch(`${CONFIG.API.BASE_URL}/api/portafolios/mis-portafolios`, {
+            const response = await fetch(`${CONFIG.API.BASE_URL}${CONFIG.API.ENDPOINTS.PORTAFOLIOS}/mis-portafolios`, {
                 method: 'GET',
                 headers: AUTH.construirHeaders()
             });
@@ -374,7 +374,7 @@ class TableroDocente {
      */
     async cargarNotificaciones() {
         try {
-            const response = await fetch(`${CONFIG.API.BASE_URL}/notificaciones/recientes`, {
+            const response = await fetch(`${CONFIG.API.BASE_URL}${CONFIG.API.ENDPOINTS.NOTIFICACIONES}/recientes`, {
                 method: 'GET',
                 headers: AUTH.construirHeaders()
             });

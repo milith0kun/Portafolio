@@ -1,7 +1,7 @@
 const { Usuario, UsuarioRol, Asignatura, CicloAcademico, DocenteAsignatura, Portafolio, Estructura, EstadoSistema } = require('../../modelos');
 const { Op } = require('sequelize');
 const XLSX = require('xlsx');
-const logger = require('../../config/logger');
+const { info, error: logError } = require('../../config/logger');
 const { registrarError } = require('./utils');
 
 /**
@@ -26,7 +26,7 @@ const generarPortafoliosAutomaticos = async (docenteAsignatura, asignatura, cicl
         });
 
         if (portafolioExistente) {
-            logger.info(`Portafolio ya existe para asignación ${docenteAsignatura.id}`);
+            info(`Portafolio ya existe para asignación ${docenteAsignatura.id}`);
             return { creado: false, portafolio: portafolioExistente };
         }
 
@@ -37,7 +37,7 @@ const generarPortafoliosAutomaticos = async (docenteAsignatura, asignatura, cicl
         });
 
         if (estructuraBase.length === 0) {
-            logger.warn('No se encontró estructura base de portafolios');
+            logError('No se encontró estructura base de portafolios');
             return { creado: false, error: 'Sin estructura base' };
         }
 
@@ -80,7 +80,9 @@ const generarPortafoliosAutomaticos = async (docenteAsignatura, asignatura, cicl
         
         const carpetasCreadas = resultadoEstructura?.carpetas_creadas || 0;
 
-        logger.info(`Portafolio generado para ${nombrePortafolio}: ${carpetasCreadas.length + 1} carpetas creadas`);
+        info(`Portafolio generado para ${nombrePortafolio}`, {
+            carpetasCreadas: carpetasCreadas.length + 1
+        });
         
         return { 
             creado: true, 
@@ -89,7 +91,11 @@ const generarPortafoliosAutomaticos = async (docenteAsignatura, asignatura, cicl
         };
 
     } catch (error) {
-        logger.error(`Error al generar portafolio automático: ${error.message}`);
+        logError(`Error al generar portafolio automático`, {
+            error: error.message,
+            asignacion: docenteAsignatura.id,
+            asignatura: asignatura.codigo
+        });
         throw error;
     }
 };
@@ -135,9 +141,14 @@ const actualizarEstadoSistema = async (cicloId, adminId, transaction) => {
             actualizado_en: new Date()
         }, { transaction });
 
-        logger.info(`Estado del sistema actualizado para ciclo ${cicloId}: gestion_documentos y verificacion habilitados`);
+        info(`Estado del sistema actualizado para ciclo ${cicloId}`, {
+            modulosHabilitados: ['gestion_documentos', 'verificacion']
+        });
     } catch (error) {
-        logger.error(`Error al actualizar estado del sistema: ${error.message}`);
+        logError(`Error al actualizar estado del sistema`, {
+            error: error.message,
+            cicloId
+        });
         throw error;
     }
 };
@@ -150,6 +161,11 @@ const actualizarEstadoSistema = async (cicloId, adminId, transaction) => {
  */
 const procesar = async (archivo, transaction) => {
     try {
+        info('Iniciando procesamiento de carga académica', {
+            archivo: archivo.originalname,
+            tamanio: archivo.size
+        });
+
         const workbook = XLSX.readFile(archivo.path);
         const sheetName = workbook.SheetNames[0];
         const data = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
@@ -174,7 +190,7 @@ const procesar = async (archivo, transaction) => {
 
         const adminId = admin.id;
 
-        // Obtener todos los usuarios para referencia
+        // Obtener todos los usuarios para referencia (optimizado)
         const usuarios = await Usuario.findAll({
             attributes: ['id', 'correo', 'nombres', 'apellidos'],
             transaction
@@ -185,7 +201,7 @@ const procesar = async (archivo, transaction) => {
             usuariosPorId[usuario.id] = usuario;
         });
 
-        // Obtener todas las asignaturas para referencia
+        // Obtener todas las asignaturas para referencia (optimizado)
         const asignaturas = await Asignatura.findAll({
             attributes: ['id', 'codigo', 'nombre'],
             transaction
@@ -199,15 +215,15 @@ const procesar = async (archivo, transaction) => {
         // Obtener ciclo activo
         const cicloActivo = await CicloAcademico.findOne({
             where: { estado: 'activo' },
-            attributes: {
-                exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
-            },
+            attributes: ['id', 'nombre'],
             transaction
         });
 
         if (!cicloActivo) {
             throw new Error('No hay ciclo académico activo');
         }
+
+        info(`Procesando ${data.length} asignaciones para ciclo ${cicloActivo.nombre}`);
 
         for (let i = 0; i < data.length; i++) {
             try {
@@ -261,10 +277,18 @@ const procesar = async (archivo, transaction) => {
                     }, { transaction });
 
                     resultados.actualizadas++;
-                    logger.info(`Asignación actualizada: Docente ${docente_id}, Asignatura ${asignatura_codigo}, Grupo ${grupo}`);
+                    info(`Asignación actualizada`, {
+                        docente: docente_id,
+                        asignatura: asignatura_codigo,
+                        grupo
+                    });
                 } else {
                     resultados.creadas++;
-                    logger.info(`Asignación creada: Docente ${docente_id}, Asignatura ${asignatura_codigo}, Grupo ${grupo}`);
+                    info(`Asignación creada`, {
+                        docente: docente_id,
+                        asignatura: asignatura_codigo,
+                        grupo
+                    });
                 }
 
                 // Generar portafolio automáticamente para esta asignación
@@ -279,10 +303,17 @@ const procesar = async (archivo, transaction) => {
                     
                     if (resultadoPortafolio.creado) {
                         resultados.portafoliosGenerados++;
-                        logger.info(`✅ Portafolio generado para ${asignatura.nombre} - Grupo ${grupo}`);
+                        info(`Portafolio generado`, {
+                            asignatura: asignatura.nombre,
+                            grupo
+                        });
                     }
                 } catch (errorPortafolio) {
-                    logger.error(`❌ Error al generar portafolio para ${asignatura.nombre}: ${errorPortafolio.message}`);
+                    logError(`Error al generar portafolio para ${asignatura.nombre}`, {
+                        error: errorPortafolio.message,
+                        asignatura: asignatura.codigo,
+                        grupo
+                    });
                     // No detener el proceso por errores de portafolio
                 }
             } catch (error) {
@@ -292,7 +323,7 @@ const procesar = async (archivo, transaction) => {
                     mensaje: error.message,
                     data: data[i]
                 });
-                logger.error(mensajeError);
+                logError(mensajeError, { fila: i + 1, data: data[i] });
                 registrarError(error, 'procesarCargaAcademica');
             }
         }
@@ -301,15 +332,28 @@ const procesar = async (archivo, transaction) => {
         if (resultados.portafoliosGenerados > 0) {
             try {
                 await actualizarEstadoSistema(cicloActivo.id, adminId, transaction);
-                logger.info(`✅ Estado del sistema actualizado para permitir gestión de portafolios`);
+                info(`Estado del sistema actualizado para permitir gestión de portafolios`);
             } catch (errorEstado) {
-                logger.error(`❌ Error al actualizar estado del sistema: ${errorEstado.message}`);
+                logError(`Error al actualizar estado del sistema`, {
+                    error: errorEstado.message
+                });
             }
         }
 
+        info('Procesamiento de carga académica completado', {
+            total: resultados.total,
+            creadas: resultados.creadas,
+            actualizadas: resultados.actualizadas,
+            portafoliosGenerados: resultados.portafoliosGenerados,
+            errores: resultados.errores.length
+        });
+
         return resultados;
     } catch (error) {
-        logger.error(`Error al procesar archivo de carga académica: ${error.message}`, { error });
+        logError('Error al procesar archivo de carga académica', {
+            error: error.message,
+            archivo: archivo.originalname
+        });
         throw error;
     }
 };

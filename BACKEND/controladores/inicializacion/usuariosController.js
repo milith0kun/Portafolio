@@ -2,7 +2,7 @@ const { Usuario, UsuarioRol } = require('../../modelos');
 const { Op } = require('sequelize');
 const XLSX = require('xlsx');
 const bcrypt = require('bcryptjs');
-const logger = require('../../config/logger');
+const { info, error: logError } = require('../../config/logger');
 
 /**
  * Procesa el archivo Excel de usuarios
@@ -11,20 +11,15 @@ const logger = require('../../config/logger');
  * @returns {Object} Resultados del procesamiento
  */
 const procesar = async (archivo, transaction) => {
-    console.log('📋 === PROCESANDO USUARIOS ===');
-    console.log('📁 Archivo:', archivo.originalname);
-    console.log('📂 Ruta:', archivo.path);
-    console.log('📊 Tamaño:', archivo.size);
+    info(`Iniciando procesamiento de usuarios: ${archivo.originalname}`);
     
     try {
-        console.log('📖 Leyendo archivo...');
-        
         // Leer archivo dependiendo de la extensión
         let data = [];
         const extension = archivo.originalname.toLowerCase().split('.').pop();
         
         if (extension === 'csv') {
-            console.log('📄 Procesando archivo CSV...');
+            info('Procesando archivo CSV');
             // Para CSV, especificar opciones de lectura
             const workbook = XLSX.readFile(archivo.path, {
                 type: 'file',
@@ -50,14 +45,13 @@ const procesar = async (archivo, transaction) => {
                 });
             }
         } else {
-            console.log('📊 Procesando archivo Excel...');
+            info('Procesando archivo Excel');
             const workbook = XLSX.readFile(archivo.path);
             const sheetName = workbook.SheetNames[0];
             data = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
         }
         
-        console.log(`📊 Datos leídos: ${data.length} filas`);
-        console.log('📋 Primeras columnas:', data.length > 0 ? Object.keys(data[0]) : 'Sin datos');
+        info(`Datos leídos: ${data.length} filas`);
 
         const resultados = {
             total: data.length,
@@ -82,7 +76,6 @@ const procesar = async (archivo, transaction) => {
                     nombres, 
                     apellidos, 
                     correo, 
-            
                     telefono = '',
                     departamento = '',
                     categoria = '',
@@ -103,8 +96,8 @@ const procesar = async (archivo, transaction) => {
                     throw new Error('Formato de correo electrónico inválido');
                 }
 
-                        // Generar contraseña por defecto
-        const contrasenaDefault = 'defaultPassword123';
+                // Generar contraseña por defecto
+                const contrasenaDefault = 'defaultPassword123';
 
                 // Encriptar contraseña
                 const salt = await bcrypt.genSalt(10);
@@ -117,7 +110,6 @@ const procesar = async (archivo, transaction) => {
                         nombres,
                         apellidos,
                         correo,
-            
                         telefono,
                         contrasena: hashedPassword,
                         avatar: null,
@@ -134,16 +126,15 @@ const procesar = async (archivo, transaction) => {
                     const updateData = {
                         nombres,
                         apellidos,
-            
                         telefono: telefono || usuario.telefono,
                         activo: activo === 'SI' ? 1 : 0
                     };
 
                     await usuario.update(updateData, { transaction });
-                        logger.info(`Usuario actualizado: ${correo}`, { updateData: Object.keys(updateData) });
-                        resultados.actualizados++;
+                    info(`Usuario actualizado: ${correo}`);
+                    resultados.actualizados++;
                 } else {
-                    logger.info(`Usuario creado: ${correo}`);
+                    info(`Usuario creado: ${correo}`);
                     resultados.creados++;
                 }
 
@@ -188,7 +179,7 @@ const procesar = async (archivo, transaction) => {
 
                         if (rolCreated) {
                             resultados.rolesAsignados++;
-                            logger.info(`Rol ${nombreRol} asignado a usuario ${correo}`);
+                            info(`Rol ${nombreRol} asignado a usuario ${correo}`);
                         } else {
                             // Si ya existe el rol, actualizarlo para asegurarse de que esté activo
                             await usuarioRol.update({
@@ -196,15 +187,15 @@ const procesar = async (archivo, transaction) => {
                                 asignado_por: adminId,
                                 observaciones: `Rol actualizado durante carga masiva - ${departamento ? 'Departamento: ' + departamento : ''}`
                             }, { transaction });
-                            logger.info(`Rol ${nombreRol} actualizado para usuario ${correo}`);
+                            info(`Rol ${nombreRol} actualizado para usuario ${correo}`);
                         }
                     } catch (roleError) {
-                        logger.error(`Error al asignar rol ${nombreRol} a usuario ${correo}:`, roleError);
+                        logError(`Error al asignar rol ${nombreRol} a usuario ${correo}: ${roleError.message}`);
                     }
                 }
 
             } catch (error) {
-                logger.error(`Error en fila ${i + 2}:`, error);
+                logError(`Error en fila ${i + 2}: ${error.message}`);
                 resultados.errores.push({
                     fila: i + 2,
                     valores: data[i],
@@ -213,10 +204,11 @@ const procesar = async (archivo, transaction) => {
             }
         }
 
-        logger.info(`Procesamiento de usuarios completado: ${resultados.creados} creados, ${resultados.actualizados} actualizados, ${resultados.rolesAsignados} roles asignados, ${resultados.errores.length} errores`);
+        info(`Procesamiento de usuarios completado: ${resultados.creados} creados, ${resultados.actualizados} actualizados, ${resultados.rolesAsignados} roles asignados, ${resultados.errores.length} errores`);
+        
         return resultados;
     } catch (error) {
-        logger.error('Error en procesarUsuarios:', error);
+        logError(`Error en procesarUsuarios: ${error.message}`);
         throw new Error(`Error al procesar el archivo de usuarios: ${error.message}`);
     }
 };

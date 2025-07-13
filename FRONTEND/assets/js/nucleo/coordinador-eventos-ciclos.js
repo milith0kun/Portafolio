@@ -167,7 +167,10 @@ const CoordinadorEventosCiclos = {
      * Ejecutar evento coordinado
      */
     async ejecutarEvento(evento) {
-        console.log(`🎯 Ejecutando evento coordinado: ${evento.tipo} - ${evento.cicloId}`);
+        // Solo mostrar en modo debug
+        if (window.CONFIG?.DEBUG) {
+            console.log(`🎯 Ejecutando evento coordinado: ${evento.tipo} - ${evento.cicloId}`);
+        }
 
         // Actualizar último evento
         this.estado.ultimoEvento = {

@@ -1,7 +1,7 @@
 const { Carrera } = require('../../modelos');
 const { Op } = require('sequelize');
 const XLSX = require('xlsx');
-const logger = require('../../config/logger');
+const { info, error: logError } = require('../../config/logger');
 const { registrarError } = require('./utils');
 
 /**
@@ -12,6 +12,11 @@ const { registrarError } = require('./utils');
  */
 const procesar = async (archivo, transaction) => {
     try {
+        info('Iniciando procesamiento de carreras', {
+            archivo: archivo.originalname,
+            tamanio: archivo.size
+        });
+
         const workbook = XLSX.readFile(archivo.path);
         const sheetName = workbook.SheetNames[0];
         const data = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
@@ -22,6 +27,8 @@ const procesar = async (archivo, transaction) => {
             actualizadas: 0,
             errores: []
         };
+
+        info(`Procesando ${data.length} carreras`);
 
         for (let i = 0; i < data.length; i++) {
             try {
@@ -70,10 +77,18 @@ const procesar = async (archivo, transaction) => {
                     }, { transaction });
 
                     resultados.actualizadas++;
-                    logger.info(`Carrera actualizada: ${codigo} - ${nombre}`);
+                    info(`Carrera actualizada`, {
+                        codigo,
+                        nombre,
+                        facultad
+                    });
                 } else {
                     resultados.creadas++;
-                    logger.info(`Carrera creada: ${codigo} - ${nombre}`);
+                    info(`Carrera creada`, {
+                        codigo,
+                        nombre,
+                        facultad
+                    });
                 }
             } catch (error) {
                 const mensajeError = `Error en fila ${i + 1}: ${error.message}`;
@@ -82,14 +97,24 @@ const procesar = async (archivo, transaction) => {
                     mensaje: error.message,
                     data: data[i]
                 });
-                logger.error(mensajeError);
+                logError(mensajeError, { fila: i + 1, data: data[i] });
                 registrarError(error, 'procesarCarreras');
             }
         }
 
+        info('Procesamiento de carreras completado', {
+            total: resultados.total,
+            creadas: resultados.creadas,
+            actualizadas: resultados.actualizadas,
+            errores: resultados.errores.length
+        });
+
         return resultados;
     } catch (error) {
-        logger.error(`Error al procesar archivo de carreras: ${error.message}`, { error });
+        logError('Error al procesar archivo de carreras', {
+            error: error.message,
+            archivo: archivo.originalname
+        });
         throw error;
     }
 };

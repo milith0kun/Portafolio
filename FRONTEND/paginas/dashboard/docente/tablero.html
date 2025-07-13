@@ -12,6 +12,8 @@
   <link rel="stylesheet" href="../../../assets/css/paginas/docente/head.css">  
   <link rel="stylesheet" href="../../../assets/css/botones-sesion.css">
   
+  <!-- Scripts del sistema se cargan al final del body -->
+  
 </head>
 
 <body>
@@ -64,16 +66,8 @@
           <i class="fas fa-bars"></i>
         </button>
         <nav class="main-nav">
-          <ul class="nav-list">
-            <li><a href="tablero.html" class="active">Inicio</a></li>
-            <li><a href="explorador.html">Mis Portafolios</a></li>
-            <li><a href="gestion-documentos.html">Gestión de Documentos</a></li>
-            <li><a href="subir.html">Subir Documentos</a></li>
-            <li><a href="observaciones.html">Observaciones</a></li>
-            <li><a href="progreso.html">Mi Progreso</a></li>
-            <li><a href="../compartidas/notificaciones.html">Notificaciones</a></li>
-            <li><a href="../compartidas/ayuda.html">Ayuda</a></li>
-            <li><a href="#" onclick="cerrarSesion()">Cerrar sesión</a></li>
+          <ul class="nav-list" id="sidebarMenu">
+            <!-- El menú se generará dinámicamente por header-unificado.js -->
           </ul>
         </nav>
       </div>
@@ -293,8 +287,9 @@
   <!-- Scripts Core -->
   <script src="../../../assets/js/nucleo/configuracion.js"></script>
   <script src="../../../assets/js/nucleo/auth.js"></script>
-  <script src="../../../assets/js/nucleo/navegacion.js"></script>
   <script src="../../../assets/js/nucleo/gestion-sesiones.js"></script>
+  <script src="../../../assets/js/nucleo/header-unificado.js"></script>
+  <script src="../../../assets/js/nucleo/sincronizacion-estado.js"></script>
   
   <!-- Page Scripts -->
   <script src="../../../assets/js/paginas/dashboard/docente/tablero.js"></script>

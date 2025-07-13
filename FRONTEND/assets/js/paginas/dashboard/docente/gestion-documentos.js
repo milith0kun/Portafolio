@@ -298,7 +298,7 @@ class GestionDocumentos {
                 throw new Error('Usuario no autenticado');
             }
             
-            const response = await fetch(`${CONFIG.API.BASE_URL}/portafolios/mis-portafolios`, {
+            const response = await fetch(`${CONFIG.API.BASE_URL}${CONFIG.API.ENDPOINTS.PORTAFOLIOS}/mis-portafolios`, {
                 headers: sistemaAuth.construirHeaders()
             });
             
@@ -425,7 +425,7 @@ class GestionDocumentos {
         if (!this.portafolioSeleccionado) return;
         
         try {
-            const response = await fetch(`/api/documentos/portafolio/${this.portafolioSeleccionado}`, {
+            const response = await fetch(`${CONFIG.API.BASE_URL}${CONFIG.API.ENDPOINTS.DOCUMENTOS}/portafolio/${this.portafolioSeleccionado}`, {
                 headers: { 'Authorization': `Bearer ${this.obtenerToken()}` }
             });
             

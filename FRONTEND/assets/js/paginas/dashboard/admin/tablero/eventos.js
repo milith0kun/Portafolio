@@ -649,7 +649,7 @@ async function manejarInicializacionPortafolios(boton) {
         }
         
         // Realizar petición al backend
-        const response = await fetch('/api/portafolios/generar', {
+        const response = await fetch(`${CONFIG.API.BASE_URL}${CONFIG.API.ENDPOINTS.PORTAFOLIOS}/generar`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -771,7 +771,7 @@ async function manejarInicializarPortafolios() {
     }
     
     try {
-        const response = await window.apiRequest('/api/portafolios/inicializar', 'POST', {
+        const response = await window.apiRequest(`${CONFIG.API.ENDPOINTS.PORTAFOLIOS}/inicializar`, 'POST', {
             cicloId: cicloActual
         });
         

@@ -74,7 +74,7 @@ class PortafoliosDocente {
         </div>
       `;
       
-      const response = await this.apiService.get('/api/portafolios/estructura');
+              const response = await this.apiService.get(`${CONFIG.API.ENDPOINTS.PORTAFOLIOS}/estructura`);
       
       if (response.success) {
         this.portafolios = response.data;
@@ -440,7 +440,7 @@ class PortafoliosDocente {
   
   async cargarArchivosDePortafolio(portafolioId) {
     try {
-      const response = await this.apiService.get(`/api/portafolios/${portafolioId}/archivos`);
+              const response = await this.apiService.get(`${CONFIG.API.ENDPOINTS.PORTAFOLIOS}/${portafolioId}/archivos`);
       
       if (response.success) {
         this.mostrarArchivosEnCarpeta(response.data.archivos);

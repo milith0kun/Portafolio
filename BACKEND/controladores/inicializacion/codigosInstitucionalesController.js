@@ -1,7 +1,7 @@
 const { CodigoInstitucional, Usuario } = require('../../modelos');
 const { Op } = require('sequelize');
 const XLSX = require('xlsx');
-const logger = require('../../config/logger');
+const { info, error: logError } = require('../../config/logger');
 const { registrarError } = require('./utils');
 
 /**
@@ -12,6 +12,11 @@ const { registrarError } = require('./utils');
  */
 const procesar = async (archivo, transaction) => {
     try {
+        info('Iniciando procesamiento de códigos institucionales', {
+            archivo: archivo.originalname,
+            tamanio: archivo.size
+        });
+
         const workbook = XLSX.readFile(archivo.path);
         const sheetName = workbook.SheetNames[0];
         const data = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
@@ -31,6 +36,8 @@ const procesar = async (archivo, transaction) => {
 
         const adminEmail = admin ? admin.correo : 'admin@unsaac.edu.pe';
 
+        info(`Procesando ${data.length} códigos institucionales`);
+
         for (let i = 0; i < data.length; i++) {
             try {
                 const fila = data[i];
@@ -38,9 +45,7 @@ const procesar = async (archivo, transaction) => {
                     codigo,
                     descripcion,
                     tipo,
-                    estado = 'ACTIVO',
-                    creado_por = adminEmail,
-                    actualizado_por
+                    estado = 'ACTIVO'
                 } = fila;
 
                 // Validar campos requeridos
@@ -62,8 +67,7 @@ const procesar = async (archivo, transaction) => {
                         descripcion,
                         tipo: tipo.toUpperCase(),
                         estado: estado.toUpperCase(),
-                        creado_por: creado_por || adminEmail,
-                        actualizado_por: actualizado_por || adminEmail
+                        creado_por: adminEmail
                     },
                     transaction
                 });
@@ -73,15 +77,22 @@ const procesar = async (archivo, transaction) => {
                     await codigoInstitucional.update({
                         descripcion,
                         tipo: tipo.toUpperCase(),
-                        estado: estado.toUpperCase(),
-                        actualizado_por: actualizado_por || adminEmail
+                        estado: estado.toUpperCase()
                     }, { transaction });
 
                     resultados.actualizados++;
-                    logger.info(`Código institucional actualizado: ${codigo} - ${descripcion}`);
+                    info(`Código institucional actualizado`, {
+                        codigo,
+                        descripcion,
+                        tipo: tipo.toUpperCase()
+                    });
                 } else {
                     resultados.creados++;
-                    logger.info(`Código institucional creado: ${codigo} - ${descripcion}`);
+                    info(`Código institucional creado`, {
+                        codigo,
+                        descripcion,
+                        tipo: tipo.toUpperCase()
+                    });
                 }
             } catch (error) {
                 const mensajeError = `Error en fila ${i + 1}: ${error.message}`;
@@ -90,14 +101,24 @@ const procesar = async (archivo, transaction) => {
                     mensaje: error.message,
                     data: data[i]
                 });
-                logger.error(mensajeError);
+                logError(mensajeError, { fila: i + 1, data: data[i] });
                 registrarError(error, 'procesarCodigosInstitucionales');
             }
         }
 
+        info('Procesamiento de códigos institucionales completado', {
+            total: resultados.total,
+            creados: resultados.creados,
+            actualizados: resultados.actualizados,
+            errores: resultados.errores.length
+        });
+
         return resultados;
     } catch (error) {
-        logger.error(`Error al procesar archivo de códigos institucionales: ${error.message}`, { error });
+        logError('Error al procesar archivo de códigos institucionales', {
+            error: error.message,
+            archivo: archivo.originalname
+        });
         throw error;
     }
 };

@@ -5,8 +5,8 @@
 
 class DebugConfig {
     constructor() {
-        this.debugMode = true;
-        this.mockAuth = true; // Activado para manejar errores 500
+        this.debugMode = false;
+        this.mockAuth = false; // Desactivado para forzar uso de API real
         this.retryAttempts = 3;
         this.retryDelay = 1000;
         this.interceptorConfigured = false;

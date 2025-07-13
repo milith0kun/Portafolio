@@ -29,7 +29,10 @@ const SincronizacionCiclos = {
      * Inicializar el sistema de sincronización
      */
     inicializar() {
-        console.log('🔄 Inicializando sistema de sincronización de ciclos...');
+        // Solo mostrar en modo debug para evitar spam
+        if (window.CONFIG?.DEBUG) {
+            console.log('🔄 Inicializando sistema de sincronización de ciclos...');
+        }
         
         // Cargar ciclo inicial
         this.cargarCicloInicial();

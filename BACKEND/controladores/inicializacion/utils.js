@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const logger = require('../../config/logger');
+const { info, error: logError } = require('../../config/logger');
 
 // Configuración de rutas de almacenamiento
 const UPLOADS_DIR = path.join(__dirname, '../../../uploads/portafolios');
@@ -18,7 +18,7 @@ global.inicializacionProgress = {
     enProgreso: false,
     pasoActual: '',
     progreso: 0,
-    totalPasos: 8, // Total de archivos a procesar
+    totalPasos: 8,
     error: null,
     inicio: null,
     finalizado: null
@@ -52,7 +52,11 @@ function actualizarProgreso(paso, detalles = {}) {
             ...detalles
         };
     }
-    logger.info(`[Inicialización] ${paso} - Progreso: ${global.inicializacionProgress.progreso.toFixed(2)}%`);
+    
+    info(`[Inicialización] ${paso}`, {
+        progreso: global.inicializacionProgress.progreso.toFixed(2),
+        detalles
+    });
 }
 
 /**
@@ -70,15 +74,12 @@ function registrarError(error, contexto = '') {
         detalles: error.detalles || {}
     };
     
-    // Registrar en consola
-    console.error(JSON.stringify(errorLog, null, 2));
-    
     // Registrar en archivo de logs
     const logPath = path.join(LOGS_DIR, 'errores-inicializacion.log');
     fs.appendFileSync(logPath, JSON.stringify(errorLog, null, 2) + '\n');
     
     // Registrar en el logger principal
-    logger.error(`[${contexto}] ${error.message}`, {
+    logError(`[${contexto}] ${error.message}`, {
         error: errorLog,
         stack: error.stack
     });
@@ -89,18 +90,30 @@ function registrarError(error, contexto = '') {
  * @param {Array} archivos - Lista de archivos a eliminar
  */
 async function limpiarArchivosTemporales(archivos) {
-    if (!archivos) return;
+    if (!archivos || !Array.isArray(archivos)) return;
     
-    for (const archivo of Object.values(archivos)) {
+    let eliminados = 0;
+    let errores = 0;
+    
+    for (const archivo of archivos) {
         if (archivo && archivo.path && fs.existsSync(archivo.path)) {
             try {
                 fs.unlinkSync(archivo.path);
-                logger.info(`Archivo temporal eliminado: ${archivo.originalname}`);
+                eliminados++;
+                info(`Archivo temporal eliminado: ${archivo.originalname}`);
             } catch (err) {
-                logger.error(`Error al eliminar archivo temporal ${archivo.originalname}:`, err);
+                errores++;
+                logError(`Error al eliminar archivo temporal ${archivo.originalname}`, err);
                 registrarError(err, 'limpiarArchivosTemporales');
             }
         }
+    }
+    
+    if (eliminados > 0 || errores > 0) {
+        info('Limpieza de archivos temporales completada', {
+            eliminados,
+            errores
+        });
     }
 }
 
@@ -121,7 +134,7 @@ async function realizarBackup(nombreArchivo) {
         // Aquí iría la lógica para realizar el backup
         // Por ejemplo, usando mysqldump o similar
         
-        logger.info(`Backup realizado exitosamente: ${nombreArchivo}`);
+        info(`Backup realizado exitosamente: ${nombreArchivo}`);
         return true;
     } catch (error) {
         registrarError(error, 'realizarBackup');
@@ -139,6 +152,7 @@ function limpiarLogsAntiguos(diasRetener = 30) {
     
     try {
         const archivos = fs.readdirSync(LOGS_DIR);
+        let eliminados = 0;
         
         archivos.forEach(archivo => {
             const rutaArchivo = path.join(LOGS_DIR, archivo);
@@ -146,9 +160,14 @@ function limpiarLogsAntiguos(diasRetener = 30) {
             
             if (stats.mtime < fechaLimite) {
                 fs.unlinkSync(rutaArchivo);
-                logger.info(`Log antiguo eliminado: ${archivo}`);
+                eliminados++;
+                info(`Log antiguo eliminado: ${archivo}`);
             }
         });
+        
+        if (eliminados > 0) {
+            info('Limpieza de logs antiguos completada', { eliminados });
+        }
     } catch (error) {
         registrarError(error, 'limpiarLogsAntiguos');
     }

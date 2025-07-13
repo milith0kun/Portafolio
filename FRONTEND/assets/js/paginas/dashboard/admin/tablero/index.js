@@ -34,35 +34,42 @@ const sistemaTablero = {
  */
 async function inicializarSistemaTablero() {
     if (sistemaTablero.inicializando || sistemaTablero.inicializado) {
+        console.log('🔄 Sistema tablero ya inicializado o en proceso');
         return; // Sistema ya inicializado
     }
     
+    console.log('🚀 Iniciando sistema modular del tablero...');
     sistemaTablero.inicializando = true;
-    // Iniciando sistema modular del tablero
     
     try {
         // 1. Verificar disponibilidad de módulos
+        console.log('📋 Verificando módulos disponibles...');
         await verificarModulosDisponibles();
         
         // 2. Inicializar módulos en orden de dependencia
+        console.log('⚙️ Inicializando módulos...');
         await inicializarModulos();
         
         // 3. Verificar inicialización completa
+        console.log('✅ Verificando inicialización completa...');
         verificarInicializacionCompleta();
         
         // 4. Configurar sincronización de ciclos
+        console.log('🔄 Configurando sincronización de ciclos...');
         configurarSincronizacionCiclos();
         
         // 5. Configurar manejo de errores global
+        console.log('🛡️ Configurando manejo de errores...');
         configurarManejoErrores();
         
         sistemaTablero.inicializado = true;
-        // Sistema tablero inicializado
+        console.log('🎉 Sistema tablero inicializado correctamente');
         
         // 6. Emitir evento de sistema listo
         emitirEventoSistemaListo();
         
     } catch (error) {
+        console.error('❌ Error en inicialización del sistema tablero:', error);
         sistemaTablero.errores.push(error);
         mostrarErrorFatal(error);
     } finally {
@@ -83,16 +90,24 @@ async function verificarModulosDisponibles() {
     ];
     
     const modulosFaltantes = [];
+    const modulosDisponibles = [];
     
     modulos.forEach(modulo => {
         if (!window[modulo.nombre]) {
             modulosFaltantes.push(modulo);
+            console.warn(`⚠️ Módulo faltante: ${modulo.nombre} (${modulo.archivo})`);
+        } else {
+            modulosDisponibles.push(modulo.nombre);
+            console.log(`✅ Módulo disponible: ${modulo.nombre}`);
         }
     });
     
     if (modulosFaltantes.length > 0) {
+        console.error('❌ Módulos faltantes:', modulosFaltantes.map(m => m.nombre));
         throw new Error(`Módulos faltantes: ${modulosFaltantes.map(m => m.nombre).join(', ')}`);
     }
+    
+    console.log(`📋 Todos los módulos disponibles: ${modulosDisponibles.join(', ')}`);
 }
 
 // ================================================
@@ -110,14 +125,19 @@ async function inicializarModulos() {
     
     for (const { nombre, modulo, descripcion } of ordenInicializacion) {
         try {
+            console.log(`⚙️ Inicializando módulo ${nombre} (${descripcion})...`);
+            
             if (modulo && typeof modulo.initialize === 'function') {
                 await modulo.initialize();
                 sistemaTablero.modulos[nombre] = true;
+                console.log(`✅ Módulo ${nombre} inicializado correctamente`);
             } else {
                 sistemaTablero.modulos[nombre] = 'sin-initialize';
+                console.warn(`⚠️ Módulo ${nombre} no tiene función initialize`);
             }
             
         } catch (error) {
+            console.error(`❌ Error inicializando módulo ${nombre}:`, error);
             sistemaTablero.errores.push({ modulo: nombre, error });
             
             // Continuar con otros módulos en caso de error no crítico
@@ -127,6 +147,7 @@ async function inicializarModulos() {
         }
     }
 
+    console.log('🔄 Inicializando sistemas de gestión adicionales...');
     // Inicializar sistemas de gestión adicionales
     await inicializarSistemasGestion();
 }
@@ -139,21 +160,28 @@ async function inicializarSistemasGestion() {
     try {
         // Inicializar sistema de sincronización de ciclos
         if (window.SincronizacionCiclos && typeof window.SincronizacionCiclos.inicializar === 'function') {
+            console.log('🔄 Inicializando sistema de sincronización de ciclos...');
             await window.SincronizacionCiclos.inicializar();
             sistemaTablero.modulos.sincronizacionCiclos = true;
+            console.log('✅ Sistema de sincronización de ciclos inicializado');
         } else {
             sistemaTablero.modulos.sincronizacionCiclos = false;
+            console.warn('⚠️ Sistema de sincronización de ciclos no disponible');
         }
         
         // Inicializar sistema de generación de portafolios
         if (window.GeneracionPortafolios && typeof window.GeneracionPortafolios.inicializar === 'function') {
+            console.log('📚 Inicializando sistema de generación de portafolios...');
             await window.GeneracionPortafolios.inicializar();
             sistemaTablero.modulos.generacionPortafolios = true;
+            console.log('✅ Sistema de generación de portafolios inicializado');
         } else {
             sistemaTablero.modulos.generacionPortafolios = false;
+            console.warn('⚠️ Sistema de generación de portafolios no disponible');
         }
         
     } catch (error) {
+        console.error('❌ Error inicializando sistemas de gestión:', error);
         sistemaTablero.errores.push({ modulo: 'sistemas-gestion', error });
     }
 }
@@ -169,9 +197,19 @@ function verificarInicializacionCompleta() {
     const modulosExitosos = estadoModulos.filter(m => m.estado === true).length;
     const totalModulos = estadoModulos.length;
     
+    console.log('📊 Estado de inicialización de módulos:');
+    estadoModulos.forEach(({ nombre, estado }) => {
+        console.log(`  - ${nombre}: ${estado === true ? '✅' : estado === 'sin-initialize' ? '⚠️' : '❌'} ${estado}`);
+    });
+    
+    console.log(`📈 Resumen: ${modulosExitosos}/${totalModulos} módulos inicializados correctamente`);
+    
     if (modulosExitosos === 0) {
+        console.error('❌ Ningún módulo se inicializó correctamente');
         throw new Error('Ningún módulo se inicializó correctamente');
     }
+    
+    console.log('✅ Verificación de inicialización completa exitosa');
 }
 
 // ================================================
@@ -221,7 +259,7 @@ function emitirEventoSistemaListo() {
     });
     
     document.dispatchEvent(evento);
-    // Evento sistema-listo emitido
+    console.log('🎉 Evento sistema-listo emitido');
 }
 
 // ================================================
@@ -365,8 +403,10 @@ function habilitarModoDebug() {
 
 // Inicializar cuando el DOM esté listo
 if (document.readyState === 'loading') {
+    console.log('📄 DOM cargando, esperando DOMContentLoaded...');
     document.addEventListener('DOMContentLoaded', inicializarSistemaTablero);
 } else {
+    console.log('📄 DOM ya está listo, inicializando inmediatamente...');
     // DOM ya está listo
     inicializarSistemaTablero();
 }
@@ -390,3 +430,4 @@ window.SistemaTablero = {
 };
 
 // Coordinador principal del tablero cargado
+console.log('📋 Sistema Tablero Admin - Coordinador principal cargado');

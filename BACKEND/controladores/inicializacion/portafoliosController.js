@@ -13,6 +13,7 @@ const {
   CicloAcademico,
   Semestre
 } = require('../../modelos');
+const { info, error: logError } = require('../../config/logger');
 
 /**
  * Crear portafolios automáticamente para todas las asignaciones docente-asignatura
@@ -22,25 +23,19 @@ const crearPortafoliosAutomaticos = async (cicloId = null) => {
   const transaction = await sequelize.transaction();
   
   try {
-    console.log('🚀 Iniciando creación automática de portafolios...');
-    
-    // Los modelos ya están importados al inicio del archivo
+    info('Iniciando creación automática de portafolios');
 
     // Obtener ciclo académico activo si no se especifica
     let cicloActivo;
     if (cicloId) {
       cicloActivo = await CicloAcademico.findByPk(cicloId, { 
-        attributes: {
-          exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
-        },
+        attributes: ['id', 'nombre'],
         transaction 
       });
     } else {
       cicloActivo = await CicloAcademico.findOne({
         where: { estado: 'activo' },
-        attributes: {
-          exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
-        },
+        attributes: ['id', 'nombre'],
         transaction
       });
     }
@@ -49,7 +44,7 @@ const crearPortafoliosAutomaticos = async (cicloId = null) => {
       throw new Error('No hay ciclo académico activo disponible');
     }
 
-    console.log(`📅 Ciclo académico: ${cicloActivo.nombre}`);
+    info(`Usando ciclo académico: ${cicloActivo.nombre}`);
 
     // Obtener todas las asignaciones docente-asignatura del ciclo
     const asignaciones = await DocenteAsignatura.findAll({
@@ -72,7 +67,7 @@ const crearPortafoliosAutomaticos = async (cicloId = null) => {
       transaction
     });
 
-    console.log(`📋 Encontradas ${asignaciones.length} asignaciones docente-asignatura`);
+    info(`Encontradas ${asignaciones.length} asignaciones docente-asignatura`);
 
     let portafoliosCreados = 0;
     let portafoliosExistentes = 0;
@@ -105,7 +100,9 @@ const crearPortafoliosAutomaticos = async (cicloId = null) => {
         });
 
         if (!semestre) {
-          console.warn(`⚠️ No se encontró semestre para: ${asignacion.asignatura.semestre}`);
+          logError(`No se encontró semestre para: ${asignacion.asignatura.semestre}`, {
+            asignatura: asignacion.asignatura.codigo
+          });
           continue;
         }
 
@@ -127,10 +124,19 @@ const crearPortafoliosAutomaticos = async (cicloId = null) => {
 
         portafoliosCreados++;
         
-        console.log(`✅ Portafolio creado: ${nuevoPortafolio.nombre}`);
+        info(`Portafolio creado: ${nuevoPortafolio.nombre}`, {
+          docente: `${asignacion.docente.nombres} ${asignacion.docente.apellidos}`,
+          asignatura: asignacion.asignatura.codigo,
+          grupo: asignacion.grupo || 'A'
+        });
         
       } catch (error) {
-        console.error(`❌ Error creando portafolio para asignación ${asignacion.id}:`, error.message);
+        logError(`Error creando portafolio para asignación ${asignacion.id}`, {
+          error: error.message,
+          asignacion: asignacion.id,
+          docente: asignacion.docente_id,
+          asignatura: asignacion.asignatura_id
+        });
         // Continuar con la siguiente asignación en lugar de fallar completamente
       }
     }
@@ -145,16 +151,21 @@ const crearPortafoliosAutomaticos = async (cicloId = null) => {
       total: portafoliosCreados + portafoliosExistentes
     };
 
-    console.log('🎉 Creación automática de portafolios completada:');
-    console.log(`   - Portafolios creados: ${portafoliosCreados}`);
-    console.log(`   - Portafolios existentes: ${portafoliosExistentes}`);
-    console.log(`   - Total: ${resultado.total}`);
+    info('Creación automática de portafolios completada', {
+      portafoliosCreados,
+      portafoliosExistentes,
+      total: resultado.total,
+      ciclo: cicloActivo.nombre
+    });
 
     return resultado;
     
   } catch (error) {
     await transaction.rollback();
-    console.error('❌ Error en crearPortafoliosAutomaticos:', error.message);
+    logError('Error en crearPortafoliosAutomaticos', {
+      error: error.message,
+      cicloId
+    });
     throw error;
   }
 };
@@ -166,8 +177,6 @@ const crearPortafolios = async (asignaciones, cicloId) => {
   const transaction = await sequelize.transaction();
   
   try {
-    // Los modelos ya están importados al inicio del archivo
-    
     let creados = 0;
     
     for (const asignacion of asignaciones) {
@@ -213,10 +222,15 @@ const crearPortafolios = async (asignaciones, cicloId) => {
     }
     
     await transaction.commit();
+    info(`Portafolios creados: ${creados}`, { cicloId });
     return creados;
     
   } catch (error) {
     await transaction.rollback();
+    logError('Error en crearPortafolios', {
+      error: error.message,
+      cicloId
+    });
     throw error;
   }
 };

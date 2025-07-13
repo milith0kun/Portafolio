@@ -115,17 +115,23 @@ class EstadoManager {
     async realizarPeticionConReintentos(endpoint, method = 'GET', data = null, retries = this.maxRetries) {
         for (let i = 0; i < retries; i++) {
             try {
-                const response = await window.apiRequest(endpoint, method, data);
+                // Forzar auth=true explícitamente
+                const response = await window.apiRequest(endpoint, method, data, true);
                 return response;
             } catch (error) {
-                console.warn(`⚠️ Intento ${i + 1}/${retries} fallido para ${endpoint}:`, error.message);
-                
-                if (i === retries - 1) {
-                    // Último intento, lanzar error
+                // Si es error de autenticación, forzar logout y redirección
+                if (error.status === 401 || error.status === 403) {
+                    if (window.AUTH && typeof window.AUTH.cerrarSesion === 'function') {
+                        window.AUTH.cerrarSesion();
+                    } else {
+                        window.location.href = '/paginas/autenticacion/login.html';
+                    }
                     throw error;
                 }
-                
-                // Esperar antes del siguiente intento
+                console.warn(`⚠️ Intento ${i + 1}/${retries} fallido para ${endpoint}:`, error.message);
+                if (i === retries - 1) {
+                    throw error;
+                }
                 await new Promise(resolve => setTimeout(resolve, this.retryDelay * (i + 1)));
             }
         }
@@ -182,135 +188,107 @@ class EstadoManager {
      */
     async cargarEstadoServidor() {
         try {
-            // Cargar estadísticas generales
-            const response = await this.realizarPeticionConReintentos('/dashboard/estadisticas', 'GET');
+            // Solo cargar información básica del estado del sistema
+            // Las estadísticas detalladas se manejan en verificar-datos.js
+            const response = await this.realizarPeticionConReintentos('/dashboard/ciclo-actual', 'GET');
             
             if (response && (response.success || response.exito)) {
                 const data = response.data || response;
                 return {
-                    usuarios: data.total_usuarios || 0,
-                    carreras: data.total_carreras || 0,
-                    asignaturas: data.total_asignaturas || 0,
-                    portafolios: data.total_portafolios || 0,
-                    cicloActivo: data.ciclo_activo || null,
+                    cicloActivo: data.ciclo_activo || data,
+                    sistemaInicializado: true,
                     ultimaActualizacion: new Date().toISOString()
                 };
             }
             
         } catch (error) {
-            console.warn('⚠️ Error al cargar estadísticas generales:', error.message);
-            
-            // Intentar cargar datos específicos de inicialización como fallback
-            try {
-                const datosInicializacion = await this.realizarPeticionConReintentos('/inicializacion/estado', 'GET');
-                if (datosInicializacion && (datosInicializacion.success || datosInicializacion.exito)) {
-                    const data = datosInicializacion.data || datosInicializacion;
-                    return {
-                        usuarios: data.usuarios || 0,
-                        carreras: data.carreras || 0,
-                        asignaturas: data.asignaturas || 0,
-                        portafolios: data.portafolios || 0,
-                        sistemaInicializado: data.inicializado || false,
-                        ultimaActualizacion: new Date().toISOString()
-                    };
-                }
-            } catch (error2) {
-                console.warn('⚠️ Error al cargar datos de inicialización:', error2.message);
-            }
+            console.warn('⚠️ No se pudo cargar estado del servidor:', error.message);
         }
         
         return null;
     }
 
     /**
-     * Actualizar estado después de operaciones importantes
+     * Actualizar estado completo del sistema
      */
     async actualizarEstadoCompleto() {
-        console.log('🔄 Actualizando estado completo...');
+        await this.verificarConectividad();
         await this.cargarEstadoSistema();
         this.emitirCambioEstado();
     }
 
     /**
-     * Cargar datos específicos del ciclo seleccionado
+     * Cargar datos específicos por ciclo
      */
     async cargarDatosPorCiclo(cicloId) {
         try {
-            console.log(`🔄 Cargando datos para ciclo: ${cicloId}`);
-            this.estado.cicloSeleccionado = cicloId;
+            console.log('🔄 Cargando datos para ciclo:', cicloId);
             
-            // Cargar archivos del ciclo
+            if (!this.estado.conectado) {
+                console.warn('⚠️ Sin conexión, no se pueden cargar datos del ciclo');
+                return;
+            }
+
+            // Actualizar estado de archivos para el ciclo
             await this.actualizarEstadoArchivosPorCiclo(cicloId);
             
-            this.emitirCambioEstado();
-            console.log(`✅ Datos del ciclo ${cicloId} cargados correctamente`);
-            return true;
-        } catch (error) {
-            console.error(`❌ Error al cargar datos del ciclo ${cicloId}:`, error);
-            this.emitirError('Error al cargar datos del ciclo', error);
-            return false;
-        }
-    }
-    
-    /**
-     * Actualizar estado interno de archivos basado en la BD
-     */
-    async actualizarEstadoArchivosPorCiclo(cicloId) {
-        try {
-            const response = await this.realizarPeticionConReintentos(`/ciclos/${cicloId}/archivos-carga`, 'GET');
+            console.log('✅ Datos del ciclo', cicloId, 'cargados correctamente');
             
-            if (response && (response.success || response.exito) && response.data) {
-                // Limpiar estado anterior
-                this.estado.archivosCargados = {};
-                
-                // Actualizar con archivos reales de BD
-                response.data.forEach(archivo => {
-                    const tipoMapeado = this.mapearTipoArchivo(archivo.tipo);
-                    this.estado.archivosCargados[tipoMapeado] = {
-                        cargado: true,
-                        registros: archivo.registros_procesados || 0,
-                        ultimaActualizacion: archivo.fecha_subida,
-                        archivo: archivo.nombre_original,
-                        detalles: archivo.detalles_procesamiento || {}
-                    };
-                });
-                
-                this.emitirCambioArchivos();
-                console.log(`✅ Estado de archivos actualizado para ciclo ${cicloId}`);
-            } else {
-                console.warn(`⚠️ No se encontraron archivos para el ciclo ${cicloId}`);
-                // Mantener estado anterior o establecer vacío
-                this.estado.archivosCargados = {};
-                this.emitirCambioArchivos();
-            }
         } catch (error) {
-            console.warn(`⚠️ Error al actualizar estado de archivos para ciclo ${cicloId}:`, error.message);
-            // En caso de error, mantener estado actual y no lanzar excepción
-            this.estado.archivosCargados = {};
-            this.emitirCambioArchivos();
+            console.error('❌ Error cargando datos del ciclo:', error);
+            this.emitirError('Error al cargar datos del ciclo', error);
         }
     }
 
     /**
-     * Mapear tipos de archivo del servidor a configuración local
+     * Actualizar estado de archivos por ciclo
      */
-    mapearTipoArchivo(tipoServidor) {
-        const mapeo = {
-            'usuarios': 'usuarios',
-            'users': 'usuarios',
-            'carreras': 'carreras',
-            'programs': 'carreras',
-            'asignaturas': 'asignaturas',
-            'subjects': 'asignaturas',
-            'carga_academica': 'carga_academica',
-            'academic_load': 'carga_academica',
-            'verificaciones': 'verificaciones',
-            'verifications': 'verificaciones',
-            'codigos_institucionales': 'codigos_institucionales',
-            'institutional_codes': 'codigos_institucionales'
-        };
-        
-        return mapeo[tipoServidor] || tipoServidor;
+    async actualizarEstadoArchivosPorCiclo(cicloId) {
+        try {
+            // Inicializar el estado de archivos para este ciclo si no existe
+            if (!this.estado.archivos[cicloId]) {
+                this.estado.archivos[cicloId] = {};
+            }
+
+            // Verificar si hay archivos cargados para este ciclo
+            // Esta información podría venir del backend o del localStorage
+            const archivosGuardados = localStorage.getItem(`archivos_ciclo_${cicloId}`);
+            if (archivosGuardados) {
+                try {
+                    const archivos = JSON.parse(archivosGuardados);
+                    this.estado.archivos[cicloId] = archivos;
+                    console.log('📂 Archivos recuperados del localStorage para ciclo:', cicloId);
+                } catch (error) {
+                    console.warn('⚠️ Error parseando archivos guardados:', error);
+                }
+            }
+
+            // Actualizar estado de archivos cargados
+            this.estado.archivosCargados = this.estado.archivos[cicloId] || {};
+            
+            console.log('✅ Estado de archivos actualizado para ciclo', cicloId);
+            this.emitirCambioArchivos();
+            
+        } catch (error) {
+            console.error('❌ Error actualizando estado de archivos:', error);
+            // Inicializar con estado seguro si hay error
+            if (!this.estado.archivos) {
+                this.estado.archivos = {};
+            }
+            if (!this.estado.archivosCargados) {
+                this.estado.archivosCargados = {};
+            }
+        }
+    }
+
+    /**
+     * Guardar estado de archivos en localStorage
+     */
+    guardarEstadoArchivos(cicloId) {
+        if (this.estado.archivos && this.estado.archivos[cicloId]) {
+            localStorage.setItem(`archivos_ciclo_${cicloId}`, JSON.stringify(this.estado.archivos[cicloId]));
+            console.log('💾 Estado de archivos guardado para ciclo:', cicloId);
+        }
     }
 
     /**
@@ -417,16 +395,27 @@ class EstadoManager {
     /**
      * Marcar archivo como cargado
      */
-    marcarArchivoCargado(tipo, detalles) {
+    marcarArchivoCargado(tipo, detalles, cicloId = null) {
         if (!this.estado.archivosCargados) {
             this.estado.archivosCargados = {};
         }
         
-        this.estado.archivosCargados[tipo] = {
+        const archivoInfo = {
             cargado: true,
             ...detalles,
             ultimaActualizacion: new Date().toISOString()
         };
+        
+        this.estado.archivosCargados[tipo] = archivoInfo;
+        
+        // También guardar en el ciclo específico si se proporciona
+        if (cicloId) {
+            if (!this.estado.archivos[cicloId]) {
+                this.estado.archivos[cicloId] = {};
+            }
+            this.estado.archivos[cicloId][tipo] = archivoInfo;
+            this.guardarEstadoArchivos(cicloId);
+        }
         
         console.log(`📁 Archivo ${tipo} marcado como cargado`);
         this.emitirCambioArchivos();

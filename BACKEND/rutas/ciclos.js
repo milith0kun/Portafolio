@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const ciclosController = require('../controladores/ciclosController');
-const { verificarToken, verificarRol } = require('../middleware/verificar-jwt');
+const { verificarToken, verificarRol } = require('../middleware/authJwt');
 
 /**
  * @route   GET /api/ciclos

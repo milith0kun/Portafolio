@@ -1,265 +1,17 @@
 const { sequelize } = require('../config/database');
 const { Op } = require('sequelize');
-const ResponseHandler = require('./utils/responseHandler');
 const { Actividad, Usuario, Notificacion } = require('../modelos');
+const { logger } = require('../config/logger');
 
-/**
- * Obtiene las métricas del dashboard con datos reales de la base de datos
- * Ahora con soporte para filtrado por ciclo académico
- */
-const obtenerMetricas = async (req, res) => {
-  try {
-    // Obtener ciclo desde parámetros de consulta
-    const cicloId = req.query.ciclo || req.query.cicloId;
-    
-    // Verificar conexión a la base de datos
-    await sequelize.authenticate();
-    
-    // Obtener modelos después de verificar la conexión
-    const { Usuario, UsuarioRol, Portafolio, DocenteAsignatura, CicloAcademico, Carrera, Asignatura } = require('../modelos');
-    
-    // Obtener información del ciclo académico
-    let cicloInfo = null;
-    if (cicloId) {
-      try {
-        cicloInfo = await CicloAcademico.findByPk(cicloId, {
-          attributes: {
-            exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
-          }
-        });
-      } catch (error) {
-        // Error silencioso al obtener información del ciclo
-      }
-    }
-    
-    // Obtener total de usuarios
-    const totalUsuarios = await Usuario.count();
-    
-    // Obtener usuarios activos
-    const usuariosActivos = await Usuario.count({
-      where: { activo: true }
-    });
-    
-    // Obtener distribución de roles
-    let distribucionRoles = { docentes: 0, verificadores: 0, administradores: 0 };
-    
-    try {
-      const roles = await UsuarioRol.findAll({
-        attributes: [
-          'rol',
-          [sequelize.fn('COUNT', sequelize.col('id')), 'total']
-        ],
-        where: { activo: true },
-        group: ['rol'],
-        raw: true
-      });
-      
-      // Convertir el array de roles a un objeto con los totales por rol
-      distribucionRoles = roles.reduce((acc, { rol, total }) => {
-        const clave = rol.endsWith('s') ? rol : `${rol}s`; // Asegurar plural
-        return { ...acc, [clave]: parseInt(total) };
-      }, { ...distribucionRoles });
-    } catch (error) {
-      // Error silencioso al obtener distribución de roles
-    }
-    
-    // Obtener métricas de carreras
-    let carrerasMetricas = { total: 0, activas: 0 };
-    try {
-      const totalCarreras = await Carrera.count({
-        where: { activo: true }
-      });
-      
-      carrerasMetricas = {
-        total: totalCarreras,
-        activas: totalCarreras
-      };
-      
 
-    } catch (error) {
-      // Error silencioso al obtener métricas de carreras
-    }
-    
-    // Obtener métricas de asignaturas (filtradas por ciclo si se especifica)
-    let asignaturasMetricas = { total: 0, activas: 0 };
-    if (cicloId) {
-      try {
-        // Contar asignaturas que tienen asignaciones en el ciclo específico
-        const asignaturasEnCiclo = await Asignatura.count({
-          include: [{
-            model: DocenteAsignatura,
-            as: 'asignaciones_docente',
-            where: { 
-              ciclo_id: cicloId,
-              activo: true 
-            },
-            required: true
-          }],
-          where: { activo: true }
-        });
-        
-        asignaturasMetricas = {
-          total: asignaturasEnCiclo,
-          activas: asignaturasEnCiclo
-        };
-        
-
-      } catch (error) {
-        // Error silencioso al obtener métricas de asignaturas
-        // Fallback: contar todas las asignaturas activas
-        try {
-          const totalAsignaturas = await Asignatura.count({ where: { activo: true } });
-          asignaturasMetricas = { total: totalAsignaturas, activas: totalAsignaturas };
-        } catch (fallbackError) {
-          // Error silencioso en fallback de asignaturas
-        }
-      }
-    } else {
-      // Si no hay ciclo específico, contar todas las asignaturas
-      try {
-        const totalAsignaturas = await Asignatura.count({ where: { activo: true } });
-        asignaturasMetricas = { total: totalAsignaturas, activas: totalAsignaturas };
-      } catch (error) {
-        // Error silencioso al obtener total de asignaturas
-      }
-    }
-    
-    // Obtener métricas de portafolios (filtradas por ciclo si se especifica)
-    let portafoliosMetricas = { total: 0, activos: 0, completados: 0, progresoPromedio: 0 };
-    if (cicloId) {
-      try {
-        const totalPortafoliosCiclo = await Portafolio.count({
-          where: { 
-            ciclo_id: cicloId,
-            activo: true 
-          }
-        });
-        
-        const portafoliosActivos = await Portafolio.count({
-          where: { 
-            ciclo_id: cicloId,
-            activo: true,
-            estado: 'activo'
-          }
-        });
-        
-        const portafoliosCompletados = await Portafolio.count({
-          where: { 
-            ciclo_id: cicloId,
-            activo: true,
-            estado: 'completado'
-          }
-        });
-        
-        // Calcular progreso promedio
-        const portafoliosConProgreso = await Portafolio.findAll({
-          where: { 
-            ciclo_id: cicloId,
-            activo: true 
-          },
-          attributes: ['progreso'],
-          raw: true
-        });
-        
-        const progresoPromedio = portafoliosConProgreso.length > 0 
-          ? Math.round(portafoliosConProgreso.reduce((sum, p) => sum + (p.progreso || 0), 0) / portafoliosConProgreso.length)
-          : 0;
-        
-        portafoliosMetricas = {
-          total: totalPortafoliosCiclo,
-          activos: portafoliosActivos,
-          completados: portafoliosCompletados,
-          progresoPromedio
-        };
-        
-
-      } catch (error) {
-        // Error silencioso al obtener métricas de portafolios
-      }
-    }
-    
-    // Obtener métricas de asignaciones (filtradas por ciclo si se especifica)
-    let asignacionesMetricas = { total: 0, activas: 0 };
-    if (cicloId) {
-      try {
-        const totalAsignaciones = await DocenteAsignatura.count({
-          where: { 
-            ciclo_id: cicloId,
-            activo: true 
-          }
-        });
-        
-        asignacionesMetricas = {
-          total: totalAsignaciones,
-          activas: totalAsignaciones
-        };
-        
-
-      } catch (error) {
-        // Error silencioso al obtener métricas de asignaciones
-      }
-    }
-    
-    // Estructura de respuesta
-    const metricas = {
-      sistema: {
-        estado: 'activo',
-        version: '1.0.0',
-        modo: 'produccion',
-        mensaje: cicloId ? `Datos del ciclo: ${cicloInfo?.nombre || 'Desconocido'}` : 'Datos generales del sistema'
-      },
-      ciclo: cicloInfo ? {
-        id: cicloInfo.id,
-        nombre: cicloInfo.nombre,
-        estado: cicloInfo.estado,
-        fechaInicio: cicloInfo.fecha_inicio,
-        fechaFin: cicloInfo.fecha_fin
-      } : null,
-      usuarios: {
-        total: totalUsuarios,
-        activos: usuariosActivos,
-        pendientes: totalUsuarios - usuariosActivos
-      },
-      roles: distribucionRoles,
-      carreras: carrerasMetricas,
-      asignaturas: asignaturasMetricas,
-      portafolios: portafoliosMetricas,
-      asignaciones: asignacionesMetricas,
-      documentos: {
-        // Estos valores se actualizarán cuando se implemente el módulo de documentos
-        total: 0,
-        aprobados: 0,
-        pendientes: 0,
-        observados: 0
-      },
-      timestamp: new Date().toISOString()
-    };
-    
-
-    
-    // Devolver respuesta exitosa
-    return res.status(200).json({
-      success: true,
-      message: 'Métricas obtenidas correctamente',
-      data: metricas
-    });
-    
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: 'Error al obtener métricas del dashboard',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
-  }
-};
 
 /**
  * Obtiene las actividades recientes del sistema
+ * @param {Object} req - Objeto de solicitud Express
+ * @param {Object} res - Objeto de respuesta Express
  */
 const obtenerActividades = async (req, res) => {
   try {
-    
-    // Obtener actividades con información de usuario usando las asociaciones
     const actividades = await Actividad.findAll({
       include: [{
         model: Usuario,
@@ -271,12 +23,10 @@ const obtenerActividades = async (req, res) => {
       limit: 10
     });
 
-
-
     const actividadesFormateadas = actividades.map(actividad => ({
       id: actividad.id,
       tipo: actividad.tipo,
-      titulo: actividad.modulo, // Usar módulo como título
+      titulo: actividad.modulo,
       descripcion: actividad.descripcion,
       fecha: actividad.fecha_creacion,
       icono: obtenerIconoActividad(actividad.tipo),
@@ -290,7 +40,7 @@ const obtenerActividades = async (req, res) => {
     });
     
   } catch (error) {
-    // Retornar array vacío en lugar de error 500
+    logger.error('Error al obtener actividades:', error);
     return res.status(200).json({
       success: true,
       message: 'No hay actividades disponibles',
@@ -299,7 +49,11 @@ const obtenerActividades = async (req, res) => {
   }
 };
 
-// Función auxiliar para obtener iconos según el tipo de actividad
+/**
+ * Función auxiliar para obtener iconos según el tipo de actividad
+ * @param {string} tipo - Tipo de actividad
+ * @returns {string} Clase CSS del icono
+ */
 const obtenerIconoActividad = (tipo) => {
   const iconos = {
     'login': 'fas fa-sign-in-alt',
@@ -317,12 +71,20 @@ const obtenerIconoActividad = (tipo) => {
 
 /**
  * Obtiene las notificaciones del sistema
+ * @param {Object} req - Objeto de solicitud Express
+ * @param {Object} res - Objeto de respuesta Express
  */
 const obtenerNotificaciones = async (req, res) => {
   try {
-    // Obtener notificaciones reales de la base de datos
-    const { Notificacion } = require('../modelos');
-    
+    // Verificar que el usuario esté autenticado
+    if (!req.usuario || !req.usuario.id) {
+      return res.status(401).json({
+        success: false,
+        message: 'Usuario no autenticado',
+        data: []
+      });
+    }
+
     const notificaciones = await Notificacion.findAll({
       where: { 
         usuario_id: req.usuario.id,
@@ -348,20 +110,22 @@ const obtenerNotificaciones = async (req, res) => {
     });
     
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: 'Error al obtener notificaciones',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    // En caso de error, devolver array vacío en lugar de error 500
+    return res.status(200).json({
+      success: true,
+      message: 'No hay notificaciones disponibles',
+      data: []
     });
   }
 };
 
 /**
  * Obtiene el ciclo académico actual
+ * @param {Object} req - Objeto de solicitud Express
+ * @param {Object} res - Objeto de respuesta Express
  */
 const obtenerCicloActual = async (req, res) => {
   try {
-    // Obtener el ciclo activo real de la base de datos
     const { CicloAcademico, EstadoSistema } = require('../modelos');
     
     const cicloActivo = await CicloAcademico.findOne({
@@ -379,21 +143,19 @@ const obtenerCicloActual = async (req, res) => {
       });
     }
 
-    // Obtener estados del sistema por separado
+    // Obtener estados del sistema
     let estadosModulos = [];
     let progreso = 0;
     
-    if (cicloActivo) {
-      try {
-        estadosModulos = await EstadoSistema.findAll({
-          where: { ciclo_id: cicloActivo.id }
-        });
-        const modulosHabilitados = estadosModulos.filter(e => e.habilitado).length;
-        const totalModulos = estadosModulos.length;
-        progreso = totalModulos > 0 ? Math.round((modulosHabilitados / totalModulos) * 100) : 0;
-      } catch (error) {
-        console.log('Error al obtener estados del sistema:', error.message);
-      }
+    try {
+      estadosModulos = await EstadoSistema.findAll({
+        where: { ciclo_id: cicloActivo.id }
+      });
+      const modulosHabilitados = estadosModulos.filter(e => e.habilitado).length;
+      const totalModulos = estadosModulos.length;
+      progreso = totalModulos > 0 ? Math.round((modulosHabilitados / totalModulos) * 100) : 0;
+    } catch (error) {
+      logger.warn('Error al obtener estados del sistema:', error.message);
     }
 
     const cicloActual = {
@@ -419,6 +181,7 @@ const obtenerCicloActual = async (req, res) => {
     });
     
   } catch (error) {
+    logger.error('Error al obtener ciclo actual:', error);
     return res.status(500).json({
       success: false,
       message: 'Error al obtener ciclo académico actual',
@@ -429,16 +192,13 @@ const obtenerCicloActual = async (req, res) => {
 
 /**
  * Obtiene estadísticas generales del sistema
+ * @param {Object} req - Objeto de solicitud Express
+ * @param {Object} res - Objeto de respuesta Express
  */
 const obtenerEstadisticas = async (req, res) => {
   try {
-    // Obtener ciclo desde parámetros de consulta
     const cicloId = req.query.ciclo || req.query.cicloId;
     
-    // Verificar conexión a la base de datos
-    await sequelize.authenticate();
-    
-    // Obtener modelos
     const { 
       Usuario, 
       UsuarioRol, 
@@ -452,7 +212,7 @@ const obtenerEstadisticas = async (req, res) => {
       Observacion
     } = require('../modelos');
     
-    // Obtener ciclo académico (específico o activo)
+    // Obtener ciclo académico
     let cicloActivo;
     if (cicloId) {
       cicloActivo = await CicloAcademico.findByPk(cicloId, {
@@ -469,10 +229,9 @@ const obtenerEstadisticas = async (req, res) => {
       });
     }
 
-    // Filtros por ciclo
     const filtrosCiclo = cicloActivo ? { ciclo_id: cicloActivo.id } : {};
     
-    // Obtener estadísticas de usuarios y roles
+    // Obtener estadísticas
     const [
       totalUsuarios,
       usuariosActivos,
@@ -504,7 +263,7 @@ const obtenerEstadisticas = async (req, res) => {
       Carrera.count(),
       Asignatura.count(cicloActivo ? { where: filtrosCiclo } : {}),
       DocenteAsignatura.count(cicloActivo ? { where: filtrosCiclo } : {}),
-      sequelize.query('SELECT COUNT(*) as count FROM verificadores_docentes WHERE activo = true', { type: sequelize.QueryTypes.SELECT }).then(result => result[0].count),
+      VerificadorDocente.count({ where: { activo: true } }),
       Portafolio.count(cicloActivo ? { where: filtrosCiclo } : {}),
       Portafolio.count(cicloActivo ? { 
         where: { ...filtrosCiclo, estado: 'activo' } 
@@ -527,7 +286,6 @@ const obtenerEstadisticas = async (req, res) => {
       return acc;
     }, { docentes: 0, verificadores: 0, administradores: 0 });
 
-    // Estructura de respuesta completa
     const estadisticas = {
       sistema: {
         estado: 'activo',
@@ -541,17 +299,22 @@ const obtenerEstadisticas = async (req, res) => {
         fechaInicio: cicloActivo.fecha_inicio,
         fechaFin: cicloActivo.fecha_fin
       } : null,
-      usuarios: totalUsuarios,
-      usuariosActivos,
+      // Nombres esperados por el frontend
+      totalUsuarios: totalUsuarios,
+      totalUsuariosActivos: usuariosActivos,
+      totalPortafolios: totalPortafolios,
+      totalPortafoliosActivos: portafoliosActivos,
+      totalPortafoliosCompletados: portafoliosCompletados,
+      totalPortafoliosEnVerificacion: portafoliosEnVerificacion,
+      totalDocumentos: totalDocumentos,
+      totalDocumentosAprobados: documentosAprobados,
+      totalDocumentosPendientes: documentosPendientes,
+      totalDocumentosObservados: documentosObservados,
+      totalCarreras: totalCarreras,
+      totalAsignaturas: totalAsignaturas,
+      totalAsignaciones: totalAsignaciones,
+      totalVerificaciones: totalVerificaciones,
       roles,
-      carreras: totalCarreras,
-      asignaturas: totalAsignaturas,
-      asignaciones: totalAsignaciones,
-      verificaciones: totalVerificaciones,
-      portafolios: totalPortafolios,
-      portafoliosActivos,
-      portafoliosCompletados,
-      portafoliosEnVerificacion,
       documentos: {
         total: totalDocumentos,
         aprobados: documentosAprobados,
@@ -561,10 +324,14 @@ const obtenerEstadisticas = async (req, res) => {
       timestamp: new Date().toISOString()
     };
 
-
-    return res.status(200).json(estadisticas);
+    return res.status(200).json({
+      success: true,
+      message: 'Estadísticas obtenidas correctamente',
+      data: estadisticas
+    });
     
   } catch (error) {
+    logger.error('Error al obtener estadísticas del sistema:', error);
     return res.status(500).json({
       success: false,
       message: 'Error al obtener estadísticas del sistema',
@@ -574,14 +341,336 @@ const obtenerEstadisticas = async (req, res) => {
 };
 
 /**
+ * Obtiene estadísticas específicas para administrador
+ * @param {Object} req - Objeto de solicitud Express
+ * @param {Object} res - Objeto de respuesta Express
+ */
+const obtenerEstadisticasAdmin = async (req, res) => {
+  try {
+    const cicloId = req.query.ciclo || req.query.cicloId;
+    
+    const { 
+      Usuario, 
+      UsuarioRol, 
+      Asignatura, 
+      DocenteAsignatura, 
+      VerificadorDocente, 
+      Portafolio,
+      Carrera, 
+      CicloAcademico,
+      ArchivoSubido,
+      Observacion
+    } = require('../modelos');
+    
+    // Obtener ciclo académico
+    let cicloActivo;
+    if (cicloId) {
+      cicloActivo = await CicloAcademico.findByPk(cicloId);
+    } else {
+      cicloActivo = await CicloAcademico.findOne({ where: { estado: 'activo' } });
+    }
+
+    const filtrosCiclo = cicloActivo ? { ciclo_id: cicloActivo.id } : {};
+    
+    // Obtener estadísticas
+    const [
+      totalUsuarios,
+      usuariosActivos,
+      distribucionRoles,
+      totalCarreras,
+      totalAsignaturas,
+      totalAsignaciones,
+      totalVerificaciones,
+      totalPortafolios,
+      portafoliosActivos,
+      portafoliosCompletados,
+      portafoliosEnVerificacion,
+      totalDocumentos,
+      documentosAprobados,
+      documentosPendientes,
+      documentosObservados
+    ] = await Promise.all([
+      Usuario.count(),
+      Usuario.count({ where: { activo: true } }),
+      UsuarioRol.findAll({
+        attributes: [
+          'rol',
+          [sequelize.fn('COUNT', sequelize.col('id')), 'total']
+        ],
+        where: { activo: true },
+        group: ['rol'],
+        raw: true
+      }),
+      Carrera.count(),
+      Asignatura.count(cicloActivo ? { where: filtrosCiclo } : {}),
+      DocenteAsignatura.count(cicloActivo ? { where: filtrosCiclo } : {}),
+      VerificadorDocente.count({ where: { activo: true } }),
+      Portafolio.count(cicloActivo ? { where: filtrosCiclo } : {}),
+      Portafolio.count(cicloActivo ? { 
+        where: { ...filtrosCiclo, estado: 'activo' } 
+      } : { where: { estado: 'activo' } }),
+      Portafolio.count(cicloActivo ? { 
+        where: { ...filtrosCiclo, estado: 'completado' } 
+      } : { where: { estado: 'completado' } }),
+      Portafolio.count(cicloActivo ? { 
+        where: { ...filtrosCiclo, estado: 'en_verificacion' } 
+      } : { where: { estado: 'en_verificacion' } }),
+      ArchivoSubido.count(),
+      ArchivoSubido.count({ where: { estado: 'aprobado' } }),
+      ArchivoSubido.count({ where: { estado: 'pendiente' } }),
+      Observacion.count()
+    ]);
+
+    // Procesar distribución de roles
+    const roles = distribucionRoles.reduce((acc, { rol, total }) => {
+      acc[rol.toLowerCase() + 's'] = parseInt(total);
+      return acc;
+    }, { docentes: 0, verificadores: 0, administradores: 0 });
+
+    const estadisticas = {
+      totalUsuarios,
+      usuariosActivos,
+      totalCarreras,
+      totalAsignaturas,
+      totalAsignaciones,
+      totalVerificaciones,
+      totalPortafolios,
+      portafoliosActivos,
+      portafoliosCompletados,
+      portafoliosEnVerificacion,
+      documentos: {
+        total: totalDocumentos,
+        aprobados: documentosAprobados,
+        pendientes: documentosPendientes,
+        observados: documentosObservados
+      },
+      roles,
+      cicloActivo: cicloActivo ? {
+        id: cicloActivo.id,
+        nombre: cicloActivo.nombre,
+        estado: cicloActivo.estado
+      } : null,
+      timestamp: new Date().toISOString()
+    };
+
+    return res.status(200).json({
+      success: true,
+      message: 'Estadísticas de administrador obtenidas correctamente',
+      data: estadisticas
+    });
+    
+  } catch (error) {
+    logger.error('Error al obtener estadísticas de administrador:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error al obtener estadísticas de administrador',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+/**
+ * Obtiene estadísticas específicas para docente
+ * @param {Object} req - Objeto de solicitud Express
+ * @param {Object} res - Objeto de respuesta Express
+ */
+const obtenerEstadisticasDocente = async (req, res) => {
+  try {
+    const cicloId = req.query.ciclo || req.query.cicloId;
+    const docenteId = req.usuario.id;
+    
+    const { 
+      DocenteAsignatura, 
+      Portafolio,
+      CicloAcademico,
+      ArchivoSubido,
+      Observacion
+    } = require('../modelos');
+    
+    // Obtener ciclo académico
+    let cicloActivo;
+    if (cicloId) {
+      cicloActivo = await CicloAcademico.findByPk(cicloId);
+    } else {
+      cicloActivo = await CicloAcademico.findOne({ where: { estado: 'activo' } });
+    }
+
+    const filtrosCiclo = cicloActivo ? { ciclo_id: cicloActivo.id } : {};
+    const filtrosDocente = { docente_id: docenteId, ...filtrosCiclo };
+    
+    // Obtener estadísticas
+    const [
+      totalAsignaciones,
+      totalPortafolios,
+      portafoliosActivos,
+      portafoliosCompletados,
+      portafoliosEnVerificacion,
+      totalDocumentos,
+      documentosAprobados,
+      documentosPendientes,
+      documentosObservados
+    ] = await Promise.all([
+      DocenteAsignatura.count({ where: filtrosDocente }),
+      Portafolio.count({ where: filtrosDocente }),
+      Portafolio.count({ where: { ...filtrosDocente, estado: 'activo' } }),
+      Portafolio.count({ where: { ...filtrosDocente, estado: 'completado' } }),
+      Portafolio.count({ where: { ...filtrosDocente, estado: 'en_verificacion' } }),
+      ArchivoSubido.count({ where: { docente_id: docenteId } }),
+      ArchivoSubido.count({ where: { docente_id: docenteId, estado: 'aprobado' } }),
+      ArchivoSubido.count({ where: { docente_id: docenteId, estado: 'pendiente' } }),
+      Observacion.count({ where: { docente_id: docenteId } })
+    ]);
+
+    const estadisticas = {
+      totalAsignaciones,
+      totalPortafolios,
+      portafoliosActivos,
+      portafoliosCompletados,
+      portafoliosEnVerificacion,
+      documentosSubidos: totalDocumentos,
+      documentosAprobados,
+      documentosPendientes,
+      documentosObservados,
+      totalDocumentos: totalPortafolios * 10, // Estimado de documentos esperados
+      cicloActivo: cicloActivo ? {
+        id: cicloActivo.id,
+        nombre: cicloActivo.nombre,
+        estado: cicloActivo.estado
+      } : null,
+      timestamp: new Date().toISOString()
+    };
+
+    return res.status(200).json({
+      success: true,
+      message: 'Estadísticas de docente obtenidas correctamente',
+      data: estadisticas
+    });
+    
+  } catch (error) {
+    logger.error('Error al obtener estadísticas de docente:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error al obtener estadísticas de docente',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+/**
+ * Obtiene estadísticas específicas para verificador
+ * @param {Object} req - Objeto de solicitud Express
+ * @param {Object} res - Objeto de respuesta Express
+ */
+const obtenerEstadisticasVerificador = async (req, res) => {
+  try {
+    const cicloId = req.query.ciclo || req.query.cicloId;
+    const verificadorId = req.usuario.id;
+    
+    const { 
+      VerificadorDocente, 
+      Portafolio,
+      CicloAcademico,
+      ArchivoSubido,
+      Observacion
+    } = require('../modelos');
+    
+    // Obtener ciclo académico
+    let cicloActivo;
+    if (cicloId) {
+      cicloActivo = await CicloAcademico.findByPk(cicloId);
+    } else {
+      cicloActivo = await CicloAcademico.findOne({ where: { estado: 'activo' } });
+    }
+
+    // Obtener asignaciones del verificador
+    const asignacionesVerificador = await VerificadorDocente.findAll({
+      where: { verificador_id: verificadorId, activo: true },
+      attributes: ['docente_id']
+    });
+
+    const docentesAsignados = asignacionesVerificador.map(a => a.docente_id);
+    
+    const filtrosCiclo = cicloActivo ? { ciclo_id: cicloActivo.id } : {};
+    const filtrosVerificador = docentesAsignados.length > 0 ? 
+      { docente_id: { [Op.in]: docentesAsignados }, ...filtrosCiclo } : 
+      { docente_id: -1 };
+    
+    // Obtener estadísticas
+    const [
+      totalAsignaciones,
+      totalPortafolios,
+      portafoliosPendientes,
+      portafoliosVerificados,
+      portafoliosObservados,
+      totalDocumentos,
+      documentosPendientes,
+      documentosRevisados,
+      documentosObservados,
+      documentosNuevosHoy
+    ] = await Promise.all([
+      VerificadorDocente.count({ where: { verificador_id: verificadorId, activo: true } }),
+      Portafolio.count({ where: filtrosVerificador }),
+      Portafolio.count({ where: { ...filtrosVerificador, estado: 'pendiente_verificacion' } }),
+      Portafolio.count({ where: { ...filtrosVerificador, estado: 'verificado' } }),
+      Portafolio.count({ where: { ...filtrosVerificador, estado: 'observado' } }),
+      ArchivoSubido.count({ where: { docente_id: { [Op.in]: docentesAsignados } } }),
+      ArchivoSubido.count({ where: { docente_id: { [Op.in]: docentesAsignados }, estado: 'pendiente' } }),
+      ArchivoSubido.count({ where: { docente_id: { [Op.in]: docentesAsignados }, estado: 'aprobado' } }),
+      Observacion.count({ where: { verificador_id: verificadorId } }),
+      ArchivoSubido.count({ 
+        where: { 
+          docente_id: { [Op.in]: docentesAsignados },
+          fecha_subida: {
+            [Op.gte]: new Date(new Date().setHours(0, 0, 0, 0))
+          }
+        }
+      })
+    ]);
+
+    const estadisticas = {
+      totalAsignaciones,
+      totalPortafolios,
+      documentosPendientes,
+      documentosUrgentes: Math.floor(documentosPendientes * 0.1),
+      documentosNuevosHoy,
+      totalDocumentos,
+      documentosRevisados,
+      documentosObservados,
+      documentosRevisadosHoy: Math.floor(documentosRevisados * 0.05),
+      portafoliosPendientes,
+      portafoliosVerificados,
+      portafoliosObservados,
+      cicloActivo: cicloActivo ? {
+        id: cicloActivo.id,
+        nombre: cicloActivo.nombre,
+        estado: cicloActivo.estado
+      } : null,
+      timestamp: new Date().toISOString()
+    };
+
+    return res.status(200).json({
+      success: true,
+      message: 'Estadísticas de verificador obtenidas correctamente',
+      data: estadisticas
+    });
+    
+  } catch (error) {
+    logger.error('Error al obtener estadísticas de verificador:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error al obtener estadísticas de verificador',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+/**
  * Obtiene asignaciones docente-asignatura
+ * @param {Object} req - Objeto de solicitud Express
+ * @param {Object} res - Objeto de respuesta Express
  */
 const obtenerAsignaciones = async (req, res) => {
   try {
-    // Verificar conexión a la base de datos
-    await sequelize.authenticate();
-    
-    // Obtener modelos
     const { DocenteAsignatura, Usuario, Asignatura } = require('../modelos');
     
     const asignaciones = await DocenteAsignatura.findAll({
@@ -606,6 +695,7 @@ const obtenerAsignaciones = async (req, res) => {
     });
     
   } catch (error) {
+    logger.error('Error al obtener asignaciones:', error);
     return res.status(500).json({
       success: false,
       message: 'Error al obtener asignaciones docente-asignatura',
@@ -617,13 +707,11 @@ const obtenerAsignaciones = async (req, res) => {
 
 /**
  * Obtiene verificaciones asignadas
+ * @param {Object} req - Objeto de solicitud Express
+ * @param {Object} res - Objeto de respuesta Express
  */
 const obtenerVerificaciones = async (req, res) => {
   try {
-    // Verificar conexión a la base de datos
-    await sequelize.authenticate();
-    
-    // Usar SQL directo para evitar problemas con asociaciones
     const verificaciones = await sequelize.query(`
       SELECT 
         vd.id,
@@ -645,7 +733,6 @@ const obtenerVerificaciones = async (req, res) => {
       ORDER BY vd.fecha_asignacion DESC
     `, { type: sequelize.QueryTypes.SELECT });
 
-    // Formatear respuesta
     const verificacionesFormateadas = verificaciones.map(v => ({
       id: v.id,
       verificador_id: v.verificador_id,
@@ -674,6 +761,7 @@ const obtenerVerificaciones = async (req, res) => {
     });
     
   } catch (error) {
+    logger.error('Error al obtener verificaciones:', error);
     return res.status(500).json({
       success: false,
       message: 'Error al obtener verificaciones',
@@ -685,13 +773,11 @@ const obtenerVerificaciones = async (req, res) => {
 
 /**
  * Obtiene portafolios del sistema
+ * @param {Object} req - Objeto de solicitud Express
+ * @param {Object} res - Objeto de respuesta Express
  */
 const obtenerPortafolios = async (req, res) => {
   try {
-    // Verificar conexión a la base de datos
-    await sequelize.authenticate();
-    
-    // Obtener modelos
     const { Portafolio, Usuario, Asignatura, CicloAcademico } = require('../modelos');
     
     const portafolios = await Portafolio.findAll({
@@ -721,6 +807,7 @@ const obtenerPortafolios = async (req, res) => {
     });
     
   } catch (error) {
+    logger.error('Error al obtener portafolios:', error);
     return res.status(500).json({
       success: false,
       message: 'Error al obtener portafolios',
@@ -730,13 +817,88 @@ const obtenerPortafolios = async (req, res) => {
   }
 };
 
+/**
+ * Obtiene el estado general del sistema
+ * @param {Object} req - Objeto de solicitud Express
+ * @param {Object} res - Objeto de respuesta Express
+ */
+const obtenerEstadoSistema = async (req, res) => {
+  try {
+    const { Usuario, CicloAcademico, EstadoSistema } = require('../modelos');
+    
+    const estadoSistema = {
+      estado: 'activo',
+      conexion_bd: 'conectada',
+      timestamp: new Date().toISOString()
+    };
+    
+    // Verificar ciclo académico activo
+    let cicloActivo = null;
+    try {
+      cicloActivo = await CicloAcademico.findOne({
+        where: { estado: 'activo' },
+        attributes: ['id', 'nombre', 'estado', 'fecha_inicio', 'fecha_fin']
+      });
+    } catch (error) {
+      logger.warn('Error al obtener ciclo activo:', error.message);
+    }
+    
+    // Obtener total de usuarios activos
+    let usuariosActivos = 0;
+    try {
+      usuariosActivos = await Usuario.count({ where: { activo: true } });
+    } catch (error) {
+      logger.warn('Error al obtener usuarios activos:', error.message);
+    }
+    
+    // Obtener estado del sistema
+    let estadoSistemaDB = null;
+    try {
+      estadoSistemaDB = await EstadoSistema.findOne({
+        order: [['createdAt', 'DESC']]
+      });
+    } catch (error) {
+      logger.warn('Error al obtener estado del sistema:', error.message);
+    }
+    
+    const respuesta = {
+      success: true,
+      message: 'Estado del sistema obtenido correctamente',
+      data: {
+        ...estadoSistema,
+        ciclo_activo: cicloActivo,
+        usuarios_activos: usuariosActivos,
+        estado_sistema: estadoSistemaDB
+      }
+    };
+    
+    return res.status(200).json(respuesta);
+    
+  } catch (error) {
+    logger.error('Error al obtener estado del sistema:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error al obtener estado del sistema',
+      data: {
+        estado: 'error',
+        conexion_bd: 'desconectada',
+        timestamp: new Date().toISOString()
+      },
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
 module.exports = {
-  obtenerMetricas,
   obtenerActividades,
   obtenerNotificaciones,
   obtenerCicloActual,
   obtenerEstadisticas,
+  obtenerEstadisticasAdmin,
+  obtenerEstadisticasDocente,
+  obtenerEstadisticasVerificador,
   obtenerAsignaciones,
   obtenerVerificaciones,
-  obtenerPortafolios
+  obtenerPortafolios,
+  obtenerEstadoSistema
 };

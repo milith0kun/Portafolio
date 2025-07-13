@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { verificarToken } = require('../middleware/authJwt');
-const verificarRol = require('../middleware/verificar-rol');
+const { verificarToken, verificarRol } = require('../middleware/authJwt');
 const dashboardController = require('../controladores/dashboardController');
 
 /**
@@ -15,7 +14,49 @@ router.get('/estadisticas',
   dashboardController.obtenerEstadisticas
 );
 
+/**
+ * @route GET /api/dashboard/estadisticas-admin
+ * @description Obtiene estadísticas específicas para administradores
+ * @access Privado - Solo administradores
+ */
+router.get('/estadisticas-admin', 
+  verificarToken, 
+  verificarRol(['administrador']), 
+  dashboardController.obtenerEstadisticasAdmin
+);
 
+/**
+ * @route GET /api/dashboard/estadisticas-docente
+ * @description Obtiene estadísticas específicas para docentes
+ * @access Privado - Solo docentes
+ */
+router.get('/estadisticas-docente', 
+  verificarToken, 
+  verificarRol(['docente']), 
+  dashboardController.obtenerEstadisticasDocente
+);
+
+/**
+ * @route GET /api/dashboard/estadisticas-verificador
+ * @description Obtiene estadísticas específicas para verificadores
+ * @access Privado - Solo verificadores
+ */
+router.get('/estadisticas-verificador', 
+  verificarToken, 
+  verificarRol(['verificador']), 
+  dashboardController.obtenerEstadisticasVerificador
+);
+
+/**
+ * @route GET /api/dashboard/estado-sistema
+ * @description Obtiene el estado general del sistema
+ * @access Privado - Solo administradores
+ */
+router.get('/estado-sistema', 
+  verificarToken, 
+  verificarRol(['administrador']), 
+  dashboardController.obtenerEstadoSistema
+);
 
 /**
  * @route GET /api/dashboard/actividades

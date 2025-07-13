@@ -219,28 +219,25 @@ function renderizarMetricas() {
     // Mapeo correcto usando datos reales del servidor
     const mapeoElementos = {
         // Usuarios
-        'totalUsers': metricas.usuarios || 0,
-        'activeUsers': metricas.usuariosActivos || 0,
-        'pendingUsers': (metricas.usuarios || 0) - (metricas.usuariosActivos || 0),
-        
+        'totalUsers': metricas.totalUsuarios || 0,
+        'activeUsers': metricas.totalUsuariosActivos || 0,
+        'pendingUsers': (metricas.totalUsuarios || 0) - (metricas.totalUsuariosActivos || 0),
         // Roles (usando datos reales)
         'teacherCount': metricas.roles?.docentes || 0,
         'verifierCount': metricas.roles?.verificadores || 0,
         'adminCount': metricas.roles?.administradores || 0,
-        
         // Portafolios
-        'totalPortafolios': metricas.portafolios || 0,
-        'activePortafolios': metricas.portafoliosActivos || 0,
-        'completedPortafolios': metricas.portafoliosCompletados || 0,
-        'averageProgress': metricas.portafolios > 0 ? 
-            Math.round((metricas.portafoliosCompletados || 0) / metricas.portafolios * 100) + '%' : '0%',
-        'inVerificationPortafolios': metricas.portafoliosEnVerificacion || 0,
-        
+        'totalPortafolios': metricas.totalPortafolios || 0,
+        'activePortafolios': metricas.totalPortafoliosActivos || 0,
+        'completedPortafolios': metricas.totalPortafoliosCompletados || 0,
+        'averageProgress': metricas.totalPortafolios > 0 ? 
+            Math.round((metricas.totalPortafoliosCompletados || 0) / metricas.totalPortafolios * 100) + '%' : '0%',
+        'inVerificationPortafolios': metricas.totalPortafoliosEnVerificacion || 0,
         // Documentos (usando datos reales)
-        'totalDocuments': metricas.documentos?.total || 0,
-        'approvedDocuments': metricas.documentos?.aprobados || 0,
-        'pendingDocuments': metricas.documentos?.pendientes || 0,
-        'observedDocuments': metricas.documentos?.observados || 0
+        'totalDocuments': metricas.totalDocumentos || 0,
+        'approvedDocuments': metricas.totalDocumentosAprobados || 0,
+        'pendingDocuments': metricas.totalDocumentosPendientes || 0,
+        'observedDocuments': metricas.totalDocumentosObservados || 0
     };
     
     // Verificar si hay un ciclo seleccionado

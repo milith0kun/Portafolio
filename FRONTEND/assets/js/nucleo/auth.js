@@ -715,6 +715,12 @@ class SistemaAutenticacionUnificado {
         
         if (this.token) {
             headers['Authorization'] = `Bearer ${this.token}`;
+            // Solo mostrar token en modo debug
+            if (window.CONFIG?.DEBUG) {
+                console.log('🔑 Token enviado en headers:', this.token.substring(0, 20) + '...');
+            }
+        } else {
+            console.warn('⚠️ No hay token disponible para enviar en headers');
         }
         
         return headers;

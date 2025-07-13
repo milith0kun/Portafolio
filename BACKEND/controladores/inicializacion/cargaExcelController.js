@@ -5,6 +5,8 @@ const XLSX = require('xlsx');
 const bcrypt = require('bcryptjs');
 const { Usuario, UsuarioRol, Carrera, Asignatura, DocenteAsignatura, CicloAcademico, Semestre, VerificadorDocente, CodigoInstitucional } = require('../../modelos');
 const { sequelize } = require('../../config/database');
+const { info, error: logError } = require('../../config/logger');
+const ResponseHandler = require('../utils/responseHandler');
 
 // Configuración de multer para subida de archivos
 const storage = multer.diskStorage({
@@ -42,7 +44,7 @@ const upload = multer({
  * Procesar archivo de usuarios masivos
  */
 async function procesarUsuarios(filePath, cicloId) {
-  console.log('📋 Procesando archivo de usuarios...');
+  info('Procesando archivo de usuarios');
   
   const workbook = XLSX.readFile(filePath);
   const sheetName = workbook.SheetNames[0];
@@ -135,7 +137,10 @@ async function procesarUsuarios(filePath, cicloId) {
     }
 
     await transaction.commit();
-    console.log(`✅ Usuarios procesados: ${resultados.exitosos} exitosos, ${resultados.errores} errores`);
+    info(`Usuarios procesados`, {
+      exitosos: resultados.exitosos,
+      errores: resultados.errores
+    });
     
   } catch (error) {
     await transaction.rollback();
@@ -149,7 +154,7 @@ async function procesarUsuarios(filePath, cicloId) {
  * Procesar archivo de carreras
  */
 async function procesarCarreras(filePath, cicloId) {
-  console.log('🏫 Procesando archivo de carreras...');
+  info('Procesando archivo de carreras');
   
   const workbook = XLSX.readFile(filePath);
   const sheetName = workbook.SheetNames[0];
@@ -229,7 +234,10 @@ async function procesarCarreras(filePath, cicloId) {
     }
 
     await transaction.commit();
-    console.log(`✅ Carreras procesadas: ${resultados.exitosos} exitosas, ${resultados.errores} errores`);
+    info(`Carreras procesadas`, {
+      exitosas: resultados.exitosos,
+      errores: resultados.errores
+    });
     
   } catch (error) {
     await transaction.rollback();
@@ -243,7 +251,7 @@ async function procesarCarreras(filePath, cicloId) {
  * Procesar archivo de asignaturas
  */
 async function procesarAsignaturas(filePath, cicloId) {
-  console.log('📖 Procesando archivo de asignaturas...');
+  info('Procesando archivo de asignaturas');
   
   const workbook = XLSX.readFile(filePath);
   const sheetName = workbook.SheetNames[0];
@@ -258,9 +266,7 @@ async function procesarAsignaturas(filePath, cicloId) {
 
   // Obtener ciclo académico
   const ciclo = await CicloAcademico.findByPk(cicloId, {
-    attributes: {
-      exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
-    }
+    attributes: ['id', 'nombre']
   });
   if (!ciclo) {
     throw new Error('Ciclo académico no encontrado');
@@ -330,7 +336,10 @@ async function procesarAsignaturas(filePath, cicloId) {
     }
 
     await transaction.commit();
-    console.log(`✅ Asignaturas procesadas: ${resultados.exitosos} exitosas, ${resultados.errores} errores`);
+    info(`Asignaturas procesadas`, {
+      exitosas: resultados.exitosos,
+      errores: resultados.errores
+    });
     
   } catch (error) {
     await transaction.rollback();
@@ -347,29 +356,22 @@ exports.cargarArchivos = [
   upload.array('archivos', 10),
   async (req, res) => {
     try {
-      console.log('🚀 Iniciando carga masiva de archivos...');
-      console.log('Archivos recibidos:', req.files?.length || 0);
+      info('Iniciando carga masiva de archivos', {
+        archivosRecibidos: req.files?.length || 0
+      });
       
       if (!req.files || req.files.length === 0) {
-        return res.status(400).json({
-          exito: false,
-          mensaje: 'No se recibieron archivos'
-        });
+        return ResponseHandler.badRequest(res, 'No se recibieron archivos');
       }
 
       // Obtener ciclo académico activo
       const cicloActivo = await CicloAcademico.findOne({
         where: { estado: 'activo' },
-        attributes: {
-          exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
-        }
+        attributes: ['id', 'nombre']
       });
 
       if (!cicloActivo) {
-        return res.status(400).json({
-          exito: false,
-          mensaje: 'No hay ciclo académico activo'
-        });
+        return ResponseHandler.badRequest(res, 'No hay ciclo académico activo');
       }
 
       const resultadosGenerales = {
@@ -380,7 +382,7 @@ exports.cargarArchivos = [
 
       // Procesar cada archivo
       for (const archivo of req.files) {
-        console.log(`📁 Procesando archivo: ${archivo.originalname}`);
+        info(`Procesando archivo: ${archivo.originalname}`);
         
         try {
           let resultados;
@@ -414,7 +416,10 @@ exports.cargarArchivos = [
           }
 
         } catch (error) {
-          console.error(`❌ Error procesando ${archivo.originalname}:`, error);
+          logError(`Error procesando ${archivo.originalname}`, {
+            error: error.message,
+            archivo: archivo.originalname
+          });
           resultadosGenerales.errores.push({
             archivo: archivo.originalname,
             error: error.message
@@ -427,22 +432,21 @@ exports.cargarArchivos = [
         }
       }
 
-      console.log('✅ Carga masiva completada');
+      info('Carga masiva completada', {
+        archivosProcesados: resultadosGenerales.archivos_procesados,
+        errores: resultadosGenerales.errores.length
+      });
 
-      res.json({
-        exito: true,
-        mensaje: 'Carga masiva completada',
+      return ResponseHandler.success(res, {
         ciclo_academico: cicloActivo.nombre,
         resultados: resultadosGenerales
-      });
+      }, 'Carga masiva completada');
 
     } catch (error) {
-      console.error('❌ Error en carga masiva:', error);
-      res.status(500).json({
-        exito: false,
-        mensaje: 'Error interno del servidor',
+      logError('Error en carga masiva', {
         error: error.message
       });
+      return ResponseHandler.serverError(res, error, 'Error interno del servidor');
     }
   }
 ];
@@ -470,17 +474,12 @@ exports.obtenerPlantillas = async (req, res) => {
       }
     };
 
-    res.json({
-      exito: true,
-      plantillas
-    });
+    return ResponseHandler.success(res, plantillas, 'Plantillas obtenidas correctamente');
 
   } catch (error) {
-    console.error('Error obteniendo plantillas:', error);
-    res.status(500).json({
-      exito: false,
-      mensaje: 'Error obteniendo plantillas',
+    logError('Error obteniendo plantillas', {
       error: error.message
     });
+    return ResponseHandler.serverError(res, error, 'Error obteniendo plantillas');
   }
 };

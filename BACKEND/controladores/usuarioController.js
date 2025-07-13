@@ -1,8 +1,14 @@
 const { Usuario, UsuarioRol, VerificadorDocente, CicloAcademico } = require('../modelos');
 const { Op } = require('sequelize');
+const ResponseHandler = require('./utils/responseHandler');
+const { logger } = require('../config/logger');
 const bcrypt = require('bcryptjs');
 
-// Obtener todos los usuarios (solo administradores)
+/**
+ * Obtener todos los usuarios (solo administradores)
+ * @param {Object} req - Objeto de solicitud Express
+ * @param {Object} res - Objeto de respuesta Express
+ */
 exports.obtenerUsuarios = async (req, res) => {
   try {
     const { pagina = 1, limite = 10, busqueda = '' } = req.query;
@@ -35,28 +41,29 @@ exports.obtenerUsuarios = async (req, res) => {
       order: [['apellidos', 'ASC']]
     });
 
-    res.status(200).json({
-      success: true,
-      data: rows,
+    const responseData = {
+      usuarios: rows,
       meta: {
         total: count,
         totalPaginas: Math.ceil(count / limite),
         paginaActual: parseInt(pagina),
         limite: parseInt(limite)
-      },
-      message: 'Usuarios obtenidos correctamente'
-    });
+      }
+    };
+
+    return ResponseHandler.success(res, responseData, 'Usuarios obtenidos correctamente');
 
   } catch (error) {
-        res.status(500).json({
-      success: false,
-      message: 'Error al obtener la lista de usuarios',
-      error: error.message
-    });
+    logger.error('Error al obtener usuarios:', error);
+    return ResponseHandler.error(res, error.message, 500);
   }
 };
 
-// Obtener un usuario por ID
+/**
+ * Obtener un usuario por ID
+ * @param {Object} req - Objeto de solicitud Express
+ * @param {Object} res - Objeto de respuesta Express
+ */
 exports.obtenerUsuario = async (req, res) => {
   try {
     const usuario = await Usuario.findByPk(req.params.id, {
@@ -72,28 +79,22 @@ exports.obtenerUsuario = async (req, res) => {
     });
 
     if (!usuario) {
-      return res.status(404).json({
-        success: false,
-        message: 'Usuario no encontrado'
-      });
+      return ResponseHandler.error(res, 'Usuario no encontrado', 404);
     }
 
-    res.status(200).json({
-      success: true,
-      data: usuario,
-      message: 'Usuario obtenido correctamente'
-    });
+    return ResponseHandler.success(res, usuario, 'Usuario obtenido correctamente');
 
   } catch (error) {
-        res.status(500).json({
-      success: false,
-      message: 'Error al obtener el usuario',
-      error: error.message
-    });
+    logger.error('Error al obtener usuario:', error);
+    return ResponseHandler.error(res, error.message, 500);
   }
 };
 
-// Crear un nuevo usuario (solo administradores)
+/**
+ * Crear un nuevo usuario (solo administradores)
+ * @param {Object} req - Objeto de solicitud Express
+ * @param {Object} res - Objeto de respuesta Express
+ */
 exports.crearUsuario = async (req, res) => {
   try {
     const { nombres, apellidos, correo, contrasena, rol, activo = true } = req.body;
@@ -101,19 +102,13 @@ exports.crearUsuario = async (req, res) => {
     // Validar que el correo no esté en uso
     const existeUsuario = await Usuario.findOne({ where: { correo } });
     if (existeUsuario) {
-      return res.status(400).json({
-        success: false,
-        message: 'El correo electrónico ya está en uso'
-      });
+      return ResponseHandler.error(res, 'El correo electrónico ya está en uso', 400);
     }
 
     // Verificar que el rol sea válido
     const rolesValidos = ['docente', 'verificador', 'administrador'];
     if (rol && !rolesValidos.includes(rol)) {
-      return res.status(400).json({
-        success: false,
-        message: 'El rol especificado no es válido'
-      });
+      return ResponseHandler.error(res, 'El rol especificado no es válido', 400);
     }
 
     // Crear el usuario
@@ -139,22 +134,19 @@ exports.crearUsuario = async (req, res) => {
     const usuarioCreado = usuario.get({ plain: true });
     delete usuarioCreado.contrasena;
 
-    res.status(201).json({
-      success: true,
-      data: usuarioCreado,
-      message: 'Usuario creado exitosamente'
-    });
+    return ResponseHandler.success(res, usuarioCreado, 'Usuario creado exitosamente', 201);
 
   } catch (error) {
-        res.status(500).json({
-      success: false,
-      message: 'Error al crear el usuario',
-      error: error.message
-    });
+    logger.error('Error al crear usuario:', error);
+    return ResponseHandler.error(res, error.message, 500);
   }
 };
 
-// Actualizar un usuario existente
+/**
+ * Actualizar un usuario existente
+ * @param {Object} req - Objeto de solicitud Express
+ * @param {Object} res - Objeto de respuesta Express
+ */
 exports.actualizarUsuario = async (req, res) => {
   try {
     const { id } = req.params;
@@ -163,10 +155,7 @@ exports.actualizarUsuario = async (req, res) => {
     // Buscar el usuario
     const usuario = await Usuario.findByPk(id);
     if (!usuario) {
-      return res.status(404).json({
-        success: false,
-        message: 'Usuario no encontrado'
-      });
+      return ResponseHandler.error(res, 'Usuario no encontrado', 404);
     }
 
     // Verificar si el correo ya está en uso por otro usuario
@@ -179,10 +168,7 @@ exports.actualizarUsuario = async (req, res) => {
       });
 
       if (existeEmail) {
-        return res.status(400).json({
-          success: false,
-          message: 'El correo electrónico ya está en uso por otro usuario'
-        });
+        return ResponseHandler.error(res, 'El correo electrónico ya está en uso por otro usuario', 400);
       }
     }
 
@@ -190,10 +176,7 @@ exports.actualizarUsuario = async (req, res) => {
     if (rol) {
       const rolesValidos = ['docente', 'verificador', 'administrador'];
       if (!rolesValidos.includes(rol)) {
-        return res.status(400).json({
-          success: false,
-          message: 'El rol especificado no es válido'
-        });
+        return ResponseHandler.error(res, 'El rol especificado no es válido', 400);
       }
     }
 
@@ -250,94 +233,71 @@ exports.actualizarUsuario = async (req, res) => {
       ]
     });
 
-    res.status(200).json({
-      success: true,
-      data: usuarioActualizado,
-      message: 'Usuario actualizado exitosamente'
-    });
+    return ResponseHandler.success(res, usuarioActualizado, 'Usuario actualizado exitosamente');
 
   } catch (error) {
-        res.status(500).json({
-      success: false,
-      message: 'Error al actualizar el usuario',
-      error: error.message
-    });
+    logger.error('Error al actualizar usuario:', error);
+    return ResponseHandler.error(res, error.message, 500);
   }
 };
 
-// Obtener roles disponibles para el usuario actual
+/**
+ * Obtener roles disponibles para el usuario actual
+ * @param {Object} req - Objeto de solicitud Express
+ * @param {Object} res - Objeto de respuesta Express
+ */
 exports.obtenerRolesUsuario = async (req, res) => {
   try {
     const usuarioId = req.usuario.id;
 
     // Buscar todos los roles asignados al usuario
     const rolesUsuario = await UsuarioRol.findAll({
-      where: { usuario_id: usuarioId },
-      include: [
-        {
-          model: UsuarioRol,
-          as: 'rolesAsignados',
-          attributes: ['id', 'rol']
-        }
-      ]
+      where: { usuario_id: usuarioId, activo: true },
+      attributes: ['id', 'rol', 'activo', 'asignado_en']
     });
 
-    // Extraer solo la información de los roles
-    const roles = rolesUsuario.map(ur => ur.rolesAsignados);
-
-    res.status(200).json({
-      success: true,
-      data: roles,
-      message: 'Roles obtenidos correctamente'
-    });
+    return ResponseHandler.success(res, rolesUsuario, 'Roles obtenidos correctamente');
 
   } catch (error) {
-        res.status(500).json({
-      success: false,
-      message: 'Error al obtener los roles del usuario',
-      error: error.message
-    });
+    logger.error('Error al obtener roles del usuario:', error);
+    return ResponseHandler.error(res, error.message, 500);
   }
 };
 
-// Eliminar un usuario (solo administradores)
+/**
+ * Eliminar un usuario (solo administradores)
+ * @param {Object} req - Objeto de solicitud Express
+ * @param {Object} res - Objeto de respuesta Express
+ */
 exports.eliminarUsuario = async (req, res) => {
   try {
     const { id } = req.params;
 
     // No permitir eliminar al propio usuario
     if (parseInt(id) === req.usuario.id) {
-      return res.status(400).json({
-        success: false,
-        message: 'No puedes eliminar tu propia cuenta'
-      });
+      return ResponseHandler.error(res, 'No puedes eliminar tu propia cuenta', 400);
     }
 
     const usuario = await Usuario.findByPk(id);
     if (!usuario) {
-      return res.status(404).json({
-        success: false,
-        message: 'Usuario no encontrado'
-      });
+      return ResponseHandler.error(res, 'Usuario no encontrado', 404);
     }
 
     await usuario.destroy();
 
-    res.status(200).json({
-      success: true,
-      message: 'Usuario eliminado exitosamente'
-    });
+    return ResponseHandler.success(res, null, 'Usuario eliminado exitosamente');
 
   } catch (error) {
-        res.status(500).json({
-      success: false,
-      message: 'Error al eliminar el usuario',
-      error: error.message
-    });
+    logger.error('Error al eliminar usuario:', error);
+    return ResponseHandler.error(res, error.message, 500);
   }
 };
 
-// Actualizar perfil del usuario actual
+/**
+ * Actualizar perfil del usuario actual
+ * @param {Object} req - Objeto de solicitud Express
+ * @param {Object} res - Objeto de respuesta Express
+ */
 exports.actualizarPerfil = async (req, res) => {
   try {
     const { nombres, apellidos, correo, contrasena, nuevaPassword } = req.body;
@@ -346,20 +306,14 @@ exports.actualizarPerfil = async (req, res) => {
     // Buscar el usuario
     const usuario = await Usuario.findByPk(usuarioId);
     if (!usuario) {
-      return res.status(404).json({
-        mensaje: 'Usuario no encontrado',
-        error: true
-      });
+      return ResponseHandler.error(res, 'Usuario no encontrado', 404);
     }
 
     // Verificar contraseña actual si se está cambiando la contraseña
     if (nuevaPassword) {
       const esValida = await usuario.validarPassword(contrasena);
       if (!esValida) {
-        return res.status(400).json({
-          success: false,
-          message: 'La contraseña actual es incorrecta'
-        });
+        return ResponseHandler.error(res, 'La contraseña actual es incorrecta', 400);
       }
     }
 
@@ -373,10 +327,7 @@ exports.actualizarPerfil = async (req, res) => {
       });
 
       if (existeEmail) {
-        return res.status(400).json({
-          success: false,
-          message: 'El correo electrónico ya está en uso por otro usuario'
-        });
+        return ResponseHandler.error(res, 'El correo electrónico ya está en uso por otro usuario', 400);
       }
     }
 
@@ -402,22 +353,19 @@ exports.actualizarPerfil = async (req, res) => {
       ]
     });
 
-    res.status(200).json({
-      success: true,
-      data: usuarioActualizado,
-      message: 'Perfil actualizado exitosamente'
-    });
+    return ResponseHandler.success(res, usuarioActualizado, 'Perfil actualizado exitosamente');
 
   } catch (error) {
-        res.status(500).json({
-      success: false,
-      message: 'Error al actualizar el perfil',
-      error: error.message
-    });
+    logger.error('Error al actualizar perfil:', error);
+    return ResponseHandler.error(res, error.message, 500);
   }
 };
 
-// Obtener usuarios por rol
+/**
+ * Obtener usuarios por rol
+ * @param {Object} req - Objeto de solicitud Express
+ * @param {Object} res - Objeto de respuesta Express
+ */
 exports.obtenerUsuariosPorRol = async (req, res) => {
   try {
     const { rol } = req.params;
@@ -425,10 +373,7 @@ exports.obtenerUsuariosPorRol = async (req, res) => {
     // Verificar que el rol sea válido
     const rolesValidos = ['docente', 'verificador', 'administrador'];
     if (!rolesValidos.includes(rol)) {
-      return res.status(400).json({
-        success: false,
-        message: 'El rol especificado no es válido'
-      });
+      return ResponseHandler.error(res, 'El rol especificado no es válido', 400);
     }
 
     const usuarios = await Usuario.findAll({
@@ -448,22 +393,19 @@ exports.obtenerUsuariosPorRol = async (req, res) => {
       order: [['apellidos', 'ASC'], ['nombres', 'ASC']]
     });
 
-    res.status(200).json({
-      success: true,
-      data: usuarios,
-      message: `Usuarios con rol ${rol} obtenidos correctamente`
-    });
+    return ResponseHandler.success(res, usuarios, `Usuarios con rol ${rol} obtenidos correctamente`);
 
   } catch (error) {
-        res.status(500).json({
-      success: false,
-      message: 'Error al obtener los usuarios',
-      error: error.message
-    });
+    logger.error('Error al obtener usuarios por rol:', error);
+    return ResponseHandler.error(res, error.message, 500);
   }
 };
 
-// Asignar verificador a docente
+/**
+ * Asignar verificador a docente
+ * @param {Object} req - Objeto de solicitud Express
+ * @param {Object} res - Objeto de respuesta Express
+ */
 exports.asignarVerificador = async (req, res) => {
   try {
     const { docenteId, verificadorId } = req.params;
@@ -484,10 +426,7 @@ exports.asignarVerificador = async (req, res) => {
     });
 
     if (!docente) {
-      return res.status(404).json({
-        success: false,
-        message: 'Docente no encontrado o no tiene rol de docente activo'
-      });
+      return ResponseHandler.error(res, 'Docente no encontrado o no tiene rol de docente activo', 404);
     }
 
     // Verificar que el verificador existe y tiene rol de verificador
@@ -506,10 +445,7 @@ exports.asignarVerificador = async (req, res) => {
     });
 
     if (!verificador) {
-      return res.status(404).json({
-        success: false,
-        message: 'Verificador no encontrado o no tiene rol de verificador activo'
-      });
+      return ResponseHandler.error(res, 'Verificador no encontrado o no tiene rol de verificador activo', 404);
     }
 
     // Obtener el ciclo académico activo
@@ -522,10 +458,7 @@ exports.asignarVerificador = async (req, res) => {
     });
 
     if (!cicloActivo) {
-      return res.status(400).json({
-        success: false,
-        message: 'No hay un ciclo académico activo para realizar la asignación'
-      });
+      return ResponseHandler.error(res, 'No hay un ciclo académico activo para realizar la asignación', 400);
     }
 
     // Verificar si ya existe una asignación activa para este ciclo
@@ -539,10 +472,7 @@ exports.asignarVerificador = async (req, res) => {
     });
 
     if (asignacionExistente) {
-      return res.status(400).json({
-        success: false,
-        message: 'El verificador ya está asignado a este docente en el ciclo actual'
-      });
+      return ResponseHandler.error(res, 'El verificador ya está asignado a este docente en el ciclo actual', 400);
     }
 
     // Crear la relación docente-verificador
@@ -554,35 +484,37 @@ exports.asignarVerificador = async (req, res) => {
       activo: true
     });
 
-    // Asignación creada exitosamente
-
-    res.status(200).json({
-      success: true,
-      message: `Verificador ${verificador.nombres} ${verificador.apellidos} asignado correctamente al docente ${docente.nombres} ${docente.apellidos}`,
-      data: {
-        docente: {
-          id: docente.id,
-          nombres: docente.nombres,
-          apellidos: docente.apellidos
-        },
-        verificador: {
-          id: verificador.id,
-          nombres: verificador.nombres,
-          apellidos: verificador.apellidos
-        }
+    const resultado = {
+      asignacion: nuevaAsignacion,
+      docente: {
+        id: docente.id,
+        nombres: docente.nombres,
+        apellidos: docente.apellidos
+      },
+      verificador: {
+        id: verificador.id,
+        nombres: verificador.nombres,
+        apellidos: verificador.apellidos
+      },
+      ciclo: {
+        id: cicloActivo.id,
+        nombre: cicloActivo.nombre
       }
-    });
+    };
+
+    return ResponseHandler.success(res, resultado, `Verificador ${verificador.nombres} ${verificador.apellidos} asignado correctamente al docente ${docente.nombres} ${docente.apellidos}`);
 
   } catch (error) {
-        res.status(500).json({
-      success: false,
-      message: 'Error al asignar el verificador',
-      error: error.message
-    });
+    logger.error('Error al asignar verificador:', error);
+    return ResponseHandler.error(res, error.message, 500);
   }
 };
 
-// Obtener asignaciones de verificadores
+/**
+ * Obtener asignaciones de verificadores
+ * @param {Object} req - Objeto de solicitud Express
+ * @param {Object} res - Objeto de respuesta Express
+ */
 exports.obtenerAsignacionesVerificadores = async (req, res) => {
   try {
     const { cicloId } = req.query;
@@ -622,107 +554,58 @@ exports.obtenerAsignacionesVerificadores = async (req, res) => {
       order: [['fecha_asignacion', 'DESC']]
     });
 
-    res.status(200).json({
-      success: true,
-      data: asignaciones,
-      message: 'Asignaciones de verificadores obtenidas correctamente'
-    });
+    return ResponseHandler.success(res, asignaciones, 'Asignaciones de verificadores obtenidas correctamente');
 
   } catch (error) {
-        res.status(500).json({
-      success: false,
-      message: 'Error al obtener las asignaciones de verificadores',
-      error: error.message
-    });
+    logger.error('Error al obtener asignaciones de verificadores:', error);
+    return ResponseHandler.error(res, error.message, 500);
   }
 };
 
-// Obtener estadísticas de usuarios
+/**
+ * Obtener estadísticas de usuarios
+ * @param {Object} req - Objeto de solicitud Express
+ * @param {Object} res - Objeto de respuesta Express
+ */
 exports.obtenerEstadisticasUsuarios = async (req, res) => {
   try {
     const cicloId = req.query.ciclo || req.query.cicloId;
     
-    // 1. Total de usuarios activos
-    const totalUsuarios = await Usuario.count({
-      where: { activo: true }
-    });
+    // Obtener estadísticas reales de la base de datos
+    const [totalUsuarios, verificadores, administradores, docentes] = await Promise.all([
+      Usuario.count({ where: { activo: true } }),
+      UsuarioRol.count({ where: { rol: 'verificador', activo: true } }),
+      UsuarioRol.count({ where: { rol: 'administrador', activo: true } }),
+      UsuarioRol.count({ where: { rol: 'docente', activo: true } })
+    ]);
 
-    // 2. Usuarios activos (mismo que total por ahora)
-    const usuariosActivos = totalUsuarios;
-
-    // 3. Contar usuarios por rol usando consultas más simples
-    let verificadores = 0;
-    let administradores = 0;
-    let docentes = 0;
-
-    try {
-      verificadores = await UsuarioRol.count({
-      where: { 
-        rol: 'verificador',
-        activo: true 
-        }
-      });
-    } catch (error) {
-      verificadores = 0;
-    }
-
-    try {
-      administradores = await UsuarioRol.count({
-      where: { 
-        rol: 'administrador',
-        activo: true 
-        }
-      });
-    } catch (error) {
-      administradores = 0;
-    }
-
-    try {
-      docentes = await UsuarioRol.count({
-      where: { 
-        rol: 'docente',
-        activo: true 
-        }
-      });
-    } catch (error) {
-      docentes = 0;
-    }
-
-    // 4. Calcular porcentaje de usuarios activos
-    const porcentajeActivos = totalUsuarios > 0 ? Math.round((usuariosActivos / totalUsuarios) * 100) : 0;
+    // Calcular porcentaje de usuarios activos
+    const porcentajeActivos = totalUsuarios > 0 ? Math.round((totalUsuarios / totalUsuarios) * 100) : 0;
 
     const estadisticas = {
-        totalUsuarios,
-        usuariosActivos,
-        verificadores,
-        administradores,
-        docentes,
+      totalUsuarios,
+      usuariosActivos: totalUsuarios,
+      verificadores,
+      administradores,
+      docentes,
       porcentajeActivos
     };
 
-    res.status(200).json({
-      success: true,
-      data: estadisticas,
-      message: 'Estadísticas de usuarios obtenidas correctamente'
-    });
+    return ResponseHandler.success(res, estadisticas, 'Estadísticas de usuarios obtenidas correctamente');
 
   } catch (error) {
-    
+    logger.error('Error al obtener estadísticas de usuarios:', error);
     
     // Retornar datos por defecto en caso de error
     const estadisticasPorDefecto = {
-        totalUsuarios: 0,
-        usuariosActivos: 0,
-        verificadores: 0,
-        administradores: 0,
-        docentes: 0,
-        porcentajeActivos: 0
+      totalUsuarios: 0,
+      usuariosActivos: 0,
+      verificadores: 0,
+      administradores: 0,
+      docentes: 0,
+      porcentajeActivos: 0
     };
     
-    res.status(200).json({
-      success: true,
-      data: estadisticasPorDefecto,
-      message: 'Estadísticas de usuarios obtenidas'
-    });
+    return ResponseHandler.success(res, estadisticasPorDefecto, 'Estadísticas de usuarios obtenidas');
   }
 };

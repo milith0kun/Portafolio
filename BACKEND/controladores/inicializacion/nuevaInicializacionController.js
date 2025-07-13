@@ -1,9 +1,10 @@
 const { sequelize } = require('../../config/database');
-const logger = require('../../config/logger');
+const { info, error: logError } = require('../../config/logger');
 const { actualizarProgreso, registrarError, limpiarArchivosTemporales } = require('./utils');
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
+const ResponseHandler = require('../utils/responseHandler');
 
 // Configuración de validación de archivos
 const TIPOS_PERMITIDOS = ['.xlsx', '.xls', '.csv'];
@@ -87,20 +88,12 @@ const identificarTipoArchivo = (nombreArchivo) => {
 const inicializarSistema = async (req, res) => {
     // Verificar que se hayan subido archivos
     if (!req.files || req.files.length === 0) {
-        return res.status(400).json({
-            success: false,
-            message: 'No se han subido archivos',
-            error: 'No se han subido archivos para procesar'
-        });
+        return ResponseHandler.badRequest(res, 'No se han subido archivos para procesar');
     }
 
     // Validar número máximo de archivos
     if (req.files.length > MAX_FILES) {
-        return res.status(400).json({
-            success: false,
-            message: 'Demasiados archivos',
-            error: `Se permiten máximo ${MAX_FILES} archivos`
-        });
+        return ResponseHandler.badRequest(res, `Se permiten máximo ${MAX_FILES} archivos`);
     }
 
     // Validar cada archivo
@@ -113,11 +106,7 @@ const inicializarSistema = async (req, res) => {
     });
 
     if (erroresValidacion.length > 0) {
-        return res.status(400).json({
-            success: false,
-            message: 'Error en la validación de archivos',
-            errores: erroresValidacion
-        });
+        return ResponseHandler.validationError(res, erroresValidacion);
     }
 
     // Organizar archivos por tipo
@@ -129,7 +118,7 @@ const inicializarSistema = async (req, res) => {
         
         if (tipoIdentificado) {
             archivos[tipoIdentificado] = archivo;
-            logger.info(`Archivo identificado: ${archivo.originalname} como ${tipoIdentificado}`);
+            info(`Archivo identificado: ${archivo.originalname} como ${tipoIdentificado}`);
         } else {
             archivosNoIdentificados.push(archivo.originalname);
         }
@@ -137,11 +126,7 @@ const inicializarSistema = async (req, res) => {
 
     // Verificar archivos no identificados
     if (archivosNoIdentificados.length > 0) {
-        return res.status(400).json({
-            success: false,
-            message: `No se pudieron identificar los siguientes archivos: ${archivosNoIdentificados.join(', ')}`,
-            error: 'Verifique que los nombres de los archivos sean correctos'
-        });
+        return ResponseHandler.badRequest(res, `No se pudieron identificar los siguientes archivos: ${archivosNoIdentificados.join(', ')}`);
     }
 
     // Verificar que se hayan subido los archivos básicos necesarios
@@ -149,11 +134,7 @@ const inicializarSistema = async (req, res) => {
     const archivosFaltantes = archivosBasicos.filter(tipo => !archivos[tipo]);
     
     if (archivosFaltantes.length > 0) {
-        return res.status(400).json({
-            success: false,
-            message: `Faltan archivos básicos requeridos: ${archivosFaltantes.join(', ')}`,
-            error: `Debe subir al menos los archivos: ${archivosBasicos.join(', ')}`
-        });
+        return ResponseHandler.badRequest(res, `Debe subir al menos los archivos: ${archivosBasicos.join(', ')}`);
     }
 
     // Inicializar resultados
@@ -168,152 +149,184 @@ const inicializarSistema = async (req, res) => {
     const transaction = await sequelize.transaction();
 
     try {
-        logger.info('=== INICIANDO CARGA MASIVA DE DATOS ===');
+        info('=== INICIANDO CARGA MASIVA DE DATOS ===');
         
         // 1. Procesar usuarios (REQUERIDO)
         if (archivos.usuarios) {
-        try {
-            actualizarProgreso('Procesando usuarios masivos');
-            const resultado = await usuariosController.procesar(archivos.usuarios, transaction);
-            resultados.detalles.usuarios = resultado;
-            resultados.procesados++;
-                logger.info(`✅ Usuarios procesados: ${resultado.creados} creados, ${resultado.actualizados} actualizados, ${resultado.rolesAsignados || 0} roles asignados, ${resultado.errores.length} errores`);
-                        // Registrar archivo en BD
             try {
-                await registrarArchivoProcesado(archivos.usuarios, 'usuarios', 1, req.user?.id || 1, resultado.creados, resultado.errores.length, resultado);
-                logger.info(`📋 Archivo usuarios registrado en BD`);
-            } catch (errorRegistro) {
-                logger.error('❌ Error al registrar archivo usuarios:', errorRegistro.message);
+                actualizarProgreso('Procesando usuarios masivos');
+                const resultado = await usuariosController.procesar(archivos.usuarios, transaction);
+                resultados.detalles.usuarios = resultado;
+                resultados.procesados++;
+                info(`Usuarios procesados`, {
+                    creados: resultado.creados,
+                    actualizados: resultado.actualizados,
+                    rolesAsignados: resultado.rolesAsignados || 0,
+                    errores: resultado.errores.length
+                });
+                
+                // Registrar archivo en BD
+                try {
+                    await registrarArchivoProcesado(archivos.usuarios, 'usuarios', 1, req.user?.id || 1, resultado.creados, resultado.errores.length, resultado);
+                    info(`Archivo usuarios registrado en BD`);
+                } catch (errorRegistro) {
+                    logError('Error al registrar archivo usuarios', errorRegistro);
+                }
+            } catch (error) {
+                const mensajeError = `Error al procesar usuarios: ${error.message}`;
+                logError(mensajeError, { error: error.message });
+                registrarError(error, 'procesarUsuarios');
+                throw new Error(mensajeError);
             }
-        } catch (error) {
-            const mensajeError = `Error al procesar usuarios: ${error.message}`;
-            logger.error(`❌ ${mensajeError}`);
-            registrarError(error, 'procesarUsuarios');
-            throw new Error(mensajeError);
-        }
         }
 
         // 2. Procesar carreras (REQUERIDO)
         if (archivos.carreras) {
-        try {
-            actualizarProgreso('Procesando carreras completas');
-            const resultado = await carrerasController.procesar(archivos.carreras, transaction);
-            resultados.detalles.carreras = resultado;
-            resultados.procesados++;
-                logger.info(`✅ Carreras procesadas: ${resultado.creadas} creadas, ${resultado.actualizadas} actualizadas, ${resultado.errores.length} errores`);
-                        // Registrar archivo en BD
             try {
-                await registrarArchivoProcesado(archivos.carreras, 'carreras', 1, req.user?.id || 1, resultado.creadas, resultado.errores.length, resultado);
-                logger.info(`📋 Archivo carreras registrado en BD`);
-            } catch (errorRegistro) {
-                logger.error('❌ Error al registrar archivo carreras:', errorRegistro.message);
+                actualizarProgreso('Procesando carreras completas');
+                const resultado = await carrerasController.procesar(archivos.carreras, transaction);
+                resultados.detalles.carreras = resultado;
+                resultados.procesados++;
+                info(`Carreras procesadas`, {
+                    creadas: resultado.creadas,
+                    actualizadas: resultado.actualizadas,
+                    errores: resultado.errores.length
+                });
+                
+                // Registrar archivo en BD
+                try {
+                    await registrarArchivoProcesado(archivos.carreras, 'carreras', 1, req.user?.id || 1, resultado.creadas, resultado.errores.length, resultado);
+                    info(`Archivo carreras registrado en BD`);
+                } catch (errorRegistro) {
+                    logError('Error al registrar archivo carreras', errorRegistro);
+                }
+            } catch (error) {
+                const mensajeError = `Error al procesar carreras: ${error.message}`;
+                logError(mensajeError, { error: error.message });
+                registrarError(error, 'procesarCarreras');
+                throw new Error(mensajeError);
             }
-        } catch (error) {
-            const mensajeError = `Error al procesar carreras: ${error.message}`;
-            logger.error(`❌ ${mensajeError}`);
-            registrarError(error, 'procesarCarreras');
-            throw new Error(mensajeError);
-        }
         }
 
         // 3. Procesar asignaturas (REQUERIDO)
         if (archivos.asignaturas) {
-        try {
-            actualizarProgreso('Procesando asignaturas completas');
-            const resultado = await asignaturasController.procesar(archivos.asignaturas, transaction);
-            resultados.detalles.asignaturas = resultado;
-            resultados.procesados++;
-                logger.info(`✅ Asignaturas procesadas: ${resultado.creadas} creadas, ${resultado.actualizadas} actualizadas, ${resultado.errores.length} errores`);
-                        // Registrar archivo en BD
             try {
-                await registrarArchivoProcesado(archivos.asignaturas, 'asignaturas', 1, req.user?.id || 1, resultado.creadas, resultado.errores.length, resultado);
-                logger.info(`📋 Archivo asignaturas registrado en BD`);
-            } catch (errorRegistro) {
-                logger.error('❌ Error al registrar archivo asignaturas:', errorRegistro.message);
+                actualizarProgreso('Procesando asignaturas completas');
+                const resultado = await asignaturasController.procesar(archivos.asignaturas, transaction);
+                resultados.detalles.asignaturas = resultado;
+                resultados.procesados++;
+                info(`Asignaturas procesadas`, {
+                    creadas: resultado.creadas,
+                    actualizadas: resultado.actualizadas,
+                    errores: resultado.errores.length
+                });
+                
+                // Registrar archivo en BD
+                try {
+                    await registrarArchivoProcesado(archivos.asignaturas, 'asignaturas', 1, req.user?.id || 1, resultado.creadas, resultado.errores.length, resultado);
+                    info(`Archivo asignaturas registrado en BD`);
+                } catch (errorRegistro) {
+                    logError('Error al registrar archivo asignaturas', errorRegistro);
+                }
+            } catch (error) {
+                const mensajeError = `Error al procesar asignaturas: ${error.message}`;
+                logError(mensajeError, { error: error.message });
+                registrarError(error, 'procesarAsignaturas');
+                throw new Error(mensajeError);
             }
-        } catch (error) {
-            const mensajeError = `Error al procesar asignaturas: ${error.message}`;
-            logger.error(`❌ ${mensajeError}`);
-            registrarError(error, 'procesarAsignaturas');
-            throw new Error(mensajeError);
-        }
         }
 
         // 4. Procesar carga académica (OPCIONAL)
         if (archivos.carga_academica) {
-        try {
-            actualizarProgreso('Procesando carga académica');
-                const resultado = await cargaAcademicaController.procesar(archivos.carga_academica, transaction);
-            resultados.detalles.cargaAcademica = resultado;
-            resultados.procesados++;
-                logger.info(`✅ Carga académica procesada: ${resultado.creadas} creadas, ${resultado.actualizadas} actualizadas, ${resultado.errores.length} errores`);
-                        // Registrar archivo en BD
             try {
-                await registrarArchivoProcesado(archivos.carga_academica, 'carga_academica', 1, req.user?.id || 1, resultado.creadas, resultado.errores.length, resultado);
-                logger.info(`📋 Archivo carga_academica registrado en BD`);
-            } catch (errorRegistro) {
-                logger.error('❌ Error al registrar archivo carga_academica:', errorRegistro.message);
+                actualizarProgreso('Procesando carga académica');
+                const resultado = await cargaAcademicaController.procesar(archivos.carga_academica, transaction);
+                resultados.detalles.cargaAcademica = resultado;
+                resultados.procesados++;
+                info(`Carga académica procesada`, {
+                    creadas: resultado.creadas,
+                    actualizadas: resultado.actualizadas,
+                    portafoliosGenerados: resultado.portafoliosGenerados || 0,
+                    errores: resultado.errores.length
+                });
+                
+                // Registrar archivo en BD
+                try {
+                    await registrarArchivoProcesado(archivos.carga_academica, 'carga_academica', 1, req.user?.id || 1, resultado.creadas, resultado.errores.length, resultado);
+                    info(`Archivo carga_academica registrado en BD`);
+                } catch (errorRegistro) {
+                    logError('Error al registrar archivo carga_academica', errorRegistro);
+                }
+            } catch (error) {
+                const mensajeError = `Error al procesar carga académica: ${error.message}`;
+                logError(mensajeError, { error: error.message });
+                registrarError(error, 'procesarCargaAcademica');
+                // No lanzar error para archivos opcionales
+                resultados.errores.push(mensajeError);
             }
-        } catch (error) {
-            const mensajeError = `Error al procesar carga académica: ${error.message}`;
-            logger.error(`❌ ${mensajeError}`);
-            registrarError(error, 'procesarCargaAcademica');
-            // No lanzar error para archivos opcionales
-            resultados.errores.push(mensajeError);
-        }
         }
 
         // 5. Procesar verificaciones (OPCIONAL)
         if (archivos.verificaciones) {
-        try {
-            actualizarProgreso('Procesando verificaciones');
-            const resultado = await verificacionesController.procesar(archivos.verificaciones, transaction);
-            resultados.detalles.verificaciones = resultado;
-            resultados.procesados++;
-                logger.info(`✅ Verificaciones procesadas: ${resultado.creadas} creadas, ${resultado.actualizadas} actualizadas, ${resultado.errores.length} errores`);
-                        // Registrar archivo en BD
             try {
-                await registrarArchivoProcesado(archivos.verificaciones, 'verificaciones', 1, req.user?.id || 1, resultado.creadas, resultado.errores.length, resultado);
-                logger.info(`📋 Archivo verificaciones registrado en BD`);
-            } catch (errorRegistro) {
-                logger.error('❌ Error al registrar archivo verificaciones:', errorRegistro.message);
+                actualizarProgreso('Procesando verificaciones');
+                const resultado = await verificacionesController.procesar(archivos.verificaciones, transaction);
+                resultados.detalles.verificaciones = resultado;
+                resultados.procesados++;
+                info(`Verificaciones procesadas`, {
+                    creadas: resultado.creadas,
+                    actualizadas: resultado.actualizadas,
+                    errores: resultado.errores.length
+                });
+                
+                // Registrar archivo en BD
+                try {
+                    await registrarArchivoProcesado(archivos.verificaciones, 'verificaciones', 1, req.user?.id || 1, resultado.creadas, resultado.errores.length, resultado);
+                    info(`Archivo verificaciones registrado en BD`);
+                } catch (errorRegistro) {
+                    logError('Error al registrar archivo verificaciones', errorRegistro);
+                }
+            } catch (error) {
+                const mensajeError = `Error al procesar verificaciones: ${error.message}`;
+                logError(mensajeError, { error: error.message });
+                registrarError(error, 'procesarVerificaciones');
+                // No lanzar error para archivos opcionales
+                resultados.errores.push(mensajeError);
             }
-        } catch (error) {
-            const mensajeError = `Error al procesar verificaciones: ${error.message}`;
-            logger.error(`❌ ${mensajeError}`);
-            registrarError(error, 'procesarVerificaciones');
-            // No lanzar error para archivos opcionales
-            resultados.errores.push(mensajeError);
-        }
         }
 
         // 6. Procesar códigos institucionales (OPCIONAL)
         if (archivos.codigos_institucionales) {
-        try {
-            actualizarProgreso('Procesando códigos institucionales');
-                const resultado = await codigosInstitucionalesController.procesar(archivos.codigos_institucionales, transaction);
-            resultados.detalles.codigosInstitucionales = resultado;
-            resultados.procesados++;
-                logger.info(`✅ Códigos institucionales procesados: ${resultado.creados} creados, ${resultado.actualizados} actualizados, ${resultado.errores.length} errores`);
-                        // Registrar archivo en BD
             try {
-                await registrarArchivoProcesado(archivos.codigos_institucionales, 'codigos_institucionales', 1, req.user?.id || 1, resultado.creados, resultado.errores.length, resultado);
-                logger.info(`📋 Archivo codigos_institucionales registrado en BD`);
-            } catch (errorRegistro) {
-                logger.error('❌ Error al registrar archivo codigos_institucionales:', errorRegistro.message);
+                actualizarProgreso('Procesando códigos institucionales');
+                const resultado = await codigosInstitucionalesController.procesar(archivos.codigos_institucionales, transaction);
+                resultados.detalles.codigosInstitucionales = resultado;
+                resultados.procesados++;
+                info(`Códigos institucionales procesados`, {
+                    creados: resultado.creados,
+                    actualizados: resultado.actualizados,
+                    errores: resultado.errores.length
+                });
+                
+                // Registrar archivo en BD
+                try {
+                    await registrarArchivoProcesado(archivos.codigos_institucionales, 'codigos_institucionales', 1, req.user?.id || 1, resultado.creados, resultado.errores.length, resultado);
+                    info(`Archivo codigos_institucionales registrado en BD`);
+                } catch (errorRegistro) {
+                    logError('Error al registrar archivo codigos_institucionales', errorRegistro);
+                }
+            } catch (error) {
+                const mensajeError = `Error al procesar códigos institucionales: ${error.message}`;
+                logError(mensajeError, { error: error.message });
+                registrarError(error, 'procesarCodigosInstitucionales');
+                // No lanzar error para archivos opcionales
+                resultados.errores.push(mensajeError);
             }
-        } catch (error) {
-            const mensajeError = `Error al procesar códigos institucionales: ${error.message}`;
-            logger.error(`❌ ${mensajeError}`);
-            registrarError(error, 'procesarCodigosInstitucionales');
-            // No lanzar error para archivos opcionales
-            resultados.errores.push(mensajeError);
-        }
         }
 
         // Confirmar transacción
         await transaction.commit();
-        logger.info('✅ TRANSACCIÓN CONFIRMADA - Todos los datos han sido guardados');
+        info('TRANSACCIÓN CONFIRMADA - Todos los datos han sido guardados');
         
         // Limpiar archivos temporales
         await limpiarArchivosTemporales(req.files);
@@ -321,30 +334,24 @@ const inicializarSistema = async (req, res) => {
         // Generar reporte de inicialización
         const reporte = generarReporteInicializacion(resultados);
 
-        logger.info('=== CARGA MASIVA COMPLETADA EXITOSAMENTE ===');
+        info('=== CARGA MASIVA COMPLETADA EXITOSAMENTE ===');
 
-        return res.status(200).json({
-            success: true,
-            message: 'Sistema inicializado correctamente',
-            resultados: reporte
-        });
+        return ResponseHandler.success(res, reporte, 'Sistema inicializado correctamente');
 
     } catch (error) {
         // Revertir transacción en caso de error
         await transaction.rollback();
-        logger.error('❌ TRANSACCIÓN REVERTIDA - Se produjo un error');
+        logError('TRANSACCIÓN REVERTIDA - Se produjo un error', { error: error.message });
         
         // Limpiar archivos temporales
         await limpiarArchivosTemporales(req.files);
 
-        logger.error(`❌ Error en la inicialización del sistema: ${error.message}`, { error });
-        
-        return res.status(500).json({
-            success: false,
-            message: 'Error en la inicialización del sistema',
+        logError('Error en la inicialización del sistema', { 
             error: error.message,
-            detalles: resultados
+            resultados 
         });
+        
+        return ResponseHandler.serverError(res, error, 'Error en la inicialización del sistema');
     }
 };
 
@@ -409,10 +416,7 @@ const obtenerProgreso = (req, res) => {
         error: null
     };
 
-    return res.status(200).json({
-        success: true,
-        progreso
-    });
+    return ResponseHandler.success(res, progreso, 'Progreso obtenido correctamente');
 };
 
 // Función para registrar archivo procesado
@@ -443,11 +447,15 @@ async function registrarArchivoProcesado(archivo, tipoArchivo, cicloId, usuarioI
             fecha_procesamiento: new Date()
         });
         
-        logger.info(`Archivo registrado en BD: ${archivoRegistrado.id} - ${tipoArchivo}`);
+        info(`Archivo registrado en BD: ${archivoRegistrado.id} - ${tipoArchivo}`);
         return archivoRegistrado;
         
     } catch (error) {
-        logger.error('Error al registrar archivo procesado:', error);
+        logError('Error al registrar archivo procesado', {
+            error: error.message,
+            tipoArchivo,
+            archivo: archivo.originalname
+        });
         throw error;
     }
 }

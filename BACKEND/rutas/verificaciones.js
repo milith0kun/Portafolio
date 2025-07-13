@@ -6,8 +6,7 @@
 const express = require('express');
 const router = express.Router();
 const verificacionesController = require('../controladores/verificacionesController');
-const { verificarToken } = require('../middleware/verificar-jwt');
-const verificarRol = require('../middleware/verificar-rol');
+const { verificarToken, verificarRol } = require('../middleware/authJwt');
 
 // Middleware para verificar que el usuario es verificador
 const esVerificador = verificarRol(['verificador']);

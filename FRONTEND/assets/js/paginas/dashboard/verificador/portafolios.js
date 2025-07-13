@@ -85,7 +85,7 @@ class PortafoliosVerificador {
 
     async cargarPortafolios() {
         try {
-            const response = await fetch('/api/verificaciones/portafolios', {
+            const response = await fetch(`${CONFIG.API.BASE_URL}${CONFIG.API.ENDPOINTS.VERIFICACIONES}/portafolios`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${Auth.obtenerToken()}`,
@@ -388,7 +388,7 @@ class PortafoliosVerificador {
 
     async cargarDocumentosPortafolio(portafolioId) {
         try {
-            const response = await fetch(`/api/verificaciones/portafolios/${portafolioId}/documentos`, {
+            const response = await fetch(`${CONFIG.API.BASE_URL}${CONFIG.API.ENDPOINTS.VERIFICACIONES}/portafolios/${portafolioId}/documentos`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${Auth.obtenerToken()}`,

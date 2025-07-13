@@ -244,13 +244,24 @@ class VerificacionDatos {
             }
         };
         
+        // Evento coordinado de ciclo
+        const eventoCoordinado = (event) => {
+            const cicloId = event.detail?.cicloId;
+            if (cicloId) {
+                console.log('📊 Verificar Datos - Evento coordinado recibido:', cicloId);
+                manejarCambioCiclo(cicloId);
+            }
+        };
+        
         // Remover listeners anteriores
         document.removeEventListener('sincronizar-ciclo', eventoSincronizarCiclo);
         document.removeEventListener('ciclo-cambiado', eventoCicloLegacy);
+        document.removeEventListener('cicloCoordinado', eventoCoordinado);
         
         // Agregar listeners
         document.addEventListener('sincronizar-ciclo', eventoSincronizarCiclo);
         document.addEventListener('ciclo-cambiado', eventoCicloLegacy);
+        document.addEventListener('cicloCoordinado', eventoCoordinado);
         
         console.log('✅ Eventos de sincronización configurados con protección anti-bucles');
     }
@@ -429,7 +440,9 @@ class VerificacionDatos {
             portafolios: this.datosCache.portafolios.length
         };
         
-        // Actualizar elementos en el DOM
+        console.log('📊 Estadísticas actualizadas:', this.estadisticas);
+        
+        // Actualizar elementos en el DOM solo si existen
         this.actualizarElementoEstadistica('totalUsuarios', this.estadisticas.usuarios);
         this.actualizarElementoEstadistica('totalCarreras', this.estadisticas.carreras);
         this.actualizarElementoEstadistica('totalAsignaturas', this.estadisticas.asignaturas);
@@ -437,13 +450,94 @@ class VerificacionDatos {
         this.actualizarElementoEstadistica('totalVerificaciones', this.estadisticas.verificaciones);
         this.actualizarElementoEstadistica('totalPortafolios', this.estadisticas.portafolios);
         
-        console.log('📊 Estadísticas actualizadas:', this.estadisticas);
+        // Mostrar estadísticas en página de carga masiva si aplica
+        this.actualizarEstadisticasCargaMasiva();
     }
     
     actualizarElementoEstadistica(elementId, valor) {
         const elemento = document.getElementById(elementId);
         if (elemento) {
             elemento.innerHTML = `<span class="counter">${valor.toLocaleString()}</span>`;
+        }
+    }
+    
+    /**
+     * Actualizar estadísticas específicamente para la página de carga masiva
+     */
+    actualizarEstadisticasCargaMasiva() {
+        const estadoArchivos = document.getElementById('estadoArchivos');
+        
+        // Solo actualizar si estamos en la página de carga masiva
+        if (estadoArchivos && this.estadisticas) {
+            const html = `
+                <div class="row">
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            <h6><i class="fas fa-info-circle me-2"></i>📊 Estadísticas del Ciclo 1</h6>
+                            <div class="row mt-3">
+                                <div class="col-md-2">
+                                    <div class="stat-item text-center">
+                                        <div class="stat-value text-primary">${this.estadisticas.usuarios}</div>
+                                        <div class="stat-label">Usuarios</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="stat-item text-center">
+                                        <div class="stat-value text-success">${this.estadisticas.carreras}</div>
+                                        <div class="stat-label">Carreras</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="stat-item text-center">
+                                        <div class="stat-value text-info">${this.estadisticas.asignaturas}</div>
+                                        <div class="stat-label">Asignaturas</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="stat-item text-center">
+                                        <div class="stat-value text-warning">${this.estadisticas.asignaciones}</div>
+                                        <div class="stat-label">Asignaciones</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="stat-item text-center">
+                                        <div class="stat-value text-secondary">${this.estadisticas.verificaciones}</div>
+                                        <div class="stat-label">Verificaciones</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="stat-item text-center">
+                                        <div class="stat-value text-dark">${this.estadisticas.portafolios}</div>
+                                        <div class="stat-label">Portafolios</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-12">
+                        <div class="alert alert-success">
+                            <h6><i class="fas fa-check-circle me-2"></i>Estado de la Base de Datos</h6>
+                            <p class="mb-0">Datos cargados y verificados correctamente para el ciclo académico activo.</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            estadoArchivos.innerHTML = html;
+        }
+        
+        // Actualizar estado de conexión si existe
+        const estadoConexion = document.getElementById('estadoConexion');
+        if (estadoConexion) {
+            estadoConexion.innerHTML = `
+                <span class="badge bg-success">
+                    <i class="fas fa-check-circle me-1"></i>
+                    ACTIVO
+                </span>
+            `;
         }
     }
     

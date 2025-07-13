@@ -5,12 +5,14 @@
 
 const { sequelize } = require('../config/database');
 const { Op } = require('sequelize');
-const responseHandler = require('./utils/responseHandler');
-const logger = require('../config/logger');
+const ResponseHandler = require('./utils/responseHandler');
+const { logger } = require('../config/logger');
 const { Portafolio, Usuario, Asignatura, Carrera, CicloAcademico, ArchivoSubido, VerificadorDocente } = require('../modelos');
 
 /**
  * Obtener portafolios asignados al verificador
+ * @param {Object} req - Objeto de solicitud Express
+ * @param {Object} res - Objeto de respuesta Express
  */
 const obtenerPortafoliosAsignados = async (req, res) => {
   try {
@@ -25,14 +27,14 @@ const obtenerPortafoliosAsignados = async (req, res) => {
       },
       include: [
         {
+          model: Usuario,
+          as: 'docente',
+          attributes: ['id', 'nombres', 'apellidos', 'correo']
+        },
+        {
           model: Portafolio,
           as: 'portafolio',
           include: [
-            {
-              model: Usuario,
-              as: 'docente',
-              attributes: ['id', 'nombre', 'apellido', 'email']
-            },
             {
               model: Asignatura,
               as: 'asignatura',
@@ -40,7 +42,7 @@ const obtenerPortafoliosAsignados = async (req, res) => {
               include: [
                 {
                   model: Carrera,
-                  as: 'carrera_info',
+                  as: 'carrera',
                   attributes: ['id', 'nombre']
                 }
               ]
@@ -48,7 +50,7 @@ const obtenerPortafoliosAsignados = async (req, res) => {
             {
               model: CicloAcademico,
               as: 'ciclo',
-              attributes: ['id', 'nombre', 'año']
+              attributes: ['id', 'nombre', 'estado']
             }
           ]
         }
@@ -64,10 +66,10 @@ const obtenerPortafoliosAsignados = async (req, res) => {
         const estadisticasArchivos = await ArchivoSubido.findAll({
           where: { portafolio_id: portafolio.id },
           attributes: [
-            'estado_verificacion',
+            'estado',
             [sequelize.fn('COUNT', sequelize.col('id')), 'cantidad']
           ],
-          group: ['estado_verificacion'],
+          group: ['estado'],
           raw: true
         });
 
@@ -81,7 +83,7 @@ const obtenerPortafoliosAsignados = async (req, res) => {
 
         estadisticasArchivos.forEach(stat => {
           stats.total += parseInt(stat.cantidad);
-          switch (stat.estado_verificacion) {
+          switch (stat.estado) {
             case 'pendiente':
               stats.pendientes = parseInt(stat.cantidad);
               break;
@@ -99,31 +101,33 @@ const obtenerPortafoliosAsignados = async (req, res) => {
 
         return {
           id: portafolio.id,
-          progreso: portafolio.progreso,
+          progreso_completado: portafolio.progreso_completado,
           estado: portafolio.estado,
-          fechaCreacion: portafolio.fecha_creacion,
-          fechaActualizacion: portafolio.fecha_actualizacion,
-          docente: portafolio.docente,
+          creado_en: portafolio.creado_en,
+          actualizado_en: portafolio.actualizado_en,
+          docente: asignacion.docente,
           asignatura: portafolio.asignatura,
           ciclo: portafolio.ciclo,
           estadisticas: stats,
-          fechaAsignacion: asignacion.fecha_asignacion
+          fecha_asignacion: asignacion.creado_en
         };
       })
     );
 
     logger.info(`Encontrados ${portafoliosConEstadisticas.length} portafolios asignados`);
     
-    return responseHandler.success(res, portafoliosConEstadisticas, 'Portafolios asignados obtenidos exitosamente');
+    return ResponseHandler.success(res, portafoliosConEstadisticas, 'Portafolios asignados obtenidos exitosamente');
     
   } catch (error) {
     logger.error('Error obteniendo portafolios asignados:', error);
-    return responseHandler.error(res, 'Error interno del servidor', error.message);
+    return ResponseHandler.error(res, error.message, 500);
   }
 };
 
 /**
  * Obtener documentos de un portafolio específico para verificación
+ * @param {Object} req - Objeto de solicitud Express
+ * @param {Object} res - Objeto de respuesta Express
  */
 const obtenerDocumentosPortafolio = async (req, res) => {
   try {
@@ -134,13 +138,13 @@ const obtenerDocumentosPortafolio = async (req, res) => {
     const asignacion = await VerificadorDocente.findOne({
       where: {
         verificador_id: verificadorId,
-        portafolio_id: portafolioId,
+        docente_id: { [Op.in]: sequelize.literal(`(SELECT docente_id FROM portafolios WHERE id = ${portafolioId})`) },
         activo: true
       }
     });
 
     if (!asignacion) {
-      return responseHandler.forbidden(res, 'No tienes acceso a este portafolio');
+      return ResponseHandler.error(res, 'No tienes acceso a este portafolio', 403);
     }
 
     // Obtener información del portafolio
@@ -149,7 +153,7 @@ const obtenerDocumentosPortafolio = async (req, res) => {
         {
           model: Usuario,
           as: 'docente',
-          attributes: ['id', 'nombre', 'apellido', 'email']
+          attributes: ['id', 'nombres', 'apellidos', 'correo']
         },
         {
           model: Asignatura,
@@ -160,30 +164,30 @@ const obtenerDocumentosPortafolio = async (req, res) => {
     });
 
     if (!portafolio) {
-      return responseHandler.notFound(res, 'Portafolio no encontrado');
+      return ResponseHandler.error(res, 'Portafolio no encontrado', 404);
     }
 
     // Obtener archivos del portafolio organizados por carpeta
     const archivos = await ArchivoSubido.findAll({
       where: { portafolio_id: portafolioId },
-      order: [['ruta_carpeta', 'ASC'], ['nombre_archivo', 'ASC']]
+      order: [['subido_en', 'ASC']]
     });
 
     // Organizar archivos por carpeta
     const carpetas = {};
     archivos.forEach(archivo => {
-      const carpeta = archivo.ruta_carpeta || 'Sin clasificar';
+      const carpeta = archivo.ruta || 'Sin clasificar';
       if (!carpetas[carpeta]) {
         carpetas[carpeta] = [];
       }
       carpetas[carpeta].push({
         id: archivo.id,
-        nombre: archivo.nombre_archivo,
-        tamaño: archivo.tamaño,
-        tipo: archivo.tipo_archivo,
-        fechaSubida: archivo.fecha_subida,
-        estadoVerificacion: archivo.estado_verificacion,
-        observaciones: archivo.observaciones,
+        nombre: archivo.nombre_original,
+        tamaño: archivo.tamanio,
+        tipo: archivo.tipo_mime,
+        fechaSubida: archivo.subido_en,
+        estadoVerificacion: archivo.estado,
+        observaciones: archivo.comentarios,
         fechaVerificacion: archivo.fecha_verificacion,
         verificadoPor: archivo.verificado_por
       });
@@ -192,7 +196,7 @@ const obtenerDocumentosPortafolio = async (req, res) => {
     const resultado = {
       portafolio: {
         id: portafolio.id,
-        progreso: portafolio.progreso,
+        progreso_completado: portafolio.progreso_completado,
         estado: portafolio.estado,
         docente: portafolio.docente,
         asignatura: portafolio.asignatura
@@ -200,23 +204,25 @@ const obtenerDocumentosPortafolio = async (req, res) => {
       carpetas,
       estadisticasGenerales: {
         totalArchivos: archivos.length,
-        pendientes: archivos.filter(a => a.estado_verificacion === 'pendiente').length,
-        aprobados: archivos.filter(a => a.estado_verificacion === 'aprobado').length,
-        rechazados: archivos.filter(a => a.estado_verificacion === 'rechazado').length,
-        observaciones: archivos.filter(a => a.estado_verificacion === 'observacion').length
+        pendientes: archivos.filter(a => a.estado === 'pendiente').length,
+        aprobados: archivos.filter(a => a.estado === 'aprobado').length,
+        rechazados: archivos.filter(a => a.estado === 'rechazado').length,
+        observaciones: archivos.filter(a => a.estado === 'observacion').length
       }
     };
 
-    return responseHandler.success(res, resultado, 'Documentos del portafolio obtenidos exitosamente');
+    return ResponseHandler.success(res, resultado, 'Documentos del portafolio obtenidos exitosamente');
     
   } catch (error) {
     logger.error('Error obteniendo documentos del portafolio:', error);
-    return responseHandler.error(res, 'Error interno del servidor', error.message);
+    return ResponseHandler.error(res, error.message, 500);
   }
 };
 
 /**
  * Verificar un documento (aprobar/rechazar/observar)
+ * @param {Object} req - Objeto de solicitud Express
+ * @param {Object} res - Objeto de respuesta Express
  */
 const verificarDocumento = async (req, res) => {
   try {
@@ -227,32 +233,32 @@ const verificarDocumento = async (req, res) => {
     // Validar estado
     const estadosValidos = ['aprobado', 'rechazado', 'observacion'];
     if (!estadosValidos.includes(estado)) {
-      return responseHandler.badRequest(res, 'Estado de verificación no válido');
+      return ResponseHandler.error(res, 'Estado de verificación no válido', 400);
     }
 
     // Obtener el archivo
     const archivo = await ArchivoSubido.findByPk(documentoId);
     if (!archivo) {
-      return responseHandler.notFound(res, 'Documento no encontrado');
+      return ResponseHandler.error(res, 'Documento no encontrado', 404);
     }
 
     // Verificar que el verificador tenga acceso al portafolio de este archivo
     const asignacion = await VerificadorDocente.findOne({
       where: {
         verificador_id: verificadorId,
-        portafolio_id: archivo.portafolio_id,
+        docente_id: { [Op.in]: sequelize.literal(`(SELECT docente_id FROM portafolios WHERE id = ${archivo.portafolio_id})`) },
         activo: true
       }
     });
 
     if (!asignacion) {
-      return responseHandler.forbidden(res, 'No tienes acceso para verificar este documento');
+      return ResponseHandler.error(res, 'No tienes acceso para verificar este documento', 403);
     }
 
     // Actualizar el archivo
     await archivo.update({
-      estado_verificacion: estado,
-      observaciones: observaciones || null,
+      estado: estado,
+      comentarios: observaciones || null,
       fecha_verificacion: new Date(),
       verificado_por: verificadorId
     });
@@ -262,7 +268,7 @@ const verificarDocumento = async (req, res) => {
 
     logger.info(`Documento ${documentoId} verificado como ${estado} por verificador ${verificadorId}`);
     
-    return responseHandler.success(res, {
+    return ResponseHandler.success(res, {
       id: archivo.id,
       estado: estado,
       observaciones: observaciones,
@@ -271,12 +277,14 @@ const verificarDocumento = async (req, res) => {
     
   } catch (error) {
     logger.error('Error verificando documento:', error);
-    return responseHandler.error(res, 'Error interno del servidor', error.message);
+    return ResponseHandler.error(res, error.message, 500);
   }
 };
 
 /**
  * Verificar múltiples documentos a la vez
+ * @param {Object} req - Objeto de solicitud Express
+ * @param {Object} res - Objeto de respuesta Express
  */
 const verificarMultiplesDocumentos = async (req, res) => {
   try {
@@ -284,7 +292,7 @@ const verificarMultiplesDocumentos = async (req, res) => {
     const verificadorId = req.usuario.id;
 
     if (!Array.isArray(documentos) || documentos.length === 0) {
-      return responseHandler.badRequest(res, 'Se requiere un array de documentos');
+      return ResponseHandler.error(res, 'Se requiere un array de documentos', 400);
     }
 
     const resultados = [];
@@ -312,7 +320,7 @@ const verificarMultiplesDocumentos = async (req, res) => {
         const asignacion = await VerificadorDocente.findOne({
           where: {
             verificador_id: verificadorId,
-            portafolio_id: archivo.portafolio_id,
+            docente_id: { [Op.in]: sequelize.literal(`(SELECT docente_id FROM portafolios WHERE id = ${archivo.portafolio_id})`) },
             activo: true
           }
         });
@@ -324,8 +332,8 @@ const verificarMultiplesDocumentos = async (req, res) => {
 
         // Actualizar archivo
         await archivo.update({
-          estado_verificacion: estado,
-          observaciones: observaciones || null,
+          estado: estado,
+          comentarios: observaciones || null,
           fecha_verificacion: new Date(),
           verificado_por: verificadorId
         });
@@ -346,16 +354,18 @@ const verificarMultiplesDocumentos = async (req, res) => {
     const exitosos = resultados.filter(r => r.exito).length;
     logger.info(`Verificación masiva completada: ${exitosos}/${documentos.length} exitosos`);
     
-    return responseHandler.success(res, resultados, `Verificación masiva completada: ${exitosos}/${documentos.length} exitosos`);
+    return ResponseHandler.success(res, resultados, `Verificación masiva completada: ${exitosos}/${documentos.length} exitosos`);
     
   } catch (error) {
     logger.error('Error en verificación masiva:', error);
-    return responseHandler.error(res, 'Error interno del servidor', error.message);
+    return ResponseHandler.error(res, error.message, 500);
   }
 };
 
 /**
  * Obtener estadísticas de verificación del verificador
+ * @param {Object} req - Objeto de solicitud Express
+ * @param {Object} res - Objeto de respuesta Express
  */
 const obtenerEstadisticasVerificador = async (req, res) => {
   try {
@@ -375,10 +385,10 @@ const obtenerEstadisticasVerificador = async (req, res) => {
         verificado_por: verificadorId
       },
       attributes: [
-        'estado_verificacion',
+        'estado',
         [sequelize.fn('COUNT', sequelize.col('id')), 'cantidad']
       ],
-      group: ['estado_verificacion'],
+      group: ['estado'],
       raw: true
     });
 
@@ -394,7 +404,7 @@ const obtenerEstadisticasVerificador = async (req, res) => {
       const cantidad = parseInt(stat.cantidad);
       estadisticas.totalVerificados += cantidad;
       
-      switch (stat.estado_verificacion) {
+      switch (stat.estado) {
         case 'aprobado':
           estadisticas.aprobados = cantidad;
           break;
@@ -426,22 +436,23 @@ const obtenerEstadisticasVerificador = async (req, res) => {
         }
       ],
       where: {
-        estado_verificacion: 'pendiente'
+        estado: 'pendiente'
       }
     });
 
     estadisticas.pendientes = archivosPendientes;
 
-    return responseHandler.success(res, estadisticas, 'Estadísticas de verificación obtenidas exitosamente');
+    return ResponseHandler.success(res, estadisticas, 'Estadísticas de verificación obtenidas exitosamente');
     
   } catch (error) {
     logger.error('Error obteniendo estadísticas de verificador:', error);
-    return responseHandler.error(res, 'Error interno del servidor', error.message);
+    return ResponseHandler.error(res, error.message, 500);
   }
 };
 
 /**
  * Función auxiliar para recalcular el progreso de un portafolio
+ * @param {number} portafolioId - ID del portafolio
  */
 const recalcularProgresoPortafolio = async (portafolioId) => {
   try {
@@ -450,14 +461,14 @@ const recalcularProgresoPortafolio = async (portafolioId) => {
     });
 
     if (archivos.length === 0) {
-      await Portafolio.update({ progreso: 0 }, { where: { id: portafolioId } });
+      await Portafolio.update({ progreso_completado: 0 }, { where: { id: portafolioId } });
       return;
     }
 
-    const aprobados = archivos.filter(a => a.estado_verificacion === 'aprobado').length;
+    const aprobados = archivos.filter(a => a.estado === 'aprobado').length;
     const progreso = Math.round((aprobados / archivos.length) * 100);
 
-    await Portafolio.update({ progreso }, { where: { id: portafolioId } });
+    await Portafolio.update({ progreso_completado: progreso }, { where: { id: portafolioId } });
     
   } catch (error) {
     logger.error('Error recalculando progreso del portafolio:', error);

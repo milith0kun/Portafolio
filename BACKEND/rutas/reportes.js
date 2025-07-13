@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const reportesController = require('../controladores/reportesController');
-const { verificarToken, verificarRol } = require('../middleware/verificar-jwt');
+const { verificarToken, verificarRol } = require('../middleware/authJwt');
 
 /**
  * @route   GET /api/reportes/usuarios/:rol

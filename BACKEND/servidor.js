@@ -6,7 +6,8 @@ const http = require('http');
 const net = require('net');
 const config = require('./config/env');
 const path = require('path');
-const fs = require('fs');
+const { logger, info, error: logError } = require('./config/logger');
+const ResponseHandler = require('./controladores/utils/responseHandler');
 
 // Importar modelos y asociaciones
 require('./modelos/asociaciones');
@@ -25,8 +26,10 @@ const portafoliosRoutes = require('./rutas/portafolios');
 const documentosRoutes = require('./rutas/documentos');
 const verificacionesRoutes = require('./rutas/verificaciones');
 const archivosRoutes = require('./rutas/archivos');
+const notificacionesRoutes = require('./rutas/notificaciones');
 
-console.log('🚀 Iniciando servidor del Portafolio Docente UNSAAC...');
+info('🚀 Iniciando servidor Portafolio Docente UNSAAC...');
+info(`Puerto configurado: ${config.PORT}`);
 
 // Inicializar la aplicación Express
 const app = express();
@@ -43,9 +46,9 @@ app.use(cors({
     credentials: true
 }));
 
-// Logging simplificado
+// Logging de requests
 app.use((req, res, next) => {
-    console.log(`📝 ${req.method} ${req.url}`);
+    info(`📝 ${req.method} ${req.url}`);
     next();
 });
 
@@ -61,11 +64,12 @@ app.get('/login', (req, res) => res.sendFile(path.join(frontendPath, 'paginas', 
 
 // Ruta de prueba de API
 app.get('/api', (req, res) => {
-    res.json({ 
+    ResponseHandler.success(res, {
         mensaje: 'API del Portafolio Docente UNSAAC',
         version: '1.0.0',
-        estado: 'activo'
-    });
+        estado: 'activo',
+        timestamp: new Date().toISOString()
+    }, 'API funcionando correctamente');
 });
 
 // Configuración de rutas API
@@ -82,22 +86,19 @@ app.use('/api/portafolios', portafoliosRoutes);
 app.use('/api/documentos', documentosRoutes);
 app.use('/api/verificaciones', verificacionesRoutes);
 app.use('/api/archivos', archivosRoutes);
+app.use('/api/notificaciones', notificacionesRoutes);
 
 // Manejo de rutas no encontradas (404)
 app.use((req, res) => {
-    res.status(404).json({
-        error: 'Ruta no encontrada',
-        path: req.path
-    });
+    logError(`Ruta no encontrada: ${req.method} ${req.path}`);
+    ResponseHandler.notFound(res, 'Ruta');
 });
 
 // Manejador global de errores
 app.use((err, req, res, next) => {
-    console.error('❌ Error del servidor:', err.message);
-    res.status(500).json({
-        error: 'Error interno del servidor',
-        message: process.env.NODE_ENV === 'development' ? err.message : 'Algo salió mal'
-    });
+    logError(`Error del servidor: ${err.message}`);
+    
+    ResponseHandler.serverError(res, err, 'Error interno del servidor');
 });
 
 // Función para verificar puerto
@@ -107,7 +108,7 @@ const isPortAvailable = (port) => {
         
         server.once('error', (err) => {
             if (err.code === 'EADDRINUSE') {
-                console.log(`⚠️ Puerto ${port} en uso`);
+                info(`⚠️ Puerto ${port} en uso`);
                 resolve(false);
             } else {
                 resolve(false);
@@ -126,15 +127,15 @@ const isPortAvailable = (port) => {
 // Función principal de inicio
 const startServer = async () => {
     try {
-        console.log('⏳ Verificando conexión a la base de datos...');
+        info('⏳ Verificando conexión a la base de datos...');
         const dbConnected = await testConnection();
         if (!dbConnected) {
             throw new Error('No se pudo conectar a la base de datos');
         }
 
-        console.log('⏳ Sincronizando modelos...');
+        info('⏳ Sincronizando modelos...');
         await sequelize.sync({ force: false });
-        console.log('✅ Modelos sincronizados');
+        info('✅ Modelos sincronizados');
 
         const portAvailable = await isPortAvailable(config.PORT);
         if (!portAvailable) {
@@ -144,21 +145,24 @@ const startServer = async () => {
         const server = http.createServer(app);
         
         server.listen(config.PORT, () => {
-            console.log(`
-🎉 ¡Servidor iniciado exitosamente!
-📡 URL: http://localhost:${config.PORT}
-🔒 Modo: ${process.env.NODE_ENV || 'development'}
-📅 ${new Date().toLocaleString()}
-            `);
+            info('🎉 Servidor iniciado exitosamente');
+            info(`🌐 Acceso web:     http://localhost:${config.PORT}`);
+            info(`🔑 Login:         http://localhost:${config.PORT}/login`);
+            info(`🛠️  API:           http://localhost:${config.PORT}/api`);
         });
 
         // Manejo de cierre gracioso
         const shutdown = () => {
-            console.log('\n👋 Cerrando servidor...');
-            server.close(() => {
-                sequelize.close();
-                console.log('✅ Servidor cerrado correctamente');
-                process.exit(0);
+            info('👋 Cerrando servidor...');
+            server.close(async () => {
+                try {
+                    await sequelize.close();
+                    info('✅ Servidor cerrado correctamente');
+                    process.exit(0);
+                } catch (err) {
+                    logError('Error al cerrar conexión de BD', err);
+                    process.exit(1);
+                }
             });
         };
 
@@ -166,7 +170,7 @@ const startServer = async () => {
         process.on('SIGINT', shutdown);
 
     } catch (error) {
-        console.error('❌ Error al iniciar:', error.message);
+        logError('Error al iniciar servidor', error);
         process.exit(1);
     }
 };

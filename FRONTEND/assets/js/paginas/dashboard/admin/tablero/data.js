@@ -202,8 +202,13 @@ async function cargarEstadoSistema(endpoint) {
     if (!endpoint) return { activo: true, mensaje: 'Sistema operativo' };
     
     try {
-        const response = await window.apiRequest(`${CONFIG.API.ENDPOINTS.DASHBOARD}/estadisticas`, 'GET');
-        return response.data || { activo: true, mensaje: 'Sistema operativo' };
+        const response = await window.apiRequest(`${CONFIG.API.ENDPOINTS.DASHBOARD}/estado-sistema`, 'GET');
+        const data = response.data || {};
+        return {
+            activo: data.estado === 'activo',
+            mensaje: data.estado === 'activo' ? 'Sistema operativo' : 'Estado no disponible',
+            ...data
+        };
     } catch (error) {
         // Solo mostrar warning si no es un error de red común
         if (!error.message?.includes('Failed to fetch') && !error.message?.includes('NetworkError')) {
@@ -237,16 +242,25 @@ async function cargarMetricas(endpoint) {
         if (response && (response.success || response.data)) {
             const data = response.data || response;
             
-            // Extraer métricas según la estructura del backend
+            // Extraer métricas según la estructura del backend (nuevos nombres)
             const metricas = {
-                usuarios: data.usuarios?.total || data.usuarios?.activos || 0,
-                carreras: data.carreras?.total || data.carreras?.activas || 0,
-                asignaturas: data.asignaturas?.total || data.asignaturas?.activas || 0,
-                asignaciones: data.asignaciones?.total || data.asignaciones?.activas || 0,
-                verificaciones: data.verificaciones?.total || 0,
-                portafolios: data.portafolios?.total || data.portafolios?.activos || 0,
+                totalUsuarios: data.totalUsuarios || 0,
+                totalUsuariosActivos: data.totalUsuariosActivos || 0,
+                roles: data.roles || {},
+                totalPortafolios: data.totalPortafolios || 0,
+                totalPortafoliosActivos: data.totalPortafoliosActivos || 0,
+                totalPortafoliosCompletados: data.totalPortafoliosCompletados || 0,
+                totalPortafoliosEnVerificacion: data.totalPortafoliosEnVerificacion || 0,
+                totalDocumentos: data.totalDocumentos || 0,
+                totalDocumentosAprobados: data.totalDocumentosAprobados || 0,
+                totalDocumentosPendientes: data.totalDocumentosPendientes || 0,
+                totalDocumentosObservados: data.totalDocumentosObservados || 0,
+                totalCarreras: data.totalCarreras || 0,
+                totalAsignaturas: data.totalAsignaturas || 0,
+                totalAsignaciones: data.totalAsignaciones || 0,
+                totalVerificaciones: data.totalVerificaciones || 0,
                 timestamp: data.timestamp || new Date().toISOString(),
-                ciclo: data.ciclo || cicloSeleccionado,
+                ciclo: data.cicloActivo || cicloSeleccionado,
                 sistema: data.sistema || null
             };
             
@@ -288,7 +302,7 @@ async function cargarActividadesRecientes(endpoint) {
     if (!endpoint) return [];
     
     try {
-        const response = await window.apiRequest(`${CONFIG.API.ENDPOINTS.DASHBOARD}/actividades`, 'GET');
+        const response = await window.apiRequest(`${CONFIG.API.ENDPOINTS.ACTIVIDADES}/recientes`, 'GET');
         return response.data || [];
     } catch (error) {
         // Solo mostrar warning si no es un error de red común

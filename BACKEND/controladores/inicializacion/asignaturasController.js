@@ -1,7 +1,7 @@
 const { Asignatura, CicloAcademico, Usuario } = require('../../modelos');
 const { Op } = require('sequelize');
 const XLSX = require('xlsx');
-const logger = require('../../config/logger');
+const { info, error: logError } = require('../../config/logger');
 const { registrarError } = require('./utils');
 
 /**
@@ -12,6 +12,11 @@ const { registrarError } = require('./utils');
  */
 const procesar = async (archivo, transaction) => {
     try {
+        info('Iniciando procesamiento de asignaturas', {
+            archivo: archivo.originalname,
+            tamanio: archivo.size
+        });
+
         const workbook = XLSX.readFile(archivo.path);
         const sheetName = workbook.SheetNames[0];
         const data = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
@@ -38,10 +43,7 @@ const procesar = async (archivo, transaction) => {
         // Obtener el ciclo académico activo
         const cicloActivo = await CicloAcademico.findOne({
             where: { estado: 'activo' },
-            attributes: {
-                include: ['id', 'nombre'],
-                exclude: ['fecha_inicializacion', 'fecha_activacion', 'fecha_inicio_verificacion']
-            },
+            attributes: ['id', 'nombre'],
             transaction
         });
 
@@ -49,7 +51,7 @@ const procesar = async (archivo, transaction) => {
             throw new Error('No hay un ciclo académico activo configurado');
         }
 
-        console.log(`📅 Usando ciclo académico activo: ${cicloActivo.nombre} (ID: ${cicloActivo.id})`);
+        info(`Usando ciclo académico: ${cicloActivo.nombre} (ID: ${cicloActivo.id})`);
 
         for (let i = 0; i < data.length; i++) {
             try {
@@ -119,7 +121,9 @@ const procesar = async (archivo, transaction) => {
                     // Actualizar asignatura con verificación explícita
                     try {
                         await asignatura.update(updateData, { transaction });
-                        logger.info(`Asignatura actualizada: ${codigo} - ${nombre}`, { updateData: Object.keys(updateData) });
+                        info(`Asignatura actualizada: ${codigo} - ${nombre}`, { 
+                            camposActualizados: Object.keys(updateData) 
+                        });
                         
                         // Verificar que la actualización se haya realizado correctamente
                         const asignaturaActualizada = await Asignatura.findByPk(asignatura.id, { transaction });
@@ -128,7 +132,10 @@ const procesar = async (archivo, transaction) => {
                         }
                         resultados.actualizadas++;
                     } catch (updateError) {
-                        logger.error(`Error al actualizar asignatura ${codigo}:`, updateError);
+                        logError(`Error al actualizar asignatura ${codigo}`, {
+                            error: updateError.message,
+                            codigo
+                        });
                         throw new Error(`Error al actualizar asignatura ${codigo}: ${updateError.message}`);
                     }
                 } else {
@@ -138,15 +145,22 @@ const procesar = async (archivo, transaction) => {
                         if (!asignaturaCreada) {
                             throw new Error(`No se pudo verificar la creación de la asignatura: ${codigo}`);
                         }
-                        logger.info(`Asignatura creada: ${codigo} - ${nombre}`);
+                        info(`Asignatura creada: ${codigo} - ${nombre}`);
                         resultados.creadas++;
                     } catch (verifyError) {
-                        logger.error(`Error al verificar la creación de la asignatura ${codigo}:`, verifyError);
+                        logError(`Error al verificar la creación de la asignatura ${codigo}`, {
+                            error: verifyError.message,
+                            codigo
+                        });
                         throw new Error(`Error al verificar la creación de la asignatura ${codigo}: ${verifyError.message}`);
                     }
                 }
             } catch (error) {
-                logger.error(`Error en fila ${i + 2} de asignaturas:`, error);
+                logError(`Error en fila ${i + 2} de asignaturas`, {
+                    error: error.message,
+                    fila: i + 2,
+                    valores: data[i]
+                });
                 resultados.errores.push({
                     fila: i + 2,
                     valores: data[i],
@@ -155,7 +169,12 @@ const procesar = async (archivo, transaction) => {
             }
         }
 
-        logger.info(`Procesamiento de asignaturas completado: ${resultados.creadas} creadas, ${resultados.actualizadas} actualizadas, ${resultados.errores.length} errores`);
+        info('Procesamiento de asignaturas completado', {
+            creadas: resultados.creadas,
+            actualizadas: resultados.actualizadas,
+            errores: resultados.errores.length
+        });
+        
         return resultados;
     } catch (error) {
         registrarError(error, 'procesarAsignaturas');

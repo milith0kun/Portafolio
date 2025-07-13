@@ -1,5 +1,7 @@
 const { Usuario, Asignatura, CicloAcademico } = require('../modelos');
 const { sequelize } = require('../config/database');
+const ResponseHandler = require('./utils/responseHandler');
+const { logger } = require('../config/logger');
 const XLSX = require('xlsx');
 const path = require('path');
 const fs = require('fs');
@@ -15,10 +17,7 @@ exports.reporteUsuariosPorRol = async (req, res) => {
         
         // Validar que el rol sea válido
         if (!['administrador', 'docente', 'verificador'].includes(rol)) {
-            return res.status(400).json({
-                success: false,
-                message: 'Rol no válido'
-            });
+            return ResponseHandler.error(res, 'Rol no válido', 400);
         }
         
         // Obtener usuarios con el rol especificado
@@ -34,17 +33,10 @@ exports.reporteUsuariosPorRol = async (req, res) => {
             }
         );
         
-        return res.status(200).json({
-            success: true,
-            data: usuarios
-        });
+        return ResponseHandler.success(res, usuarios, `Reporte de usuarios ${rol} generado correctamente`);
     } catch (error) {
-        console.error('Error al generar reporte de usuarios por rol:', error);
-        return res.status(500).json({
-            success: false,
-            message: 'Error al generar reporte de usuarios por rol',
-            error: error.message
-        });
+        logger.error('Error al generar reporte de usuarios por rol:', error);
+        return ResponseHandler.error(res, error.message, 500);
     }
 };
 
@@ -65,10 +57,7 @@ exports.reporteAsignaturasPorCiclo = async (req, res) => {
         });
         
         if (!ciclo) {
-            return res.status(404).json({
-                success: false,
-                message: 'Ciclo académico no encontrado'
-            });
+            return ResponseHandler.error(res, 'Ciclo académico no encontrado', 404);
         }
         
         // Obtener asignaturas del ciclo
@@ -84,17 +73,10 @@ exports.reporteAsignaturasPorCiclo = async (req, res) => {
             ]
         });
         
-        return res.status(200).json({
-            success: true,
-            data: asignaturas
-        });
+        return ResponseHandler.success(res, asignaturas, `Reporte de asignaturas del ciclo ${ciclo.nombre} generado correctamente`);
     } catch (error) {
-        console.error('Error al generar reporte de asignaturas por ciclo:', error);
-        return res.status(500).json({
-            success: false,
-            message: 'Error al generar reporte de asignaturas por ciclo',
-            error: error.message
-        });
+        logger.error('Error al generar reporte de asignaturas por ciclo:', error);
+        return ResponseHandler.error(res, error.message, 500);
     }
 };
 
@@ -115,10 +97,7 @@ exports.reporteAsignacionesPorCiclo = async (req, res) => {
         });
         
         if (!ciclo) {
-            return res.status(404).json({
-                success: false,
-                message: 'Ciclo académico no encontrado'
-            });
+            return ResponseHandler.error(res, 'Ciclo académico no encontrado', 404);
         }
         
         // Obtener asignaciones docente-asignatura del ciclo
@@ -146,17 +125,10 @@ exports.reporteAsignacionesPorCiclo = async (req, res) => {
             }
         );
         
-        return res.status(200).json({
-            success: true,
-            data: asignaciones
-        });
+        return ResponseHandler.success(res, asignaciones, `Reporte de asignaciones del ciclo ${ciclo.nombre} generado correctamente`);
     } catch (error) {
-        console.error('Error al generar reporte de asignaciones por ciclo:', error);
-        return res.status(500).json({
-            success: false,
-            message: 'Error al generar reporte de asignaciones por ciclo',
-            error: error.message
-        });
+        logger.error('Error al generar reporte de asignaciones por ciclo:', error);
+        return ResponseHandler.error(res, error.message, 500);
     }
 };
 
@@ -173,10 +145,7 @@ exports.reporteAsignaturasPorDocente = async (req, res) => {
         const docente = await Usuario.findByPk(docente_id);
         
         if (!docente) {
-            return res.status(404).json({
-                success: false,
-                message: 'Docente no encontrado'
-            });
+            return ResponseHandler.error(res, 'Docente no encontrado', 404);
         }
         
         // Verificar que el ciclo exista
@@ -187,10 +156,7 @@ exports.reporteAsignaturasPorDocente = async (req, res) => {
         });
         
         if (!ciclo) {
-            return res.status(404).json({
-                success: false,
-                message: 'Ciclo académico no encontrado'
-            });
+            return ResponseHandler.error(res, 'Ciclo académico no encontrado', 404);
         }
         
         // Obtener asignaturas del docente en el ciclo
@@ -214,25 +180,24 @@ exports.reporteAsignaturasPorDocente = async (req, res) => {
             }
         );
         
-        return res.status(200).json({
-            success: true,
-            data: {
-                docente: {
-                    id: docente.id,
-                    nombres: docente.nombres,
-                    apellidos: docente.apellidos,
-                    email: docente.docente_email
-                },
-                asignaturas
-            }
-        });
+        const resultado = {
+            docente: {
+                id: docente.id,
+                nombres: docente.nombres,
+                apellidos: docente.apellidos,
+                email: docente.correo
+            },
+            ciclo: {
+                id: ciclo.id,
+                nombre: ciclo.nombre
+            },
+            asignaturas
+        };
+        
+        return ResponseHandler.success(res, resultado, `Reporte de asignaturas del docente ${docente.apellidos}, ${docente.nombres} generado correctamente`);
     } catch (error) {
-        console.error('Error al generar reporte de asignaturas por docente:', error);
-        return res.status(500).json({
-            success: false,
-            message: 'Error al generar reporte de asignaturas por docente',
-            error: error.message
-        });
+        logger.error('Error al generar reporte de asignaturas por docente:', error);
+        return ResponseHandler.error(res, error.message, 500);
     }
 };
 
@@ -252,10 +217,7 @@ exports.exportarReporteExcel = async (req, res) => {
             case 'usuarios-por-rol':
                 const { rol } = req.query;
                 if (!rol) {
-                    return res.status(400).json({
-                        success: false,
-                        message: 'Se requiere especificar el rol'
-                    });
+                    return ResponseHandler.error(res, 'Se requiere especificar el rol', 400);
                 }
                 
                 datos = await sequelize.query(
@@ -282,10 +244,7 @@ exports.exportarReporteExcel = async (req, res) => {
                     }
                 });
                 if (!ciclo) {
-                    return res.status(404).json({
-                        success: false,
-                        message: 'Ciclo académico no encontrado'
-                    });
+                    return ResponseHandler.error(res, 'Ciclo académico no encontrado', 404);
                 }
                 
                 datos = await sequelize.query(
@@ -310,10 +269,7 @@ exports.exportarReporteExcel = async (req, res) => {
                     }
                 });
                 if (!cicloPorAsignacion) {
-                    return res.status(404).json({
-                        success: false,
-                        message: 'Ciclo académico no encontrado'
-                    });
+                    return ResponseHandler.error(res, 'Ciclo académico no encontrado', 404);
                 }
                 
                 datos = await sequelize.query(
@@ -342,10 +298,7 @@ exports.exportarReporteExcel = async (req, res) => {
                 break;
                 
             default:
-                return res.status(400).json({
-                    success: false,
-                    message: 'Tipo de reporte no válido'
-                });
+                return ResponseHandler.error(res, 'Tipo de reporte no válido', 400);
         }
         
         // Crear libro de Excel
@@ -368,18 +321,14 @@ exports.exportarReporteExcel = async (req, res) => {
         // Enviar archivo al cliente
         res.download(filePath, nombreArchivo, (err) => {
             if (err) {
-                console.error('Error al enviar archivo:', err);
+                logger.error('Error al enviar archivo:', err);
             }
             
             // Eliminar archivo temporal después de enviarlo
             fs.unlinkSync(filePath);
         });
     } catch (error) {
-        console.error('Error al exportar reporte a Excel:', error);
-        return res.status(500).json({
-            success: false,
-            message: 'Error al exportar reporte a Excel',
-            error: error.message
-        });
+        logger.error('Error al exportar reporte a Excel:', error);
+        return ResponseHandler.error(res, error.message, 500);
     }
 };

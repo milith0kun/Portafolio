@@ -173,34 +173,58 @@ class CargaMasiva {
             this.archivosManager = new ArchivosManager();
             this.archivosManager.inicializar(this.validacionesManager, this.logsManager);
             
-            // Verificar si VerificacionDatos ya existe antes de crear una nueva instancia
-            if (window.verificacionDatos && window.verificacionDatos.inicializado) {
-                console.log('✅ Usando instancia existente de VerificacionDatos');
-                this.verificacionDatos = window.verificacionDatos;
-            } else {
-                // Solo crear nueva instancia si no existe y la autenticación está lista
-                if (typeof VerificacionDatos !== 'undefined' && window.AUTH?.verificarAutenticacion()) {
-                    console.log('🔄 Creando nueva instancia de VerificacionDatos...');
-                    this.verificacionDatos = new VerificacionDatos();
-                    
-                    // Esperar a que se inicialice
-                    if (this.verificacionDatos && typeof this.verificacionDatos.inicializar === 'function') {
-                        const verifInicializada = await this.verificacionDatos.inicializar();
-                        if (!verifInicializada) {
-                            console.warn('⚠️ Verificación de datos no pudo inicializarse, continuando sin ella');
-                            this.verificacionDatos = null;
-                        }
-                    }
-                } else {
-                    console.warn('⚠️ Verificación de datos omitida - autenticación no disponible o VerificacionDatos no definido');
-                }
-            }
+            // Inicializar VerificacionDatos solo si no existe y es necesario
+            await this.inicializarVerificacionDatos();
             
             this.logsManager.mostrarExito('Todos los managers inicializados correctamente');
             
         } catch (error) {
             console.error('❌ Error inicializando managers:', error);
-            this.logsManager?.mostrarError('Error al inicializar algunos managers: ' + error.message);
+            this.logsManager.mostrarError('Error al inicializar managers del sistema');
+            throw error;
+        }
+    }
+
+    /**
+     * Inicializar VerificacionDatos de manera inteligente
+     */
+    async inicializarVerificacionDatos() {
+        try {
+            // Verificar si ya existe una instancia global
+            if (window.verificacionDatos && window.verificacionDatos.inicializado) {
+                console.log('✅ Usando instancia existente de VerificacionDatos');
+                this.verificacionDatos = window.verificacionDatos;
+                return;
+            }
+            
+            // Solo crear si el constructor está disponible y el usuario está autenticado
+            if (typeof VerificacionDatos === 'undefined') {
+                console.warn('⚠️ VerificacionDatos no está disponible, omitiendo...');
+                return;
+            }
+            
+            if (!this.autenticado) {
+                console.warn('⚠️ Usuario no autenticado, omitiendo VerificacionDatos...');
+                return;
+            }
+            
+            console.log('🔄 Creando nueva instancia de VerificacionDatos...');
+            this.verificacionDatos = new VerificacionDatos();
+            
+            // Intentar inicializarla
+            const inicializada = await this.verificacionDatos.inicializar();
+            if (inicializada) {
+                // Guardar en scope global para evitar duplicaciones
+                window.verificacionDatos = this.verificacionDatos;
+                console.log('✅ VerificacionDatos inicializada y guardada globalmente');
+            } else {
+                console.warn('⚠️ VerificacionDatos no pudo inicializarse, continuando sin ella');
+                this.verificacionDatos = null;
+            }
+            
+        } catch (error) {
+            console.warn('⚠️ Error al inicializar VerificacionDatos:', error.message);
+            this.verificacionDatos = null;
         }
     }
 
@@ -273,7 +297,7 @@ class CargaMasiva {
     async cargarEstadoInicial() {
         try {
             // Cargar ciclos académicos
-            await this.ciclosManager.cargarCiclos();
+            await this.ciclosManager.cargarCiclosAcademicos();
             
             // Cargar estado del sistema
             await this.estadoManager.cargarEstadoSistema();
@@ -586,6 +610,11 @@ document.addEventListener('DOMContentLoaded', async function() {
         // Crear instancia principal
         cargaMasiva = new CargaMasiva();
         
+        // Restaurar sesión ANTES de inicializar cualquier manager
+        if (window.AUTH && typeof window.AUTH.inicializarDesdeSesion === 'function') {
+            window.AUTH.inicializarDesdeSesion();
+        }
+
         // Inicializar sistema
         const inicializado = await cargaMasiva.inicializar();
         

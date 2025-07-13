@@ -1,5 +1,5 @@
 const { Asignatura, CicloAcademico, Usuario, UsuarioRol } = require('../modelos');
-const sequelize = require('../config/db');
+const { sequelize } = require('../config/database');
 const { Op } = require('sequelize');
 
 /**

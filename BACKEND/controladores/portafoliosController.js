@@ -6,25 +6,20 @@
 const { sequelize } = require('../config/database');
 const { Op } = require('sequelize');
 const ResponseHandler = require('./utils/responseHandler');
+const { logger } = require('../config/logger');
 
 /**
  * Obtener todos los portafolios (administrador)
- * Ahora con soporte para filtrado por ciclo académico
+ * @param {Object} req - Objeto de solicitud Express
+ * @param {Object} res - Objeto de respuesta Express
  */
 const obtenerPortafolios = async (req, res) => {
   try {
-    // Obteniendo todos los portafolios
-    
-    // Obtener parámetros de filtrado
     const cicloId = req.query.ciclo || req.query.cicloId;
     const estado = req.query.estado;
     const docenteId = req.query.docente || req.query.docenteId;
     
-    // Filtros aplicados
-    
-    await sequelize.authenticate();
-    
-    const { Portafolio, Usuario, Asignatura, CicloAcademico, DocenteAsignatura } = require('../modelos');
+    const { Portafolio, Usuario, Asignatura, CicloAcademico } = require('../modelos');
     
     // Construir condiciones WHERE dinámicamente
     const whereConditions = { activo: true };
@@ -66,9 +61,20 @@ const obtenerPortafolios = async (req, res) => {
       order: [['actualizado_en', 'DESC']]
     });
 
-    // Portafolios encontrados con filtros aplicados
+    // Calcular resumen por estado y ciclo
+    const resumen = {
+      porEstado: {},
+      porCiclo: {}
+    };
 
-    // Agregar información adicional en la respuesta
+    portafolios.forEach(p => {
+      const estadoPortafolio = p.estado || 'sin_estado';
+      resumen.porEstado[estadoPortafolio] = (resumen.porEstado[estadoPortafolio] || 0) + 1;
+      
+      const cicloNombre = p.ciclo?.nombre || 'Sin ciclo';
+      resumen.porCiclo[cicloNombre] = (resumen.porCiclo[cicloNombre] || 0) + 1;
+    });
+
     const responseData = {
       portafolios,
       filtros: {
@@ -77,44 +83,27 @@ const obtenerPortafolios = async (req, res) => {
         docenteId,
         totalEncontrados: portafolios.length
       },
-      resumen: {
-        porEstado: {},
-        porCiclo: {}
-      }
+      resumen
     };
-
-    // Calcular resumen por estado
-    portafolios.forEach(p => {
-      const estadoPortafolio = p.estado || 'sin_estado';
-      responseData.resumen.porEstado[estadoPortafolio] = (responseData.resumen.porEstado[estadoPortafolio] || 0) + 1;
-    });
-
-    // Calcular resumen por ciclo
-    portafolios.forEach(p => {
-      const cicloNombre = p.ciclo?.nombre || 'Sin ciclo';
-      responseData.resumen.porCiclo[cicloNombre] = (responseData.resumen.porCiclo[cicloNombre] || 0) + 1;
-    });
 
     return ResponseHandler.success(res, responseData, `${portafolios.length} portafolios obtenidos correctamente`);
     
   } catch (error) {
-    
+    logger.error('Error al obtener portafolios:', error);
     return ResponseHandler.error(res, error.message, 500);
   }
 };
 
 /**
  * Obtener portafolios de un docente específico
+ * @param {Object} req - Objeto de solicitud Express
+ * @param {Object} res - Objeto de respuesta Express
  */
 const obtenerMisPortafolios = async (req, res) => {
   try {
-    // Obteniendo portafolios del docente
-    
     const usuarioId = req.usuario.id;
     
-    await sequelize.authenticate();
-    
-    const { Portafolio, Usuario, Asignatura, CicloAcademico, DocenteAsignatura, Semestre } = require('../modelos');
+    const { Portafolio, Usuario, Asignatura, CicloAcademico, Semestre } = require('../modelos');
     
     const portafolios = await Portafolio.findAll({
       include: [
@@ -149,27 +138,21 @@ const obtenerMisPortafolios = async (req, res) => {
       order: [['actualizado_en', 'DESC']]
     });
 
-    // Portafolios encontrados para el docente
-
     return ResponseHandler.success(res, portafolios, 'Portafolios del docente obtenidos correctamente');
     
   } catch (error) {
-    
+    logger.error('Error al obtener mis portafolios:', error);
     return ResponseHandler.error(res, error.message, 500);
   }
 };
 
 /**
  * Generar portafolios automáticamente para asignaciones docente-asignatura
- * Esta función se ejecuta desde el panel de administrador y utiliza
- * la lógica del controlador de carga académica
+ * @param {Object} req - Objeto de solicitud Express
+ * @param {Object} res - Objeto de respuesta Express
  */
 const generarPortafoliosAutomaticos = async (req, res) => {
   try {
-    // Generando portafolios automáticamente
-    
-    await sequelize.authenticate();
-    
     const { 
       DocenteAsignatura, 
       Portafolio, 
@@ -190,8 +173,6 @@ const generarPortafoliosAutomaticos = async (req, res) => {
     if (!cicloActivo) {
       return ResponseHandler.error(res, 'No hay ciclo académico activo', 400);
     }
-
-    // Ciclo académico activo encontrado
 
     // Obtener asignaciones que no tienen portafolio
     const asignacionesSinPortafolio = await DocenteAsignatura.findAll({
@@ -224,8 +205,6 @@ const generarPortafoliosAutomaticos = async (req, res) => {
       !asignacion.portafolios || asignacion.portafolios.length === 0
     );
 
-    // Asignaciones sin portafolio encontradas
-
     if (sinPortafolio.length === 0) {
       return ResponseHandler.success(res, {
         portafoliosCreados: 0,
@@ -246,16 +225,10 @@ const generarPortafoliosAutomaticos = async (req, res) => {
     const transaction = await sequelize.transaction();
 
     try {
-      // Usar la lógica local para crear portafolios
-      const generarPortafolioFunc = async (asignacion, asignatura, cicloId, userId, transaction) => {
-        const resultado = await crearPortafolioParaAsignacion(asignacion, asignatura, cicloId, userId, transaction);
-        return { creado: resultado.creado };
-      };
-
       // Generar portafolios para cada asignación
       for (const asignacion of sinPortafolio) {
         try {
-          const resultado = await generarPortafolioFunc(
+          const resultado = await crearPortafolioParaAsignacion(
             asignacion,
             asignacion.asignatura,
             cicloActivo.id,
@@ -265,7 +238,6 @@ const generarPortafoliosAutomaticos = async (req, res) => {
 
           if (resultado.creado) {
             portafoliosCreados++;
-            // Portafolio generado exitosamente
           }
         } catch (error) {
           errores++;
@@ -275,7 +247,6 @@ const generarPortafoliosAutomaticos = async (req, res) => {
             asignatura: asignacion.asignatura.nombre,
             error: error.message
           });
-  
         }
       }
 
@@ -285,8 +256,6 @@ const generarPortafoliosAutomaticos = async (req, res) => {
       }
 
       await transaction.commit();
-
-      // Generación completada
 
       return ResponseHandler.success(res, {
         portafoliosCreados,
@@ -301,7 +270,7 @@ const generarPortafoliosAutomaticos = async (req, res) => {
     }
 
   } catch (error) {
-    // Error en generación automática de portafolios
+    logger.error('Error en generación automática de portafolios:', error);
     return ResponseHandler.error(res, error.message, 500);
   }
 };
@@ -498,139 +467,61 @@ async function crearEstructuraBase() {
 
 /**
  * Crear estructura jerárquica de portafolio según especificación UNSAAC
+ * @param {number} portafolioId - ID del portafolio raíz
+ * @param {number} cicloId - ID del ciclo académico
+ * @param {number} semestreId - ID del semestre
+ * @param {Object} transaction - Transacción de base de datos
+ * @returns {Object} Resultado de la creación de estructura
  */
 async function crearEstructuraPortafolio(portafolioId, cicloId, semestreId, transaction = null) {
   try {
-    // Creando estructura jerárquica para portafolio
-    
     const { Portafolio } = require('../modelos');
     
-    // Estructura específica UNSAAC según Portafolio Base.md
+    // Estructura básica UNSAAC
     const estructuraUNSAAC = {
-      // Nivel 0: Presentación del Portafolio (Global para todos los cursos)
       presentacion: {
         nombre: '0. PRESENTACIÓN DEL PORTAFOLIO',
         nivel: 1,
-        pertenece_presentacion: true,
-        icono: 'fas fa-presentation',
-        subcarpetas: {
-          '0.1': { nombre: '0.1 CARÁTULA', nivel: 2, icono: 'fas fa-id-card' },
-          '0.2': { nombre: '0.2 CARGA ACADÉMICA', nivel: 2, icono: 'fas fa-calendar-check' },
-          '0.3': { nombre: '0.3 FILOSOFÍA DOCENTE', nivel: 2, icono: 'fas fa-lightbulb' },
-          '0.4': { nombre: '0.4 CURRÍCULUM VITAE', nivel: 2, icono: 'fas fa-user-graduate' }
-        }
+        icono: 'fas fa-presentation'
       },
-      
-      // Nivel 1: Secciones principales del curso
       silabos: {
         nombre: '1. SILABOS',
         nivel: 1,
-        icono: 'fas fa-file-alt',
-        subcarpetas: {
-          '1.1': { nombre: '1.1 SILABO UNSAAC', nivel: 2, icono: 'fas fa-university' },
-          '1.2': { nombre: '1.2 SILABO ICACIT', nivel: 2, icono: 'fas fa-certificate' },
-          '1.3': { nombre: '1.3 REGISTRO DE ENTREGA DE SILABO', nivel: 2, icono: 'fas fa-clipboard-check' }
-        }
+        icono: 'fas fa-file-alt'
       },
-      
       avance_academico: {
         nombre: '2. AVANCE ACADÉMICO POR SESIONES',
         nivel: 1,
         icono: 'fas fa-chart-line'
       },
-      
       material_ensenanza: {
         nombre: '3. MATERIAL DE ENSEÑANZA',
         nivel: 1,
-        icono: 'fas fa-book-open',
-        subcarpetas: {
-          '3.1': { nombre: '3.1 PRIMERA UNIDAD', nivel: 2, icono: 'fas fa-play' },
-          '3.2': { nombre: '3.2 SEGUNDA UNIDAD', nivel: 2, icono: 'fas fa-forward' },
-          '3.3': { nombre: '3.3 TERCERA UNIDAD', nivel: 2, condicional: true, icono: 'fas fa-fast-forward' } // Solo para 4-5 créditos
-        }
+        icono: 'fas fa-book-open'
       },
-      
       asignaciones: {
         nombre: '4. ASIGNACIONES',
         nivel: 1,
         icono: 'fas fa-tasks'
       },
-      
       examenes: {
         nombre: '5. ENUNCIADO DE EXÁMENES Y SOLUCIÓN',
         nivel: 1,
-        icono: 'fas fa-file-prescription',
-        subcarpetas: {
-          '5.1': {
-            nombre: '5.1 EXAMEN DE ENTRADA',
-            nivel: 2,
-            icono: 'fas fa-sign-in-alt',
-            subcarpetas: {
-              '5.1.1': { nombre: '5.1.1 ENUNCIADO DE EXAMEN Y RESOLUCIÓN', nivel: 3, icono: 'fas fa-question-circle' },
-              '5.1.2': { nombre: '5.1.2 ASISTENCIA AL EXAMEN', nivel: 3, icono: 'fas fa-users' },
-              '5.1.3': { nombre: '5.1.3 INFORME DE RESULTADOS', nivel: 3, icono: 'fas fa-chart-bar' }
-            }
-          },
-          '5.2': {
-            nombre: '5.2 PRIMER EXAMEN',
-            nivel: 2,
-            icono: 'fas fa-file-medical',
-            subcarpetas: {
-              '5.2.1': { nombre: '5.2.1 ENUNCIADO Y RESOLUCIÓN DE EXAMEN', nivel: 3, icono: 'fas fa-question-circle' },
-              '5.2.2': { nombre: '5.2.2 ASISTENCIA AL EXAMEN', nivel: 3, icono: 'fas fa-users' },
-              '5.2.3': { nombre: '5.2.3 INFORME DE RESULTADOS', nivel: 3, icono: 'fas fa-chart-bar' }
-            }
-          },
-          '5.3': {
-            nombre: '5.3 SEGUNDO EXAMEN',
-            nivel: 2,
-            icono: 'fas fa-file-medical',
-            subcarpetas: {
-              '5.3.1': { nombre: '5.3.1 ENUNCIADO Y RESOLUCIÓN DE EXAMEN', nivel: 3, icono: 'fas fa-question-circle' },
-              '5.3.2': { nombre: '5.3.2 ASISTENCIA AL EXAMEN', nivel: 3, icono: 'fas fa-users' },
-              '5.3.3': { nombre: '5.3.3 INFORME DE RESULTADOS', nivel: 3, icono: 'fas fa-chart-bar' }
-            }
-          },
-          '5.4': {
-            nombre: '5.4 TERCER EXAMEN',
-            nivel: 2,
-            condicional: true, // Solo para 4-5 créditos
-            icono: 'fas fa-file-medical',
-            subcarpetas: {
-              '5.4.1': { nombre: '5.4.1 ENUNCIADO Y RESOLUCIÓN DE EXAMEN', nivel: 3, icono: 'fas fa-question-circle' },
-              '5.4.2': { nombre: '5.4.2 ASISTENCIA AL EXAMEN', nivel: 3, icono: 'fas fa-users' },
-              '5.4.3': { nombre: '5.4.3 INFORME DE RESULTADOS', nivel: 3, icono: 'fas fa-chart-bar' }
-            }
-          }
-        }
+        icono: 'fas fa-file-prescription'
       },
-      
       trabajos_estudiantiles: {
         nombre: '6. TRABAJOS ESTUDIANTILES',
         nivel: 1,
-        icono: 'fas fa-graduation-cap',
-        subcarpetas: {
-          '6.1': { nombre: '6.1 EXCELENTE (19–20)', nivel: 2, icono: 'fas fa-star', color: '#28a745' },
-          '6.2': { nombre: '6.2 BUENO (16–18)', nivel: 2, icono: 'fas fa-thumbs-up', color: '#17a2b8' },
-          '6.3': { nombre: '6.3 REGULAR (14–15)', nivel: 2, icono: 'fas fa-meh', color: '#ffc107' },
-          '6.4': { nombre: '6.4 MALO (10–13)', nivel: 2, icono: 'fas fa-thumbs-down', color: '#fd7e14' },
-          '6.5': { nombre: '6.5 POBRE (0–07)', nivel: 2, icono: 'fas fa-times-circle', color: '#dc3545' }
-        }
+        icono: 'fas fa-graduation-cap'
       },
-      
       archivos_portafolio: {
         nombre: '7. ARCHIVOS PORTAFOLIO DOCENTE',
         nivel: 1,
-        icono: 'fas fa-archive',
-        subcarpetas: {
-          '7.1': { nombre: '7.1 ASISTENCIA DE ALUMNOS', nivel: 2, icono: 'fas fa-user-check' },
-          '7.2': { nombre: '7.2 REGISTRO DE NOTAS DEL CENTRO DE CÓMPUTO', nivel: 2, icono: 'fas fa-desktop' },
-          '7.3': { nombre: '7.3 CIERRE DE PORTAFOLIO', nivel: 2, icono: 'fas fa-lock' }
-        }
+        icono: 'fas fa-archive'
       }
     };
     
-    // Obtener información del portafolio raíz para determinar créditos
+    // Obtener información del portafolio raíz
     const portafolioRaiz = await Portafolio.findByPk(portafolioId, {
       include: [
         {
@@ -646,19 +537,10 @@ async function crearEstructuraPortafolio(portafolioId, cicloId, semestreId, tran
       throw new Error(`Portafolio ${portafolioId} no encontrado`);
     }
     
-    const creditosCurso = portafolioRaiz.asignatura?.creditos || 3;
-    // Información de créditos del curso
-    
     const carpetasCreadas = new Map();
-    const mapaCarpetas = new Map();
     
-    // Crear las carpetas principales y subcarpetas
+    // Crear las carpetas principales
     for (const [clave, seccion] of Object.entries(estructuraUNSAAC)) {
-      // Creando sección
-      
-      // Crear carpeta principal
-      const rutaSeccion = seccion.nombre;
-      
       const carpetaPrincipal = await Portafolio.create({
         nombre: seccion.nombre,
         docente_id: portafolioRaiz.docente_id,
@@ -669,115 +551,35 @@ async function crearEstructuraPortafolio(portafolioId, cicloId, semestreId, tran
         ciclo_id: cicloId,
         carpeta_padre_id: portafolioId,
         nivel: seccion.nivel,
-        ruta: rutaSeccion,
+        ruta: seccion.nombre,
         estado: 'activo',
         creado_por: portafolioRaiz.creado_por
       }, { transaction });
       
       carpetasCreadas.set(clave, carpetaPrincipal.id);
-      mapaCarpetas.set(carpetaPrincipal.id, {
-        nombre: seccion.nombre,
-        ruta: rutaSeccion,
-        icono: seccion.icono || 'fas fa-folder',
-        nivel: seccion.nivel
-      });
-      
-      // Crear subcarpetas si existen
-      if (seccion.subcarpetas) {
-        await crearSubcarpetasRecursivamente(
-          seccion.subcarpetas, 
-          carpetaPrincipal.id, 
-          portafolioRaiz, 
-          rutaSeccion, 
-          creditosCurso, 
-          transaction, 
-          carpetasCreadas, 
-          mapaCarpetas
-        );
-      }
     }
-    
-    // Estructura creada exitosamente
     
     return {
       portafolioId,
-      carpetasCreadas: carpetasCreadas.size,
-      estructura: mapaCarpetas
+      carpetasCreadas: carpetasCreadas.size
     };
     
   } catch (error) {
-    
+    logger.error('Error al crear estructura de portafolio:', error);
     throw error;
   }
 }
 
-/**
- * Crear subcarpetas recursivamente
- */
-async function crearSubcarpetasRecursivamente(subcarpetas, padreId, portafolioRaiz, rutaBase, creditosCurso, transaction, carpetasCreadas, mapaCarpetas) {
-  for (const [subClave, subcarpeta] of Object.entries(subcarpetas)) {
-    // Verificar condiciones para subcarpetas
-    if (subcarpeta.condicional && creditosCurso < 4) {
-      // Omitiendo subcarpeta condicional
-      continue;
-    }
-    
-    const nuevaSubcarpeta = await Portafolio.create({
-      nombre: subcarpeta.nombre,
-      docente_id: portafolioRaiz.docente_id,
-      asignatura_id: portafolioRaiz.asignatura_id,
-      grupo: portafolioRaiz.grupo,
-      asignacion_id: portafolioRaiz.asignacion_id,
-      semestre_id: portafolioRaiz.semestre_id,
-      ciclo_id: portafolioRaiz.ciclo_id,
-      estructura_id: null,
-      carpeta_padre_id: padreId,
-      nivel: subcarpeta.nivel,
-      ruta: `${rutaBase}/${subClave}`,
-      estado: 'activo',
-      activo: true,
-      progreso_completado: 0.00,
-      metadatos: {
-        subcarpeta_de: subClave,
-        es_condicional: subcarpeta.condicional || false,
-        descripcion: subcarpeta.descripcion || ''
-      },
-      creado_por: portafolioRaiz.creado_por,
-      actualizado_por: portafolioRaiz.actualizado_por
-    }, { transaction });
-    
-    carpetasCreadas.push(nuevaSubcarpeta);
-    mapaCarpetas.set(nuevaSubcarpeta.id, {
-      nombre: nuevaSubcarpeta.nombre,
-      ruta: nuevaSubcarpeta.ruta,
-      icono: subcarpeta.icono || 'fas fa-folder',
-      nivel: nuevaSubcarpeta.nivel
-    });
-    
-    // Crear subcarpetas de nivel 3 si existen
-    if (subcarpeta.subcarpetas) {
-      await crearSubcarpetasRecursivamente(
-        subcarpeta.subcarpetas,
-        nuevaSubcarpeta.id,
-        portafolioRaiz,
-        `${rutaBase}/${subClave}`,
-        creditosCurso,
-        transaction,
-        carpetasCreadas,
-        mapaCarpetas
-      );
-    }
-  }
-}
+
 
 /**
  * Obtener estructura de un portafolio específico
+ * @param {Object} req - Objeto de solicitud Express
+ * @param {Object} res - Objeto de respuesta Express
  */
 const obtenerEstructuraPortafolio = async (req, res) => {
   try {
     const { id } = req.params;
-    
-    await sequelize.authenticate();
     
     const { Portafolio } = require('../modelos');
     
@@ -792,18 +594,18 @@ const obtenerEstructuraPortafolio = async (req, res) => {
     return ResponseHandler.success(res, estructura, 'Estructura del portafolio obtenida correctamente');
     
   } catch (error) {
-    
+    logger.error('Error al obtener estructura de portafolio:', error);
     return ResponseHandler.error(res, error.message, 500);
   }
 };
 
 /**
  * Inicializar sistema de portafolios
+ * @param {Object} req - Objeto de solicitud Express
+ * @param {Object} res - Objeto de respuesta Express
  */
 const inicializarSistemaPortafolios = async (req, res) => {
   try {
-    // Inicializando sistema de portafolios
-    
     // Crear estructura base
     await crearEstructuraBase();
     
@@ -811,34 +613,30 @@ const inicializarSistemaPortafolios = async (req, res) => {
     await generarPortafoliosAutomaticos(req, res);
     
   } catch (error) {
-    
+    logger.error('Error al inicializar sistema de portafolios:', error);
     return ResponseHandler.error(res, error.message, 500);
   }
 };
 
 /**
  * Obtener estructura de portafolio para visualización según rol
+ * @param {Object} req - Objeto de solicitud Express
+ * @param {Object} res - Objeto de respuesta Express
  */
 const obtenerEstructuraParaRol = async (req, res) => {
   try {
-    // Obteniendo estructura para rol
-    
     const usuarioId = req.usuario.id;
     const rolActual = req.usuario.rol_actual;
     const { portafolioId, docenteId } = req.params;
     
-    await sequelize.authenticate();
-    
-    const { Portafolio, Usuario, Asignatura, CicloAcademico, ArchivoSubido } = require('../modelos');
+    const { Portafolio, Usuario, Asignatura, CicloAcademico } = require('../modelos');
     
     // Verificar permisos según rol
     let whereCondition = {};
     
     if (rolActual === 'docente') {
-      // Docente solo ve sus propios portafolios
       whereCondition = { docente_id: usuarioId };
     } else if (rolActual === 'verificador') {
-      // Verificador ve portafolios asignados
       const { VerificadorDocente } = require('../modelos');
       const asignaciones = await VerificadorDocente.findAll({
         where: { verificador_id: usuarioId, activo: true },
@@ -848,7 +646,6 @@ const obtenerEstructuraParaRol = async (req, res) => {
       const docentesAsignados = asignaciones.map(a => a.docente_id);
       whereCondition = { docente_id: docentesAsignados };
     } else if (rolActual === 'administrador') {
-      // Administrador ve todos
       whereCondition = {};
     }
     
@@ -916,18 +713,19 @@ const obtenerEstructuraParaRol = async (req, res) => {
     return ResponseHandler.success(res, resultado, 'Estructura de portafolios obtenida correctamente');
     
   } catch (error) {
-    
+    logger.error('Error al obtener estructura para rol:', error);
     return ResponseHandler.error(res, error.message, 500);
   }
 };
 
 /**
  * Obtener estructura jerárquica de un portafolio
+ * @param {number} portafolioRaizId - ID del portafolio raíz
+ * @returns {Object} Estructura jerárquica del portafolio
  */
 async function obtenerEstructuraJerarquica(portafolioRaizId) {
   const { Portafolio, ArchivoSubido } = require('../modelos');
   
-  // Obtener todas las carpetas del portafolio ordenadas por nivel y ruta
   const carpetas = await Portafolio.findAll({
     where: {
       [Op.or]: [
@@ -986,11 +784,12 @@ async function obtenerEstructuraJerarquica(portafolioRaizId) {
 
 /**
  * Obtener estadísticas generales de un portafolio
+ * @param {number} portafolioRaizId - ID del portafolio raíz
+ * @returns {Object} Estadísticas del portafolio
  */
 async function obtenerEstadisticasPortafolio(portafolioRaizId) {
   const { Portafolio, ArchivoSubido } = require('../modelos');
   
-  // Obtener todas las carpetas del portafolio
   const carpetas = await Portafolio.findAll({
     where: {
       [Op.or]: [
@@ -1004,7 +803,6 @@ async function obtenerEstadisticasPortafolio(portafolioRaizId) {
   
   const carpetaIds = carpetas.map(c => c.id);
   
-  // Obtener estadísticas de archivos
   const archivos = await ArchivoSubido.findAll({
     where: {
       portafolio_id: carpetaIds,
@@ -1032,16 +830,14 @@ async function obtenerEstadisticasPortafolio(portafolioRaizId) {
 
 /**
  * Obtener archivos de una carpeta específica
+ * @param {Object} req - Objeto de solicitud Express
+ * @param {Object} res - Objeto de respuesta Express
  */
 const obtenerArchivosDePortafolio = async (req, res) => {
   try {
-    // Obteniendo archivos de portafolio
-    
     const { portafolioId } = req.params;
     const usuarioId = req.usuario.id;
     const rolActual = req.usuario.rol_actual;
-    
-    await sequelize.authenticate();
     
     const { Portafolio, ArchivoSubido, Usuario } = require('../modelos');
     
@@ -1129,7 +925,7 @@ const obtenerArchivosDePortafolio = async (req, res) => {
     return ResponseHandler.success(res, resultado, 'Archivos obtenidos correctamente');
     
   } catch (error) {
-    
+    logger.error('Error al obtener archivos de portafolio:', error);
     return ResponseHandler.error(res, error.message, 500);
   }
 };
@@ -1141,5 +937,6 @@ module.exports = {
   obtenerEstructuraPortafolio,
   inicializarSistemaPortafolios,
   obtenerEstructuraParaRol,
-  obtenerArchivosDePortafolio
+  obtenerArchivosDePortafolio,
+  crearEstructuraPortafolio
 };

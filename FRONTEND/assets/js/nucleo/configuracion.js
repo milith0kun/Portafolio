@@ -32,7 +32,13 @@ window.CONFIG = {
             DASHBOARD: '/dashboard',
             REPORTES: '/reportes',
             INICIALIZACION: '/inicializacion',
-            ACTIVIDADES: '/actividades'
+            ACTIVIDADES: '/actividades',
+            PORTAFOLIOS: '/portafolios',
+            DOCUMENTOS: '/documentos',
+            VERIFICACIONES: '/verificaciones',
+            NOTIFICACIONES: '/notificaciones',
+            OBSERVACIONES: '/observaciones',
+            ARCHIVOS: '/archivos'
         }
     },
     

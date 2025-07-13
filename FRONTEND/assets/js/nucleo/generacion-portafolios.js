@@ -31,7 +31,10 @@ const GeneracionPortafolios = {
      * Inicializar el sistema de generación de portafolios
      */
     inicializar() {
-        console.log('📚 Inicializando sistema de generación de portafolios...');
+        // Solo mostrar en modo debug para evitar spam
+        if (window.CONFIG?.DEBUG) {
+            console.log('📚 Inicializando sistema de generación de portafolios...');
+        }
         
         // Configurar eventos
         this.configurarEventos();
@@ -52,7 +55,10 @@ const GeneracionPortafolios = {
         // Escuchar eventos de cambio de ciclo
         document.addEventListener('ciclo-cambiado', (event) => {
             const { cicloId } = event.detail;
+            // Solo mostrar en modo debug
+        if (window.CONFIG?.DEBUG) {
             console.log(`🔄 Ciclo cambiado, actualizando portafolios para ciclo: ${cicloId}`);
+        }
             this.actualizarPortafoliosPorCiclo(cicloId);
         });
 
@@ -80,7 +86,10 @@ const GeneracionPortafolios = {
             const response = await window.apiRequest(`${this.config.endpoints.portafolios}?ciclo=${cicloActual}`, 'GET');
             
             this.estado.portafoliosGenerados = Array.isArray(response.data) ? response.data : [];
+            // Solo mostrar si hay portafolios o en modo debug
+        if (this.estado.portafoliosGenerados.length > 0 || window.CONFIG?.DEBUG) {
             console.log(`✅ Portafolios cargados: ${this.estado.portafoliosGenerados.length}`);
+        }
             
             // Actualizar interfaz
             this.actualizarInterfazPortafolios();
@@ -175,7 +184,10 @@ const GeneracionPortafolios = {
      */
     async actualizarPortafoliosPorCiclo(cicloId) {
         try {
+            // Solo mostrar en modo debug
+        if (window.CONFIG?.DEBUG) {
             console.log(`🔄 Actualizando portafolios para ciclo: ${cicloId}`);
+        }
             
             // Simplemente recargar los portafolios existentes
             await this.cargarPortafoliosExistentes();
@@ -450,7 +462,10 @@ const GeneracionPortafolios = {
         
         actualizarElemento('averageProgress', `${progresoPromedio}%`);
         
-        console.log('📊 Estadísticas de portafolios actualizadas:', estadisticas);
+        // Solo mostrar estadísticas en modo debug
+        if (window.CONFIG?.DEBUG) {
+            console.log('📊 Estadísticas de portafolios actualizadas:', estadisticas);
+        }
     },
 
     /**

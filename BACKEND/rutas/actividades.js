@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { verificarToken, esAdministrador } = require('../middleware/authJwt');
-const actividadesController = require('../controladores/actividadesController');
+const { verificarToken, verificarRol } = require('../middleware/authJwt');
+const dashboardController = require('../controladores/dashboardController');
 
 /**
  * @swagger
@@ -33,6 +33,6 @@ const actividadesController = require('../controladores/actividadesController');
  *       500:
  *         $ref: '#/components/responses/ErrorServidor'
  */
-router.get('/recientes', verificarToken, actividadesController.obtenerActividadesRecientes);
+router.get('/recientes', verificarToken, verificarRol(['administrador']), dashboardController.obtenerActividades);
 
 module.exports = router;
